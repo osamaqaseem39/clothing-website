@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900;
+  }
+  
+  .font-serif {
+    font-family: var(--font-playfair), serif;
+  }
+  
+  .font-sans {
+    font-family: var(--font-inter), sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-rose-600 to-pink-600 text-white px-8 py-4 rounded-full font-medium hover:from-rose-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-rose-600 px-8 py-4 rounded-full font-medium border-2 border-rose-200 hover:bg-rose-50 hover:border-rose-300 transition-all duration-300 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-luxury {
+    @apply bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-8 py-4 rounded-full font-medium hover:from-amber-700 hover:to-yellow-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent;
+  }
+  
+  .text-luxury {
+    @apply bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent;
+  }
+}
