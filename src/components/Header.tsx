@@ -20,7 +20,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-serif font-bold text-gradient">Élégance Couture</h1>
+              <h1 className="text-2xl font-serif font-bold text-gradient">She's Trends</h1>
             </div>
 
             {/* Search Bar */}
@@ -121,7 +121,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
 
             {/* Logo */}
             <div className="flex-1 text-center">
-              <h1 className="text-lg font-serif font-bold text-gradient">Élégance Couture</h1>
+              <h1 className="text-lg font-serif font-bold text-gradient">She's Trends</h1>
             </div>
 
             {/* Right Controls */}

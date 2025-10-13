@@ -14,7 +14,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Élégance Couture - Luxury Women\'s Fashion',
+  title: 'She\'s Trends - Luxury Women\'s Fashion',
   description: 'Exclusive luxury couture for the sophisticated woman. Discover our curated collection of high-end women\'s fashion, designer dresses, and premium accessories.',
 }
 

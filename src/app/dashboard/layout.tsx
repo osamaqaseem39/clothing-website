@@ -3,7 +3,7 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 
 export const metadata: Metadata = {
-  title: 'Dashboard - Boutique',
+  title: 'Dashboard - She\'s Trends',
   description: 'Manage your account, orders, and preferences',
 }
 

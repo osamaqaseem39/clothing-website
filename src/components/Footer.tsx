@@ -52,7 +52,7 @@ export default function Footer() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <h3 className="text-xl font-serif font-bold text-gradient mb-3">Élégance Couture</h3>
+            <h3 className="text-xl font-serif font-bold text-gradient mb-3">She's Trends</h3>
             <p className="text-gray-600 mb-4 text-sm leading-relaxed">
               Exquisite couture for the sophisticated woman.
             </p>
@@ -147,7 +147,7 @@ export default function Footer() {
             transition={{ duration: 0.6 }}
             className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
           >
-            <p>&copy; 2024 Élégance Couture. All rights reserved.</p>
+            <p>&copy; 2024 She's Trends. All rights reserved.</p>
             <p className="mt-2 md:mt-0">Crafted with ❤️ for the sophisticated woman</p>
           </motion.div>
         </div>

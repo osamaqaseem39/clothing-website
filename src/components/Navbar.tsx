@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-serif font-bold text-gradient">Élégance Couture</h1>
+            <h1 className="text-2xl font-serif font-bold text-gradient">She's Trends</h1>
           </div>
 
           {/* Desktop Navigation */}
