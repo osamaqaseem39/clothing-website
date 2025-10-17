@@ -218,6 +218,75 @@ export default function BrandDetailPage() {
                     <option value="draft">Draft</option>
                   </select>
                 </div>
+
+                {/* Attributes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['XS','S','M','L','XL','XXL'].map(size => (
+                      <button
+                        key={size}
+                        onClick={() => handleFilterChange('size', (filters as any).size === size ? undefined : size)}
+                        className={`px-3 py-1.5 rounded-md border text-sm ${
+                          (filters as any).size === size ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Fabric</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['Lawn','Cotton','Silk','Chiffon','Linen','Khaddar','Organza'].map(fabric => (
+                      <button
+                        key={fabric}
+                        onClick={() => handleFilterChange('fabric', (filters as any).fabric === fabric ? undefined : fabric)}
+                        className={`px-3 py-2 rounded-md border text-sm text-left ${
+                          (filters as any).fabric === fabric ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {fabric}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Style</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['Unstitched','Pret','Formal','Bridal','Casual','Luxury Pret'].map(style => (
+                      <button
+                        key={style}
+                        onClick={() => handleFilterChange('style', (filters as any).style === style ? undefined : style)}
+                        className={`px-3 py-2 rounded-md border text-sm text-left ${
+                          (filters as any).style === style ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {style}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Color Family</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Black','White','Red','Blue','Green','Pink','Yellow','Beige'].map(color => (
+                      <button
+                        key={color}
+                        onClick={() => handleFilterChange('colorFamily', (filters as any).colorFamily === color ? undefined : color)}
+                        className={`px-3 py-1.5 rounded-md border text-sm ${
+                          (filters as any).colorFamily === color ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

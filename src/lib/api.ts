@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
 
 export interface Product {
   _id: string
@@ -97,6 +97,19 @@ export interface ProductFilters {
   status?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  // Attribute-based filters
+  size?: string
+  fabric?: string
+  style?: string
+  colorFamily?: string
+  pattern?: string
+  sleeveLength?: string
+  neckline?: string
+  length?: string
+  fit?: string
+  season?: string
+  occasion?: string
+  designer?: string
 }
 
 class ApiClient {
