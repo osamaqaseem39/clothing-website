@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
 
 export interface Product {
   _id: string
@@ -169,15 +169,17 @@ class ApiClient {
   }
 
   async getFeaturedProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/featured')
+    const published = await this.getPublishedProducts()
+    return published.data
   }
 
   async getTrendingProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/trending')
+    const published = await this.getPublishedProducts()
+    return published.data
   }
 
   async searchProducts(query: string, filters: Omit<ProductFilters, 'search'> = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams({ search: query })
+    const params = new URLSearchParams({ q: query })
     
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -186,6 +188,20 @@ class ApiClient {
     })
 
     return this.request<PaginatedResponse<Product>>(`/products/search?${params.toString()}`)
+  }
+
+  async getPublishedProducts(filters: Omit<ProductFilters, 'search'> = {}): Promise<PaginatedResponse<Product>> {
+    const params = new URLSearchParams()
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, value.toString())
+      }
+    })
+
+    const query = params.toString()
+    const suffix = query ? `?${query}` : ''
+    return this.request<PaginatedResponse<Product>>(`/products/published${suffix}`)
   }
 
   async getProductsByCategory(categoryId: string, filters: Omit<ProductFilters, 'category'> = {}): Promise<PaginatedResponse<Product>> {
@@ -226,8 +242,12 @@ class ApiClient {
   }
 
   // Brands API
-  async getBrands(): Promise<Brand[]> {
-    return this.request<Brand[]>('/brands')
+  async getBrands(params: { page?: number; limit?: number } = {}): Promise<PaginatedResponse<Brand> | Brand[]> {
+    const q = new URLSearchParams()
+    if (params.page !== undefined) q.append('page', String(params.page))
+    if (params.limit !== undefined) q.append('limit', String(params.limit))
+    const suffix = q.toString() ? `?${q.toString()}` : ''
+    return this.request<PaginatedResponse<Brand> | Brand[]>(`/brands${suffix}`)
   }
 
   async getBrand(id: string): Promise<Brand> {
@@ -236,6 +256,29 @@ class ApiClient {
 
   async getBrandBySlug(slug: string): Promise<Brand> {
     return this.request<Brand>(`/brands/slug/${slug}`)
+  }
+
+  async getActiveBrands(params: { page?: number; limit?: number } = {}): Promise<PaginatedResponse<Brand> | Brand[]> {
+    const q = new URLSearchParams()
+    if (params.page !== undefined) q.append('page', String(params.page))
+    if (params.limit !== undefined) q.append('limit', String(params.limit))
+    const suffix = q.toString() ? `?${q.toString()}` : ''
+    return this.request<PaginatedResponse<Brand> | Brand[]>(`/brands/active${suffix}`)
+  }
+
+  async searchBrands(query: string, params: { page?: number; limit?: number } = {}): Promise<PaginatedResponse<Brand>> {
+    const q = new URLSearchParams({ q: query })
+    if (params.page !== undefined) q.append('page', String(params.page))
+    if (params.limit !== undefined) q.append('limit', String(params.limit))
+    return this.request<PaginatedResponse<Brand>>(`/brands/search?${q.toString()}`)
+  }
+
+  async getBrandsByCountry(country: string, params: { page?: number; limit?: number } = {}): Promise<PaginatedResponse<Brand>> {
+    const q = new URLSearchParams()
+    if (params.page !== undefined) q.append('page', String(params.page))
+    if (params.limit !== undefined) q.append('limit', String(params.limit))
+    const suffix = q.toString() ? `?${q.toString()}` : ''
+    return this.request<PaginatedResponse<Brand>>(`/brands/country/${country}${suffix}`)
   }
 }
 

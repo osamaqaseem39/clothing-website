@@ -11,19 +11,19 @@ export default function Hero() {
         <img
           src="/images/banner1.png"
           alt="Luxury Women's Couture"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center">
+      <div className="relative z-10 h-full flex items-center justify-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-2xl"
+            className="max-w-4xl mx-auto text-center"
           >
             <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6">
               Élégance
@@ -31,12 +31,12 @@ export default function Hero() {
                 Couture
               </span>
             </h1>
-            <p className="text-xl text-gray-100 mb-8 leading-relaxed max-w-lg">
+            <p className="text-xl text-gray-100 mb-8 leading-relaxed max-w-3xl mx-auto">
               Exclusive luxury couture for the sophisticated woman. 
               Discover our curated collection of high-end women's fashion, 
               designer dresses, and premium accessories.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

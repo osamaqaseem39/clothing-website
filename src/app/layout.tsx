@@ -6,11 +6,13 @@ const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   variable: '--font-cormorant',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 })
 const manrope = Manrope({ 
   subsets: ['latin'],
   variable: '--font-manrope',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
