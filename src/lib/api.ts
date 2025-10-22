@@ -10,6 +10,7 @@ export interface Product {
   description: string
   shortDescription: string
   sku: string
+  type: 'simple' | 'variable' | 'grouped'
   price: number
   salePrice?: number
   originalPrice?: number
