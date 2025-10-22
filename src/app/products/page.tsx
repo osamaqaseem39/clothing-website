@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, Grid, List, SortAsc, SortDesc } from 'lucide-react'
-import { apiClient, Product, ProductFilters } from '@/lib/api'
+import { apiClient } from '@/lib/api'
+import { Product, ProductFilters } from '../../../shared-types/product'
 import ProductCard from '@/components/ProductCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 

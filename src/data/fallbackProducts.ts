@@ -1,7 +1,7 @@
 // Fallback Product Data - Matches API Structure Exactly
 // This ensures seamless transition when real API data is available
 
-import { Product } from '@/lib/api';
+import { Product } from '../../../shared-types/product';
 
 export const fallbackProducts: Product[] = [
   {
