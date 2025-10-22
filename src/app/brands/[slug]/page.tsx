@@ -358,6 +358,7 @@ export default function BrandDetailPage() {
                       category={brand.name}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
                       isOnSale={!!product.salePrice}
+                      slug={product.slug}
                     />
                   </motion.div>
                 ))}

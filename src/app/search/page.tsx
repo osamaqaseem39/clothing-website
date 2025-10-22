@@ -301,6 +301,7 @@ export default function SearchPage() {
                       category={product.categories[0] || 'Uncategorized'}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
                       isOnSale={!!product.salePrice}
+                      slug={product.slug}
                     />
                   </motion.div>
                 ))}

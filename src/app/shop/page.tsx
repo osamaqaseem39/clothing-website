@@ -8,6 +8,7 @@ import MobileFilters from '@/components/MobileFilters'
 import Footer from '@/components/Footer'
 import { Search, Filter, Star, Heart, ShoppingBag, Grid3X3, Grid2X2, Grid, Layout } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 // Comprehensive product database with 50 products
 const products = [
@@ -22,7 +23,8 @@ const products = [
     rating: 4.8,
     reviews: 24,
     isNew: true,
-    isSale: true
+    isSale: true,
+    slug: 'elegant-evening-gown'
   },
   {
     id: 2,
@@ -34,7 +36,8 @@ const products = [
     rating: 4.9,
     reviews: 18,
     isNew: false,
-    isSale: false
+    isSale: false,
+    slug: 'black-tie-evening-dress'
   },
   {
     id: 3,
@@ -848,10 +851,8 @@ export default function ShopPage() {
                 : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
             }`}>
               {sortedProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow"
-                >
+                <Link key={product.id} href={product.slug ? `/products/${product.slug}` : `/products/${product.id}`}>
+                  <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="relative aspect-square">
                     <Image
                       src={product.image}
@@ -913,7 +914,8 @@ export default function ShopPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                  </div>
+                </Link>
               ))}
             </div>
 

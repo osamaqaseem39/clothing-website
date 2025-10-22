@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Heart, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface ProductCardProps {
   id: string
@@ -13,6 +14,7 @@ interface ProductCardProps {
   category: string
   isNew?: boolean
   isOnSale?: boolean
+  slug?: string
 }
 
 export default function ProductCard({
@@ -23,21 +25,23 @@ export default function ProductCard({
   image,
   category,
   isNew = false,
-  isOnSale = false
+  isOnSale = false,
+  slug
 }: ProductCardProps) {
   const [isLiked, setIsLiked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="group relative bg-white rounded-2xl overflow-hidden card-hover"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <Link href={slug ? `/products/${slug}` : `/products/${id}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="group relative bg-white rounded-2xl overflow-hidden card-hover cursor-pointer"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden">
         <img
@@ -98,5 +102,6 @@ export default function ProductCard({
         </div>
       </div>
     </motion.div>
+    </Link>
   )
 }

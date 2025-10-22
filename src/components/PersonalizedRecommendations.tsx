@@ -200,6 +200,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
                 category={product.categories[0] || 'Uncategorized'}
                 isNew={product.isNew}
                 isOnSale={product.isSale}
+                slug={product.slug}
               />
             </div>
           ))}

@@ -10,7 +10,8 @@ const trendingProducts = [
     price: 899,
     image: '/images/7.png',
     category: 'Day Dresses',
-    isNew: true
+    isNew: true,
+    slug: 'designer-blazer'
   },
   {
     id: '2',
@@ -19,21 +20,24 @@ const trendingProducts = [
     originalPrice: 1599,
     image: '/images/8.png',
     category: 'Evening Wear',
-    isOnSale: true
+    isOnSale: true,
+    slug: 'silk-evening-gown'
   },
   {
     id: '3',
     name: 'Pearl Necklace',
     price: 599,
     image: '/images/9.png',
-    category: 'Jewelry'
+    category: 'Jewelry',
+    slug: 'pearl-necklace'
   },
   {
     id: '4',
     name: 'Couture Cocktail Dress',
     price: 899,
     image: '/images/7 (2).png',
-    category: 'Couture'
+    category: 'Couture',
+    slug: 'couture-cocktail-dress'
   },
   {
     id: '5',
@@ -41,7 +45,8 @@ const trendingProducts = [
     price: 1299,
     image: '/images/1.png',
     category: 'Accessories',
-    isNew: true
+    isNew: true,
+    slug: 'luxury-handbag'
   },
   {
     id: '6',
@@ -50,21 +55,24 @@ const trendingProducts = [
     originalPrice: 899,
     image: '/images/2.png',
     category: 'Accessories',
-    isOnSale: true
+    isOnSale: true,
+    slug: 'cashmere-wrap'
   },
   {
     id: '7',
     name: 'Diamond Earrings',
     price: 1999,
     image: '/images/3.png',
-    category: 'Jewelry'
+    category: 'Jewelry',
+    slug: 'diamond-earrings'
   },
   {
     id: '8',
     name: 'Bridal Gown',
     price: 2499,
     image: '/images/4.png',
-    category: 'Bridal'
+    category: 'Bridal',
+    slug: 'bridal-gown'
   }
 ]
 
