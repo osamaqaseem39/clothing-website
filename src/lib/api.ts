@@ -1,12 +1,167 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
 
-// Import shared product types
-import { Product as BaseProduct, ProductFilters as BaseProductFilters, PaginatedResponse as BasePaginatedResponse } from '../../shared-types/product';
 import { fallbackProducts, getProductBySlug, getProductsByCategory, getFeaturedProducts, searchProducts } from '../data/fallbackProducts';
 
-// Product interface - uses shared base
-export interface Product extends BaseProduct {
-  // Landing page specific fields can be added here if needed
+// Product interface for landing page
+export interface Product {
+  _id: string
+  name: string
+  slug: string
+  description: string
+  shortDescription: string
+  sku: string
+  price: number
+  salePrice?: number
+  originalPrice?: number
+  currency: string
+  stockQuantity: number
+  stockStatus: 'instock' | 'outofstock' | 'onbackorder'
+  weight: number
+  dimensions: {
+    length: number
+    width: number
+    height: number
+  }
+  manageStock: boolean
+  allowBackorders: boolean
+  status: 'published' | 'draft' | 'archived'
+  categories: string[]
+  tags: string[]
+  brand: string
+  attributes: string[]
+  variations: ProductVariation[]
+  images: string[]
+  
+  // UI-specific fields
+  rating: number
+  reviews: number
+  isNew: boolean
+  isSale: boolean
+  features: string[]
+  colors: string[]
+  inStock: boolean
+  stockCount: number
+  shippingWeight: number
+  shippingDimensions: {
+    length: number
+    width: number
+    height: number
+  }
+  isActive: boolean
+  seo: ProductSEO
+  
+  // Pakistani Clothing Specific Fields
+  fabric: string
+  collection: string
+  collectionName: string
+  occasion: string
+  season: string
+  careInstructions: string
+  modelMeasurements: {
+    height: string
+    bust: string
+    waist: string
+    hips: string
+  }
+  designer: string
+  handwork: string[]
+  colorFamily: string
+  pattern: string
+  sleeveLength: string
+  neckline: string
+  length: string
+  fit: string
+  ageGroup: string
+  bodyType: string[]
+  isLimitedEdition: boolean
+  isCustomMade: boolean
+  customDeliveryDays?: number
+  sizeChart: string
+  availableSizes: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProductVariation {
+  _id: string
+  name: string
+  sku: string
+  price: number
+  salePrice?: number
+  stockQuantity: number
+  stockStatus: 'instock' | 'outofstock' | 'onbackorder'
+  attributes: Record<string, string>
+  images: string[]
+  weight: number
+  dimensions: {
+    length: number
+    width: number
+    height: number
+  }
+}
+
+export interface ProductSEO {
+  title: string
+  description: string
+  keywords: string[]
+  slug: string
+  canonicalUrl: string
+  ogImage: string
+  noIndex: boolean
+  noFollow: boolean
+}
+
+export interface ProductFilters {
+  page?: number
+  limit?: number
+  search?: string
+  category?: string
+  brand?: string
+  minPrice?: number
+  maxPrice?: number
+  inStock?: boolean
+  status?: 'published' | 'draft' | 'archived'
+  sortBy?: 'name' | 'price' | 'createdAt' | 'updatedAt' | 'rating'
+  sortOrder?: 'asc' | 'desc'
+  sizes?: string[]
+  fabrics?: string[]
+  occasions?: string[]
+  colorFamilies?: string[]
+  tags?: string[]
+  attributes?: string[]
+  collections?: string[]
+  designers?: string[]
+  seasons?: string[]
+  ageGroups?: string[]
+  bodyTypes?: string[]
+  isNew?: boolean
+  isSale?: boolean
+  isLimitedEdition?: boolean
+  isCustomMade?: boolean
+  handwork?: string[]
+  patterns?: string[]
+  sleeveLengths?: string[]
+  necklines?: string[]
+  lengths?: string[]
+  fits?: string[]
+  priceRange?: {
+    min: number
+    max: number
+  }
+  rating?: {
+    min: number
+    max: number
+  }
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 export interface Category {
