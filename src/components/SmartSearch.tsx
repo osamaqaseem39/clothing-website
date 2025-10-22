@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useAnalytics } from '@/contexts/AnalyticsContext'
 import { apiClient } from '@/lib/api'
-import { Product } from '../../../shared-types/product'
+import { Product } from '@/lib/api'
 
 interface SmartSearchProps {
   placeholder?: string

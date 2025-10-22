@@ -1,7 +1,7 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
 
 // Import shared product types
-import { Product as BaseProduct, ProductFilters as BaseProductFilters, PaginatedResponse as BasePaginatedResponse } from '../../../shared-types/product';
+import { Product as BaseProduct, ProductFilters as BaseProductFilters, PaginatedResponse as BasePaginatedResponse } from '../../shared-types/product';
 import { fallbackProducts, getProductBySlug, getProductsByCategory, getFeaturedProducts, searchProducts } from '../data/fallbackProducts';
 
 // Product interface - uses shared base

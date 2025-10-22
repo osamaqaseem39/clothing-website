@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAnalytics } from '@/contexts/AnalyticsContext'
-import { Product } from '../../../shared-types/product'
+import { Product } from '@/lib/api'
 import ProductCard from './ProductCard'
 import { apiClient } from '@/lib/api'
 
