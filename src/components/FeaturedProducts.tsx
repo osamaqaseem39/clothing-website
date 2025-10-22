@@ -113,8 +113,8 @@ export default function FeaturedProducts() {
         setProducts(response.slice(0, 6)) // Show only 6 products
       } catch (error) {
         console.error('Error fetching featured products:', error)
-        // Fallback to static data if API fails
-        setProducts(featuredProducts.slice(0, 6))
+        // Fallback to empty array if API fails
+        setProducts([])
       } finally {
         setLoading(false)
       }
@@ -165,8 +165,13 @@ export default function FeaturedProducts() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-          {products.map((product, index) => (
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No featured products available at the moment.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+            {products.map((product, index) => (
             <motion.div
               key={product._id}
               initial={{ opacity: 0, y: 20 }}
@@ -197,7 +202,7 @@ export default function FeaturedProducts() {
                           Sale
                         </span>
                       )}
-                      {product.isTopSeller && (
+                      {product.rating >= 4.5 && (
                         <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
                           <TrendingUp className="h-3 w-3" />
                           Top Seller
@@ -247,7 +252,7 @@ export default function FeaturedProducts() {
                       <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                         {product.categories[0] || 'General'}
                       </span>
-                      {product.isTopSeller && (
+                      {product.rating >= 4.5 && (
                         <div className="flex items-center gap-1 text-xs text-primary-600 font-medium">
                           <TrendingUp className="h-3 w-3" />
                           Bestseller
@@ -276,7 +281,8 @@ export default function FeaturedProducts() {
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

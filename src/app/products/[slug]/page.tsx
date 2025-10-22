@@ -127,7 +127,7 @@ export default function ProductPage() {
   useEffect(() => {
     if (product) {
       const productForRecentlyViewed = {
-        id: product._id,
+        id: parseInt(product._id) || 0, // Convert string ID to number
         name: product.name,
         price: product.price,
         originalPrice: product.originalPrice,
@@ -328,7 +328,7 @@ export default function ProductPage() {
                   <span className="text-lg font-semibold text-primary-600">{product.brand}</span>
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600">{product.brandRating}</span>
+                    <span className="text-sm text-gray-600">4.8</span>
                   </div>
                 </div>
 
@@ -607,7 +607,7 @@ export default function ProductPage() {
 
           <SimilarProducts 
             currentProduct={{
-              id: product._id,
+              id: parseInt(product._id) || 0,
               name: product.name,
               price: product.price,
               originalPrice: product.originalPrice,
