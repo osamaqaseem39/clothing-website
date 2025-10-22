@@ -30,18 +30,18 @@ export default function SaleBanner() {
   }, [])
 
   return (
-    <div className="bg-gray-800 text-white py-3 lg:py-4">
+    <div className="bg-primary-600 text-white py-3 lg:py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 lg:space-x-4">
             <div className="text-2xl lg:text-4xl font-bold">SALE</div>
             <div className="text-sm lg:text-lg">
-              <span className="text-red-400">END OF SEASON</span>
+              <span className="text-secondary-200">END OF SEASON</span>
             </div>
           </div>
           
           <div className="text-right">
-            <div className="text-xs lg:text-sm text-gray-300 mb-1">Ends in {timeLeft.days} days:</div>
+            <div className="text-xs lg:text-sm text-primary-100 mb-1">Ends in {timeLeft.days} days:</div>
             <div className="text-lg lg:text-2xl font-mono font-bold">
               {timeLeft.hours.toString().padStart(2, '0')}h: {timeLeft.minutes.toString().padStart(2, '0')}m: {timeLeft.seconds.toString().padStart(2, '0')}s
             </div>

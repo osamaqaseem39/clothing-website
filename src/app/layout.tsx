@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Manrope } from 'next/font/google'
 import './globals.css'
+import { RecentlyViewedProvider } from '@/contexts/RecentlyViewedContext'
 
 const cormorant = Cormorant_Garamond({ 
   subsets: ['latin'],
@@ -27,7 +28,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${manrope.variable} ${cormorant.variable} font-sans`}>{children}</body>
+      <body className={`${manrope.variable} ${cormorant.variable} font-sans`}>
+        <RecentlyViewedProvider>
+          {children}
+        </RecentlyViewedProvider>
+      </body>
     </html>
   )
 }

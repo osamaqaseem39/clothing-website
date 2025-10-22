@@ -1,55 +1,12 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
 
-export interface Product {
-  _id: string
-  name: string
-  slug: string
-  description: string
-  shortDescription: string
-  sku: string
-  type: 'simple' | 'variable' | 'grouped' | 'external'
-  price: number
-  salePrice?: number
-  currency: string
-  stockQuantity: number
-  stockStatus: 'instock' | 'outofstock' | 'onbackorder'
-  weight?: number
-  dimensions?: {
-    length: number
-    width: number
-    height: number
-  }
-  manageStock: boolean
-  allowBackorders: boolean
-  status: 'draft' | 'published'
-  categories: string[]
-  tags: string[]
-  brand?: string
-  attributes: string[]
-  variations?: string[]
-  images: string[]
-  fabric?: string
-  collection?: string
-  occasion?: string
-  season?: string
-  careInstructions?: string
-  modelMeasurements?: {
-    height: string
-    bust: string
-    waist: string
-    hips: string
-  }
-  designer?: string
-  handwork?: string[]
-  colorFamily?: string
-  pattern?: string
-  sleeveLength?: string
-  neckline?: string
-  length?: string
-  fit?: string
-  ageGroup?: string
-  createdAt: string
-  updatedAt: string
+// Import shared product types
+import { Product as BaseProduct, ProductFilters as BaseProductFilters, PaginatedResponse as BasePaginatedResponse } from '../../../shared-types/product';
+import { fallbackProducts, getProductBySlug, getProductsByCategory, getFeaturedProducts, searchProducts } from '../data/fallbackProducts';
+
+// Product interface - uses shared base
+export interface Product extends BaseProduct {
+  // Landing page specific fields can be added here if needed
 }
 
 export interface Category {
@@ -58,9 +15,17 @@ export interface Category {
   slug: string
   description?: string
   parent?: string
+  parentId?: string
   image?: string
+  icon?: string
+  color?: string
   isActive: boolean
   sortOrder: number
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string[]
+  productCount?: number
+  children?: Category[]
   createdAt: string
   updatedAt: string
 }
@@ -71,45 +36,33 @@ export interface Brand {
   slug: string
   description?: string
   logo?: string
+  logoUrl?: string
   website?: string
+  mainCompany?: string
+  level: 'main' | 'sub'
+  industry?: string
+  country?: string
+  foundedYear?: number
+  colors?: {
+    primary: string
+    secondary: string
+  }
+  isFeatured: boolean
   isActive: boolean
+  sortOrder: number
+  metadata?: Record<string, any>
   createdAt: string
   updatedAt: string
 }
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+// Paginated response - uses shared base
+export interface PaginatedResponse<T> extends BasePaginatedResponse<T> {
+  // Landing page specific fields can be added here if needed
 }
 
-export interface ProductFilters {
-  page?: number
-  limit?: number
-  search?: string
-  category?: string
-  brand?: string
-  tag?: string
-  minPrice?: number
-  maxPrice?: number
-  status?: string
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
-  // Attribute-based filters
-  size?: string
-  fabric?: string
-  style?: string
-  colorFamily?: string
-  pattern?: string
-  sleeveLength?: string
-  neckline?: string
-  length?: string
-  fit?: string
-  season?: string
-  occasion?: string
-  designer?: string
+// Product filters - extends shared base
+export interface ProductFilters extends BaseProductFilters {
+  // Landing page specific filters can be added here if needed
 }
 
 class ApiClient {
@@ -149,83 +102,318 @@ class ApiClient {
 
   // Products API
   async getProducts(filters: ProductFilters = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams()
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, value.toString())
-      }
-    })
+    try {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
-    return this.request<PaginatedResponse<Product>>(`/products?${params.toString()}`)
+      return await this.request<PaginatedResponse<Product>>(`/products?${params.toString()}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      
+      // Use fallback data with filtering
+      let filteredProducts = [...fallbackProducts]
+      
+      // Apply filters
+      if (filters.search) {
+        filteredProducts = searchProducts(filters.search)
+      }
+      
+      if (filters.category) {
+        filteredProducts = getProductsByCategory(filters.category)
+      }
+      
+      if (filters.brand) {
+        filteredProducts = filteredProducts.filter(p => p.brand === filters.brand)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!)
+      }
+      
+      if (filters.inStock !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.inStock === filters.inStock)
+      }
+      
+      // Apply pagination
+      const page = filters.page || 1
+      const limit = filters.limit || 12
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+      
+      return {
+        data: paginatedProducts,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit)
+      }
+    }
   }
 
   async getProduct(id: string): Promise<Product> {
-    return this.request<Product>(`/products/${id}`)
+    try {
+      return await this.request<Product>(`/products/${id}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      const product = fallbackProducts.find(p => p._id === id)
+      if (!product) {
+        throw new Error('Product not found')
+      }
+      return product
+    }
   }
 
   async getProductBySlug(slug: string): Promise<Product> {
-    return this.request<Product>(`/products/slug/${slug}`)
+    try {
+      return await this.request<Product>(`/products/slug/${slug}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      const product = getProductBySlug(slug)
+      if (!product) {
+        throw new Error('Product not found')
+      }
+      return product
+    }
   }
 
   async getFeaturedProducts(): Promise<Product[]> {
-    const published = await this.getPublishedProducts()
-    return published.data
+    try {
+      const published = await this.getPublishedProducts()
+      return published.data
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      return getFeaturedProducts()
+    }
   }
 
   async getTrendingProducts(): Promise<Product[]> {
-    const published = await this.getPublishedProducts()
-    return published.data
+    try {
+      const published = await this.getPublishedProducts()
+      return published.data
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      return getFeaturedProducts()
+    }
   }
 
   async searchProducts(query: string, filters: Omit<ProductFilters, 'search'> = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams({ q: query })
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, value.toString())
-      }
-    })
+    try {
+      const params = new URLSearchParams({ q: query })
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
-    return this.request<PaginatedResponse<Product>>(`/products/search?${params.toString()}`)
+      return await this.request<PaginatedResponse<Product>>(`/products/search?${params.toString()}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      
+      // Use fallback search
+      let filteredProducts = searchProducts(query)
+      
+      // Apply additional filters
+      if (filters.category) {
+        filteredProducts = getProductsByCategory(filters.category)
+      }
+      
+      if (filters.brand) {
+        filteredProducts = filteredProducts.filter(p => p.brand === filters.brand)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!)
+      }
+      
+      // Apply pagination
+      const page = filters.page || 1
+      const limit = filters.limit || 12
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+      
+      return {
+        data: paginatedProducts,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit)
+      }
+    }
   }
 
   async getPublishedProducts(filters: Omit<ProductFilters, 'search'> = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams()
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, value.toString())
-      }
-    })
+    try {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
-    const query = params.toString()
-    const suffix = query ? `?${query}` : ''
-    return this.request<PaginatedResponse<Product>>(`/products/published${suffix}`)
+      const query = params.toString()
+      const suffix = query ? `?${query}` : ''
+      return await this.request<PaginatedResponse<Product>>(`/products/published${suffix}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      
+      // Use fallback data with filtering
+      let filteredProducts = fallbackProducts.filter(p => p.status === 'published')
+      
+      // Apply filters
+      if (filters.category) {
+        filteredProducts = getProductsByCategory(filters.category)
+      }
+      
+      if (filters.brand) {
+        filteredProducts = filteredProducts.filter(p => p.brand === filters.brand)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!)
+      }
+      
+      if (filters.inStock !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.inStock === filters.inStock)
+      }
+      
+      // Apply pagination
+      const page = filters.page || 1
+      const limit = filters.limit || 12
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+      
+      return {
+        data: paginatedProducts,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit)
+      }
+    }
   }
 
   async getProductsByCategory(categoryId: string, filters: Omit<ProductFilters, 'category'> = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams()
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, value.toString())
-      }
-    })
+    try {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
-    return this.request<PaginatedResponse<Product>>(`/products/category/${categoryId}?${params.toString()}`)
+      return await this.request<PaginatedResponse<Product>>(`/products/category/${categoryId}?${params.toString()}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      
+      // Use fallback data
+      let filteredProducts = getProductsByCategory(categoryId)
+      
+      // Apply additional filters
+      if (filters.brand) {
+        filteredProducts = filteredProducts.filter(p => p.brand === filters.brand)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!)
+      }
+      
+      if (filters.inStock !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.inStock === filters.inStock)
+      }
+      
+      // Apply pagination
+      const page = filters.page || 1
+      const limit = filters.limit || 12
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+      
+      return {
+        data: paginatedProducts,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit)
+      }
+    }
   }
 
   async getProductsByBrand(brandId: string, filters: Omit<ProductFilters, 'brand'> = {}): Promise<PaginatedResponse<Product>> {
-    const params = new URLSearchParams()
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        params.append(key, value.toString())
-      }
-    })
+    try {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
-    return this.request<PaginatedResponse<Product>>(`/products/brand/${brandId}?${params.toString()}`)
+      return await this.request<PaginatedResponse<Product>>(`/products/brand/${brandId}?${params.toString()}`)
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error)
+      
+      // Use fallback data
+      let filteredProducts = fallbackProducts.filter(p => p.brand === brandId)
+      
+      // Apply additional filters
+      if (filters.category) {
+        filteredProducts = getProductsByCategory(filters.category)
+      }
+      
+      if (filters.minPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.minPrice!)
+      }
+      
+      if (filters.maxPrice !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.maxPrice!)
+      }
+      
+      if (filters.inStock !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.inStock === filters.inStock)
+      }
+      
+      // Apply pagination
+      const page = filters.page || 1
+      const limit = filters.limit || 12
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+      
+      return {
+        data: paginatedProducts,
+        total: filteredProducts.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredProducts.length / limit)
+      }
+    }
   }
 
   // Categories API

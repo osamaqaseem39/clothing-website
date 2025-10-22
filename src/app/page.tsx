@@ -6,7 +6,10 @@ import Sidebar from '@/components/Sidebar'
 import SaleBanner from '@/components/SaleBanner'
 import CollectionBanner from '@/components/CollectionBanner'
 import ProductShowcase from '@/components/ProductShowcase'
+import FeaturedProducts from '@/components/FeaturedProducts'
 import TrendingProducts from '@/components/TrendingProducts'
+import RecentlyViewed from '@/components/RecentlyViewed'
+import Brands from '@/components/Brands'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
@@ -45,7 +48,10 @@ export default function Home() {
           <SaleBanner />
           <CollectionBanner />
           <ProductShowcase />
+          <FeaturedProducts />
+          <Brands />
           <TrendingProducts />
+          <RecentlyViewed />
           <Newsletter />
           <Footer />
         </main>

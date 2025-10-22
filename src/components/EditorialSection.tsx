@@ -29,15 +29,15 @@ export default function EditorialSection() {
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"></div>
                 <span className="text-gray-700">Hand-sewn Couture Details</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"></div>
                 <span className="text-gray-700">Luxury Fabrics & Materials</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"></div>
                 <span className="text-gray-700">Personal Styling Consultation</span>
               </div>
             </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, Heart, ShoppingBag, User, HelpCircle, BookOpen, X } from 'lucide-react'
+import { ChevronDown, Heart, ShoppingBag, User, HelpCircle, BookOpen, X, Home, Sparkles, Tag, Star, Percent, Users } from 'lucide-react'
 import { useState } from 'react'
 
 interface SidebarProps {
@@ -20,35 +20,35 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   }
 
   const navigationItems = [
-    { name: 'All', href: '#', icon: null },
-    { name: 'New Arrivals', href: '#', icon: null },
+    { name: 'All', href: '/shop', icon: Home },
+    { name: 'New Arrivals', href: '/shop?filter=new', icon: Sparkles },
     { 
       name: 'Women', 
-      href: '#', 
-      icon: ChevronDown,
-      submenu: ['Evening Wear', 'Day Dresses', 'Couture', 'Bridal', 'Accessories', 'Jewelry']
+      href: '/shop?category=women', 
+      icon: Users,
+      submenu: [
+        { name: 'Evening Wear', href: '/shop?category=evening-wear' },
+        { name: 'Day Dresses', href: '/shop?category=day-dresses' },
+        { name: 'Couture', href: '/shop?category=couture' },
+        { name: 'Bridal', href: '/shop?category=bridal' },
+        { name: 'Casual Wear', href: '/shop?category=casual-wear' },
+        { name: 'Formal Wear', href: '/shop?category=formal-wear' },
+        { name: 'Accessories', href: '/shop?category=accessories' },
+        { name: 'Jewelry', href: '/shop?category=jewelry' },
+        { name: 'Handbags', href: '/shop?category=handbags' },
+        { name: 'Shoes', href: '/shop?category=shoes' },
+        { name: 'Lingerie', href: '/shop?category=lingerie' },
+        { name: 'Activewear', href: '/shop?category=activewear' }
+      ]
     },
-    { 
-      name: 'Men', 
-      href: '#', 
-      icon: ChevronDown,
-      submenu: ['Formal Wear', 'Casual', 'Accessories']
-    },
-    { 
-      name: 'Kids', 
-      href: '#', 
-      icon: ChevronDown,
-      submenu: ['Girls', 'Boys', 'Accessories']
-    },
-    { name: 'Brands', href: '#', icon: null },
-    { name: 'Top Curations', href: '#', icon: null },
+    { name: 'Brands', href: '/brands', icon: Tag },
+    { name: 'Top Curations', href: '/shop?filter=featured', icon: Star },
+    { name: 'Sale', href: '/shop?filter=sale', icon: Percent },
   ]
 
   const accountItems = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
-    { name: 'Rewards', href: '#', icon: null },
     { name: 'Wishlist', href: '/dashboard/wishlist', icon: Heart },
-    { name: 'Become a Seller', href: '#', icon: null },
     { name: 'Blogs', href: '#', icon: BookOpen },
     { name: 'Help Center', href: '#', icon: HelpCircle },
     { name: 'Sign In / Register', href: '/login', icon: User },
@@ -57,7 +57,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block fixed left-0 top-16 bottom-0 w-64 bg-white border-r border-gray-200 overflow-y-auto z-40">
+      <aside className="hidden lg:block fixed left-0 top-24 bottom-0 w-64 bg-white border-r border-gray-200 overflow-y-auto z-40">
         <div className="p-6">
           {/* Main Navigation */}
           <nav className="space-y-2">
@@ -65,12 +65,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div key={item.name}>
                 <a
                   href={item.href}
-                  className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                  onClick={item.icon ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
+                  className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                  onClick={item.name === 'Women' ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
                 >
-                  <span>{item.name}</span>
-                  {item.icon && (
-                    <item.icon 
+                  <div className="flex items-center space-x-3">
+                    {item.icon && <item.icon className="h-4 w-4" />}
+                    <span>{item.name}</span>
+                  </div>
+                  {item.name === 'Women' && (
+                    <ChevronDown 
                       className={`h-4 w-4 transition-transform ${
                         expandedItems.includes(item.name) ? 'rotate-180' : ''
                       }`} 
@@ -83,11 +86,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <div className="ml-4 mt-1 space-y-1">
                     {item.submenu.map((subItem) => (
                       <a
-                        key={subItem}
-                        href="#"
-                        className="block px-3 py-2 text-sm text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        key={subItem.name}
+                        href={subItem.href}
+                        className="block px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       >
-                        {subItem}
+                        {subItem.name}
                       </a>
                     ))}
                   </div>
@@ -105,7 +108,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <a
                 key={item.name}
                 href={item.href}
-                className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
               >
                 {item.icon && <item.icon className="h-4 w-4" />}
                 <span>{item.name}</span>
@@ -144,12 +147,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <div key={item.name}>
                     <a
                       href={item.href}
-                      className="flex items-center justify-between w-full px-3 py-3 text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      onClick={item.icon ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
+                      className="flex items-center justify-between w-full px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      onClick={item.name === 'Women' ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
                     >
-                      <span>{item.name}</span>
-                      {item.icon && (
-                        <item.icon 
+                      <div className="flex items-center space-x-3">
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.name}</span>
+                      </div>
+                      {item.name === 'Women' && (
+                        <ChevronDown 
                           className={`h-4 w-4 transition-transform ${
                             expandedItems.includes(item.name) ? 'rotate-180' : ''
                           }`} 
@@ -162,12 +168,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <div className="ml-4 mt-1 space-y-1">
                         {item.submenu.map((subItem) => (
                           <a
-                            key={subItem}
-                            href="#"
-                            className="block px-3 py-2 text-sm text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            key={subItem.name}
+                            href={subItem.href}
+                            className="block px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             onClick={onClose}
                           >
-                            {subItem}
+                            {subItem.name}
                           </a>
                         ))}
                       </div>
@@ -185,7 +191,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     onClick={onClose}
                   >
                     {item.icon && <item.icon className="h-4 w-4" />}

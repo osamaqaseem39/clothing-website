@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck } from 'lucide-react'
+import Image from 'next/image'
 
 const footerLinks = {
   about: [
@@ -52,16 +53,27 @@ export default function Footer() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <h3 className="text-xl font-serif font-bold text-gradient mb-3">She's Trends</h3>
+            {/* Logo */}
+            <div className="mb-4">
+              <a href="/" className="flex items-center">
+                <Image
+                  src="/images/logo.png"
+                  alt="She's Trends"
+                  width={120}
+                  height={120}
+                  className="h-16 w-auto"
+                />
+              </a>
+            </div>
             <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-              Exquisite couture for the sophisticated woman.
+              Exquisite couture for the sophisticated woman. Discover luxury fashion that defines elegance and style.
             </p>
             <div className="flex space-x-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
-                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                  className="p-2 bg-gray-100 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors"
                 >
                   <social.icon className="h-4 w-4 text-gray-600" />
                 </a>

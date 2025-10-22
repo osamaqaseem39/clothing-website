@@ -7,8 +7,46 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: {
+          50: '#fdfdd4',
+          100: '#fdfdd4',
+          200: '#f9f9c7',
+          300: '#f5f5ba',
+          400: '#f1f1ad',
+          500: '#fdfdd4',
+          600: '#d4b572',
+          700: '#b38725',
+          800: '#9a6f1f',
+          900: '#815719',
+        },
+        secondary: {
+          50: '#f5f3f0',
+          100: '#e6e0d6',
+          200: '#d4b572',
+          300: '#c4a15a',
+          400: '#b38725',
+          500: '#b38725',
+          600: '#9a6f1f',
+          700: '#815719',
+          800: '#684013',
+          900: '#4f2f0d',
+        },
+        accent: {
+          50: '#f5f3f0',
+          100: '#e6e0d6',
+          200: '#d4b572',
+          300: '#c4a15a',
+          400: '#b38725',
+          500: '#b38725',
+          600: '#9a6f1f',
+          700: '#815719',
+          800: '#684013',
+          900: '#4f2f0d',
+        },
+      },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Jost', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

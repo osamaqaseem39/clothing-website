@@ -6,7 +6,7 @@ export default function CollectionBanner() {
   return (
     <div className="bg-white py-4 lg:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center">
             {/* Content */}
             <motion.div
@@ -17,10 +17,10 @@ export default function CollectionBanner() {
             >
               <div className="space-y-3 lg:space-y-4">
                 <div className="text-2xl lg:text-4xl font-bold text-gray-800">SALE</div>
-                <div className="text-xl lg:text-2xl font-bold text-rose-600">AS LOW AS $599</div>
+                <div className="text-xl lg:text-2xl font-bold text-primary-600">AS LOW AS ₨599,000</div>
                 <div className="text-2xl lg:text-3xl font-serif font-bold text-gray-900">The Elegance Edit</div>
                 <div className="text-lg lg:text-xl text-gray-700">Couture Collection</div>
-                <div className="text-sm lg:text-lg text-gray-600">Free Shipping on Orders Over $1000</div>
+                <div className="text-sm lg:text-lg text-gray-600">Free Shipping on Orders Over ₨1,000,000</div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -43,7 +43,7 @@ export default function CollectionBanner() {
                 alt="Couture Collection"
                 className="w-full h-full object-cover lg:rounded-r-2xl"
               />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-rose-50/30" />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-primary-50/30" />
             </motion.div>
           </div>
         </div>

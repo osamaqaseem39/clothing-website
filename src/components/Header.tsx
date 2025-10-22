@@ -2,6 +2,7 @@
 
 import { Search, ShoppingBag, User, ChevronDown, Menu, X, Filter } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -16,19 +17,27 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
     <>
       {/* Desktop Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-24">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-serif font-bold text-gradient">She's Trends</h1>
+              <a href="/" className="flex items-center">
+                <Image
+                  src="/images/logo.png"
+                  alt="She's Trends"
+                  width={100}
+                  height={100}
+                  className="h-20 w-auto"
+                />
+              </a>
             </div>
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl mx-8">
               <div className="relative">
-                <div className="flex">
-                  <select className="px-4 py-2 border border-gray-200 rounded-l-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
-                    <option>All</option>
+                <div className="flex shadow-lg rounded-xl overflow-hidden bg-white border border-gray-200 hover:border-primary-300 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-200 transition-all duration-200">
+                  <select className="px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-sm font-medium text-gray-700 focus:outline-none border-r border-gray-200 hover:from-gray-100 hover:to-gray-200 transition-colors">
+                    <option>All Categories</option>
                     <option>Evening Wear</option>
                     <option>Day Dresses</option>
                     <option>Couture</option>
@@ -38,12 +47,24 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                   </select>
                   <input
                     type="text"
-                    placeholder="Search luxury pieces..."
-                    className="flex-1 px-4 py-2 border-t border-b border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    placeholder="Search luxury pieces, brands, styles..."
+                    className="flex-1 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none bg-white"
                   />
-                  <button className="px-4 py-2 bg-rose-600 text-white rounded-r-lg hover:bg-rose-700 transition-colors">
+                  <button className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-500 text-white hover:from-primary-700 hover:to-secondary-600 transition-all duration-200 flex items-center gap-2 font-medium">
                     <Search className="h-4 w-4" />
+                    <span className="hidden sm:inline">Search</span>
                   </button>
+                </div>
+                {/* Search suggestions dropdown would go here */}
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-10 hidden">
+                  <div className="p-4">
+                    <p className="text-sm text-gray-500">Popular searches:</p>
+                    <div className="mt-2 space-y-1">
+                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Evening gowns</button>
+                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Designer handbags</button>
+                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Bridal collection</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -60,9 +81,9 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               </div>
 
               {/* Shopping Cart */}
-              <button className="relative p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <button className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
                 <ShoppingBag className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   0
                 </span>
               </button>
@@ -71,7 +92,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 text-sm text-gray-700 hover:text-rose-600 transition-colors"
+                  className="flex items-center space-x-2 text-sm text-gray-700 hover:text-primary-600 transition-colors"
                 >
                   <User className="h-5 w-5" />
                   <span>Sign In / Register</span>
@@ -110,28 +131,36 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
       {/* Mobile Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 lg:hidden">
         <div className="px-4">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-20">
             {/* Menu Button */}
             <button
               onClick={onMenuClick}
-              className="p-2 text-gray-700 hover:text-rose-600 transition-colors"
+              className="p-2 text-gray-700 hover:text-primary-600 transition-colors"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
 
             {/* Logo */}
             <div className="flex-1 text-center">
-              <h1 className="text-lg font-serif font-bold text-gradient">She's Trends</h1>
+              <a href="/" className="flex items-center justify-center">
+                <Image
+                  src="/images/logo.png"
+                  alt="She's Trends"
+                  width={100}
+                  height={40}
+                  className="h-10 w-auto"
+                />
+              </a>
             </div>
 
             {/* Right Controls */}
             <div className="flex items-center space-x-2">
-              <button className="p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <button className="p-2 text-gray-700 hover:text-primary-600 transition-colors">
                 <Search className="h-5 w-5" />
               </button>
-              <button className="relative p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <button className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
                 <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   0
                 </span>
               </button>
@@ -146,13 +175,13 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                 <input
                   type="text"
                   placeholder="Search luxury pieces..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
                 />
               </div>
               {onFilterClick && (
                 <button
                   onClick={onFilterClick}
-                  className="p-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 hover:text-rose-600 transition-colors"
+                  className="p-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 hover:text-primary-600 transition-colors"
                 >
                   <Filter className="h-4 w-4" />
                 </button>

@@ -96,7 +96,7 @@ export default function MobileFilters({ isOpen, onClose }: MobileFiltersProps) {
                       <label key={option} className="flex items-center space-x-3">
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                         />
                         <span className="text-sm text-gray-700">{option}</span>
                       </label>
@@ -118,7 +118,7 @@ export default function MobileFilters({ isOpen, onClose }: MobileFiltersProps) {
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 px-4 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors"
+                className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
               >
                 Apply Filters
               </button>
