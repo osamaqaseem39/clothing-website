@@ -33,7 +33,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       if (!userProfile) {
         // Show trending products for new users
         const trendingProducts = await apiClient.getTrendingProducts()
-        setRecommendations(trendingProducts.data.slice(0, maxItems))
+        setRecommendations((trendingProducts as any).data.slice(0, maxItems))
         setPersonalizedMessage('Discover our trending collection')
         return
       }
@@ -49,7 +49,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       console.error('Error loading recommendations:', error)
       // Fallback to trending products
       const trendingProducts = await apiClient.getTrendingProducts()
-      setRecommendations(trendingProducts.data.slice(0, maxItems))
+      setRecommendations((trendingProducts as any).data.slice(0, maxItems))
     } finally {
       setLoading(false)
     }
@@ -191,7 +191,16 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {recommendations.map((product) => (
             <div key={product._id} onClick={() => handleProductClick(product)}>
-              <ProductCard product={product} />
+              <ProductCard 
+                id={product._id}
+                name={product.name}
+                price={product.price}
+                originalPrice={product.originalPrice}
+                image={product.images[0] || '/placeholder-product.svg'}
+                category={product.categories[0] || 'Uncategorized'}
+                isNew={product.isNew}
+                isOnSale={product.isSale}
+              />
             </div>
           ))}
         </div>

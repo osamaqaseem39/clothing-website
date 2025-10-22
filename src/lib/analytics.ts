@@ -215,7 +215,7 @@ class AnalyticsManager {
       .map(([brand]) => brand)
 
     // Get personalized products based on viewing history
-    const personalizedProducts = [...new Set(productViews)].slice(-10)
+    const personalizedProducts = Array.from(new Set(productViews)).slice(-10)
 
     return {
       trendingProducts: [], // Would be populated from server data

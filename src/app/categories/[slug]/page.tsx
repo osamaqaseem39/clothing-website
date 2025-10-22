@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Grid, List, SortAsc, SortDesc } from 'lucide-react'
 import { apiClient, Category } from '@/lib/api'
-import { Product, ProductFilters } from '../../../shared-types/product'
+import { Product, ProductFilters } from '../../../../../shared-types/product'
 import ProductCard from '@/components/ProductCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
@@ -207,9 +207,9 @@ export default function CategoryDetailPage() {
                     {['XS','S','M','L','XL','XXL'].map(size => (
                       <button
                         key={size}
-                        onClick={() => handleFilterChange('size', (filters as any).size === size ? undefined : size)}
+                        onClick={() => handleFilterChange('sizes', (filters as any).sizes?.includes(size) ? (filters as any).sizes?.filter((s: string) => s !== size) : [...((filters as any).sizes || []), size])}
                         className={`px-3 py-1.5 rounded-md border text-sm ${
-                          (filters as any).size === size ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                          (filters as any).sizes?.includes(size) ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         {size}
@@ -224,9 +224,9 @@ export default function CategoryDetailPage() {
                     {['Lawn','Cotton','Silk','Chiffon','Linen','Khaddar','Organza'].map(fabric => (
                       <button
                         key={fabric}
-                        onClick={() => handleFilterChange('fabric', (filters as any).fabric === fabric ? undefined : fabric)}
+                        onClick={() => handleFilterChange('fabrics', (filters as any).fabrics?.includes(fabric) ? (filters as any).fabrics?.filter((f: string) => f !== fabric) : [...((filters as any).fabrics || []), fabric])}
                         className={`px-3 py-2 rounded-md border text-sm text-left ${
-                          (filters as any).fabric === fabric ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                          (filters as any).fabrics?.includes(fabric) ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         {fabric}
@@ -241,9 +241,9 @@ export default function CategoryDetailPage() {
                     {['Unstitched','Pret','Formal','Bridal','Casual','Luxury Pret'].map(style => (
                       <button
                         key={style}
-                        onClick={() => handleFilterChange('style', (filters as any).style === style ? undefined : style)}
+                        onClick={() => handleFilterChange('occasions', (filters as any).occasions?.includes(style) ? (filters as any).occasions?.filter((o: string) => o !== style) : [...((filters as any).occasions || []), style])}
                         className={`px-3 py-2 rounded-md border text-sm text-left ${
-                          (filters as any).style === style ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                          (filters as any).occasions?.includes(style) ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         {style}
@@ -258,9 +258,9 @@ export default function CategoryDetailPage() {
                     {['Black','White','Red','Blue','Green','Pink','Yellow','Beige'].map(color => (
                       <button
                         key={color}
-                        onClick={() => handleFilterChange('colorFamily', (filters as any).colorFamily === color ? undefined : color)}
+                        onClick={() => handleFilterChange('colorFamilies', (filters as any).colorFamilies?.includes(color) ? (filters as any).colorFamilies?.filter((c: string) => c !== color) : [...((filters as any).colorFamilies || []), color])}
                         className={`px-3 py-1.5 rounded-md border text-sm ${
-                          (filters as any).colorFamily === color ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
+                          (filters as any).colorFamilies?.includes(color) ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         {color}

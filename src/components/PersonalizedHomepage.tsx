@@ -80,7 +80,7 @@ const PersonalizedHomepage: React.FC = () => {
     // Load trending products based on user preferences
     try {
       const trendingResponse = await apiClient.getTrendingProducts()
-      content.trendingProducts = trendingResponse.data.slice(0, 4)
+      content.trendingProducts = (trendingResponse as any).data.slice(0, 4)
     } catch (error) {
       console.error('Error loading trending products:', error)
     }
@@ -170,12 +170,7 @@ const PersonalizedHomepage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <Hero 
-        title={personalizedContent.heroMessage}
-        subtitle="Luxury fashion tailored to your style"
-        showSearch={personalizedContent.showSearch}
-        onSearch={handleSearch}
-      />
+      <Hero />
 
       {/* Personalized Offers */}
       {personalizedContent.personalizedOffers.length > 0 && (
@@ -228,10 +223,7 @@ const PersonalizedHomepage: React.FC = () => {
                 {userProfile ? 'Based on your preferences' : 'Explore our collections'}
               </p>
             </div>
-            <CategoryGrid 
-              categories={personalizedContent.recommendedCategories}
-              onCategoryClick={handleCategoryClick}
-            />
+            <CategoryGrid />
           </div>
         </div>
       )}
@@ -248,10 +240,7 @@ const PersonalizedHomepage: React.FC = () => {
                 {userProfile ? 'Popular items in your preferred categories' : 'Discover what\'s popular'}
               </p>
             </div>
-            <FeaturedProducts 
-              products={personalizedContent.trendingProducts}
-              onProductClick={handleProductClick}
-            />
+            <FeaturedProducts />
           </div>
         </div>
       )}

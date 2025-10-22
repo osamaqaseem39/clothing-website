@@ -18,7 +18,7 @@ export default function BrandsPage() {
       setError(null)
       const brandsData = await apiClient.getBrands()
       // Handle both array and paginated response
-      const brands = Array.isArray(brandsData) ? brandsData : brandsData.data
+      const brands = Array.isArray(brandsData) ? brandsData : (brandsData as any).data
       setBrands(brands)
     } catch (err) {
       setError('Failed to fetch brands')
