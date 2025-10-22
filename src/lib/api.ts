@@ -210,14 +210,15 @@ export interface Brand {
   updatedAt: string
 }
 
-// Paginated response - uses shared base
-export interface PaginatedResponse<T> extends BasePaginatedResponse<T> {
-  // Landing page specific fields can be added here if needed
-}
-
-// Product filters - extends shared base
-export interface ProductFilters extends BaseProductFilters {
-  // Landing page specific filters can be added here if needed
+// Paginated response for landing page
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 class ApiClient {
@@ -310,7 +311,9 @@ class ApiClient {
         total: filteredProducts.length,
         page,
         limit,
-        totalPages: Math.ceil(filteredProducts.length / limit)
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        hasNext: page < Math.ceil(filteredProducts.length / limit),
+        hasPrev: page > 1
       }
     }
   }
@@ -407,7 +410,9 @@ class ApiClient {
         total: filteredProducts.length,
         page,
         limit,
-        totalPages: Math.ceil(filteredProducts.length / limit)
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        hasNext: page < Math.ceil(filteredProducts.length / limit),
+        hasPrev: page > 1
       }
     }
   }
@@ -464,7 +469,9 @@ class ApiClient {
         total: filteredProducts.length,
         page,
         limit,
-        totalPages: Math.ceil(filteredProducts.length / limit)
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        hasNext: page < Math.ceil(filteredProducts.length / limit),
+        hasPrev: page > 1
       }
     }
   }
@@ -515,7 +522,9 @@ class ApiClient {
         total: filteredProducts.length,
         page,
         limit,
-        totalPages: Math.ceil(filteredProducts.length / limit)
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        hasNext: page < Math.ceil(filteredProducts.length / limit),
+        hasPrev: page > 1
       }
     }
   }
@@ -566,7 +575,9 @@ class ApiClient {
         total: filteredProducts.length,
         page,
         limit,
-        totalPages: Math.ceil(filteredProducts.length / limit)
+        totalPages: Math.ceil(filteredProducts.length / limit),
+        hasNext: page < Math.ceil(filteredProducts.length / limit),
+        hasPrev: page > 1
       }
     }
   }
