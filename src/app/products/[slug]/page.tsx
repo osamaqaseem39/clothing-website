@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useRecentlyViewed } from '@/contexts/RecentlyViewedContext'
+import { useAnalytics } from '@/hooks/useAnalytics'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
@@ -152,6 +153,7 @@ export default function ProductPage() {
   const params = useParams()
   const slug = params.slug as string
   const { addToRecentlyViewed } = useRecentlyViewed()
+  const { trackProductView, trackCartAction } = useAnalytics()
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -178,7 +180,10 @@ export default function ProductPage() {
       slug: slug
     }
     addToRecentlyViewed(productForRecentlyViewed)
-  }, [product, slug, addToRecentlyViewed])
+    
+    // Track product view for analytics
+    trackProductView(product.id.toString(), product.category, product.brand)
+  }, [product, slug, addToRecentlyViewed, trackProductView])
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -199,6 +204,9 @@ export default function ProductPage() {
     }
     // Add to cart logic here
     alert('Added to cart!')
+    
+    // Track cart action for analytics
+    trackCartAction(product.id.toString(), 'add')
   }
 
   const handleWishlist = () => {

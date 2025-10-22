@@ -3,17 +3,12 @@
 import { useState } from 'react'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
-import SaleBanner from '@/components/SaleBanner'
-import CollectionBanner from '@/components/CollectionBanner'
-import ProductShowcase from '@/components/ProductShowcase'
-import FeaturedProducts from '@/components/FeaturedProducts'
-import TrendingProducts from '@/components/TrendingProducts'
-import RecentlyViewed from '@/components/RecentlyViewed'
-import Brands from '@/components/Brands'
+import PersonalizedHomepage from '@/components/PersonalizedHomepage'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
+import UserProfileInsights from '@/components/UserProfileInsights'
 
 export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -45,13 +40,7 @@ export default function Home() {
       <div className="flex">
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
         <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
-          <SaleBanner />
-          <CollectionBanner />
-          <ProductShowcase />
-          <FeaturedProducts />
-          <Brands />
-          <TrendingProducts />
-          <RecentlyViewed />
+          <PersonalizedHomepage />
           <Newsletter />
           <Footer />
         </main>
