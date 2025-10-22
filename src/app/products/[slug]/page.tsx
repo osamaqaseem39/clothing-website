@@ -4,95 +4,15 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useRecentlyViewed } from '@/contexts/RecentlyViewedContext'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { apiClient, Product } from '@/lib/api'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Footer from '@/components/Footer'
 import SimilarProducts from '@/components/SimilarProducts'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { Star, Heart, ShoppingBag, Minus, Plus, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, User } from 'lucide-react'
 import Image from 'next/image'
-
-// Product data (in a real app, this would come from an API)
-const productData = {
-  'elegant-evening-gown': {
-    id: 1,
-    name: 'Elegant Evening Gown',
-    price: 1299,
-    originalPrice: 1599,
-    images: ['/images/1.png', '/images/2.png', '/images/3.png', '/images/4.png'],
-    category: 'Evening Wear',
-    brand: 'Élégance Couture',
-    brandRating: 4.9,
-    rating: 4.8,
-    reviews: 24,
-    isNew: true,
-    isSale: true,
-    description: 'A stunning evening gown crafted from the finest silk with intricate beadwork and a flattering silhouette. Perfect for special occasions and formal events.',
-    features: [
-      'Made from premium silk fabric',
-      'Hand-sewn beadwork details',
-      'Flattering A-line silhouette',
-      'Available in multiple sizes',
-      'Dry clean only'
-    ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Black', 'Navy', 'Burgundy', 'Emerald'],
-    inStock: true,
-    stockCount: 12
-  },
-  'luxury-couture-piece': {
-    id: 17,
-    name: 'Luxury Couture Piece',
-    price: 3500,
-    originalPrice: undefined,
-    images: ['/images/1.png', '/images/2.png', '/images/3.png', '/images/4.png'],
-    category: 'Couture',
-    brand: 'Luxury Line',
-    brandRating: 4.8,
-    rating: 4.9,
-    reviews: 12,
-    isNew: true,
-    isSale: false,
-    description: 'An exclusive couture piece designed by our master artisans. This one-of-a-kind creation represents the pinnacle of luxury fashion.',
-    features: [
-      'Hand-crafted by master artisans',
-      'Exclusive design',
-      'Premium materials',
-      'Limited edition',
-      'Certificate of authenticity'
-    ],
-    sizes: ['S', 'M', 'L'],
-    colors: ['Gold', 'Silver', 'Rose Gold'],
-    inStock: true,
-    stockCount: 3
-  },
-  'summer-day-dress': {
-    id: 9,
-    name: 'Summer Day Dress',
-    price: 599,
-    originalPrice: undefined,
-    images: ['/images/2.png', '/images/3.png', '/images/4.png', '/images/5.png'],
-    category: 'Day Dresses',
-    brand: 'Couture Collection',
-    brandRating: 4.7,
-    rating: 4.6,
-    reviews: 18,
-    isNew: false,
-    isSale: false,
-    description: 'A beautiful summer dress perfect for warm weather. Lightweight and comfortable with a flattering fit.',
-    features: [
-      'Lightweight cotton blend',
-      'Machine washable',
-      'Comfortable fit',
-      'Breathable fabric',
-      'Easy care'
-    ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['White', 'Pink', 'Blue', 'Yellow'],
-    inStock: true,
-    stockCount: 25
-  }
-}
 
 const relatedProducts = [
   {
@@ -161,28 +81,69 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const product = productData[slug as keyof typeof productData] || productData['elegant-evening-gown']
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const productData = await apiClient.getProductBySlug(slug)
+        setProduct(productData)
+      } catch (err) {
+        setError('Product not found')
+        console.error('Error fetching product:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (slug) {
+      fetchProduct()
+    }
+  }, [slug])
+
+  if (loading) {
+    return <LoadingSpinner />
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
+          <a href="/shop" className="btn-primary">
+            Back to Shop
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   // Add product to recently viewed when component mounts
   useEffect(() => {
-    const productForRecentlyViewed = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.originalPrice,
-      image: product.images[0],
-      category: product.category,
-      rating: product.rating,
-      reviews: product.reviews,
-      isNew: product.isNew,
-      isSale: product.isSale,
-      slug: slug
+    if (product) {
+      const productForRecentlyViewed = {
+        id: product._id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.images[0],
+        category: product.categories[0] || 'General',
+        rating: product.rating,
+        reviews: product.reviews,
+        isNew: product.isNew,
+        isSale: product.isSale,
+        slug: slug
+      }
+      addToRecentlyViewed(productForRecentlyViewed)
+      
+      // Track product view for analytics
+      trackProductView(product._id, product.categories[0] || 'General', product.brand)
     }
-    addToRecentlyViewed(productForRecentlyViewed)
-    
-    // Track product view for analytics
-    trackProductView(product.id.toString(), product.category, product.brand)
   }, [product, slug, addToRecentlyViewed, trackProductView])
 
   const handleMenuToggle = () => {
@@ -206,7 +167,7 @@ export default function ProductPage() {
     alert('Added to cart!')
     
     // Track cart action for analytics
-    trackCartAction(product.id.toString(), 'add')
+    trackCartAction(product._id, 'add')
   }
 
   const handleWishlist = () => {
@@ -238,7 +199,7 @@ export default function ProductPage() {
                 <span className="text-gray-400">/</span>
                 <a href="/shop" className="text-gray-500 hover:text-primary-600">Shop</a>
                 <span className="text-gray-400">/</span>
-                <a href={`/shop?category=${product.category.toLowerCase().replace(' ', '-')}`} className="text-gray-500 hover:text-primary-600">{product.category}</a>
+                <a href={`/shop?category=${product.categories[0]?.toLowerCase().replace(' ', '-')}`} className="text-gray-500 hover:text-primary-600">{product.categories[0] || 'General'}</a>
                 <span className="text-gray-400">/</span>
                 <span className="text-gray-900">{product.name}</span>
               </nav>
@@ -253,7 +214,7 @@ export default function ProductPage() {
                 {/* Main Image */}
                 <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
                   <Image
-                    src={product.images[selectedImage]}
+                    src={product.images[selectedImage] || '/images/placeholder.png'}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -375,7 +336,7 @@ export default function ProductPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Size:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {product.sizes.map((size) => (
+                    {(product.availableSizes || ['S', 'M', 'L', 'XL']).map((size) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
@@ -395,7 +356,7 @@ export default function ProductPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Color:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {product.colors.map((color) => (
+                    {(product.colors || ['Black', 'White', 'Red', 'Blue']).map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
@@ -431,7 +392,7 @@ export default function ProductPage() {
                       </button>
                     </div>
                     <span className="text-sm text-gray-600">
-                      {product.stockCount} in stock
+                      {product.stockQuantity} in stock
                     </span>
                   </div>
                 </div>
@@ -476,14 +437,19 @@ export default function ProductPage() {
                 {/* Description */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Description:</h3>
-                  <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                  <p className="text-gray-600 leading-relaxed">{product.description || product.shortDescription}</p>
                 </div>
 
                 {/* Features */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Features:</h3>
                   <ul className="space-y-2">
-                    {product.features.map((feature, index) => (
+                    {(product.features || [
+                      'Premium quality materials',
+                      'Handcrafted with attention to detail',
+                      'Comfortable and stylish design',
+                      'Easy care instructions'
+                    ]).map((feature, index) => (
                       <li key={index} className="flex items-center gap-2 text-gray-600">
                         <div className="w-1.5 h-1.5 bg-primary-600 rounded-full"></div>
                         {feature}
@@ -641,12 +607,12 @@ export default function ProductPage() {
 
           <SimilarProducts 
             currentProduct={{
-              id: product.id,
+              id: product._id,
               name: product.name,
               price: product.price,
               originalPrice: product.originalPrice,
               image: product.images[0],
-              category: product.category,
+              category: product.categories[0] || 'General',
               rating: product.rating,
               reviews: product.reviews,
               isNew: product.isNew,

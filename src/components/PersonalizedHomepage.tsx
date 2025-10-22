@@ -9,6 +9,7 @@ import PersonalizedRecommendations from './PersonalizedRecommendations'
 import FeaturedProducts from './FeaturedProducts'
 import CategoryGrid from './CategoryGrid'
 import SmartSearch from './SmartSearch'
+import Brands from './Brands'
 
 const PersonalizedHomepage: React.FC = () => {
   const { userProfile, trackEvent } = useAnalytics()
@@ -211,39 +212,38 @@ const PersonalizedHomepage: React.FC = () => {
         />
       )}
 
-      {/* Recommended Categories */}
-      {personalizedContent.showCategories && personalizedContent.recommendedCategories.length > 0 && (
-        <div className="py-12 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {userProfile ? "Your Favorite Categories" : "Shop by Category"}
-              </h2>
-              <p className="text-lg text-gray-600">
-                {userProfile ? 'Based on your preferences' : 'Explore our collections'}
-              </p>
-            </div>
-            <CategoryGrid />
+      {/* Categories */}
+      <div className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {userProfile ? "Your Favorite Categories" : "Shop by Category"}
+            </h2>
+            <p className="text-lg text-gray-600">
+              {userProfile ? 'Based on your preferences' : 'Explore our collections'}
+            </p>
           </div>
+          <CategoryGrid />
         </div>
-      )}
+      </div>
 
-      {/* Trending Products */}
-      {personalizedContent.trendingProducts.length > 0 && (
-        <div className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {userProfile ? "Trending in Your Style" : "Trending Now"}
-              </h2>
-              <p className="text-lg text-gray-600">
-                {userProfile ? 'Popular items in your preferred categories' : 'Discover what\'s popular'}
-              </p>
-            </div>
-            <FeaturedProducts />
+      {/* Featured Products */}
+      <div className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {userProfile ? "Trending in Your Style" : "Featured Products"}
+            </h2>
+            <p className="text-lg text-gray-600">
+              {userProfile ? 'Popular items in your preferred categories' : 'Discover our curated collection'}
+            </p>
           </div>
+          <FeaturedProducts />
         </div>
-      )}
+      </div>
+
+      {/* Brands */}
+      <Brands />
 
       {/* User Profile Insights */}
       {userProfile && (

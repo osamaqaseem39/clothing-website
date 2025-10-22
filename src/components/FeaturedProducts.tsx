@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { Star, Heart, ShoppingBag, Eye, TrendingUp, Award } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { apiClient, Product } from '@/lib/api'
 
 // Featured/Top Seller products data
 const featuredProducts = [
@@ -100,6 +102,47 @@ const featuredProducts = [
 ]
 
 export default function FeaturedProducts() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await apiClient.getFeaturedProducts()
+        setProducts(response.slice(0, 6)) // Show only 6 products
+      } catch (error) {
+        console.error('Error fetching featured products:', error)
+        // Fallback to static data if API fails
+        setProducts(featuredProducts.slice(0, 6))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFeaturedProducts()
+  }, [])
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+              Featured Products
+            </h2>
+            <p className="text-lg text-gray-600">Loading...</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -123,9 +166,9 @@ export default function FeaturedProducts() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-          {featuredProducts.map((product, index) => (
+          {products.map((product, index) => (
             <motion.div
-              key={product.id}
+              key={product._id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -136,7 +179,7 @@ export default function FeaturedProducts() {
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative aspect-square overflow-hidden rounded-t-lg">
                     <Image
-                      src={product.image}
+                      src={product.images[0] || '/images/placeholder.png'}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -202,7 +245,7 @@ export default function FeaturedProducts() {
 
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                        {product.category}
+                        {product.categories[0] || 'General'}
                       </span>
                       {product.isTopSeller && (
                         <div className="flex items-center gap-1 text-xs text-primary-600 font-medium">
