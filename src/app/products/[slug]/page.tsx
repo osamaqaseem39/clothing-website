@@ -114,10 +114,15 @@ export default function ProductPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
-          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
-          <a href="/shop" className="btn-primary">
-            Back to Shop
-          </a>
+          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist or is currently unavailable.</p>
+          <div className="space-x-4">
+            <a href="/shop" className="btn-primary">
+              Back to Shop
+            </a>
+            <a href="/" className="btn-secondary">
+              Go Home
+            </a>
+          </div>
         </div>
       </div>
     )
@@ -128,21 +133,21 @@ export default function ProductPage() {
     if (product) {
       const productForRecentlyViewed = {
         id: parseInt(product._id) || 0, // Convert string ID to number
-        name: product.name,
-        price: product.price,
+        name: product.name || 'Product',
+        price: product.price || 0,
         originalPrice: product.originalPrice,
-        image: product.images[0],
-        category: product.categories[0] || 'General',
-        rating: product.rating,
-        reviews: product.reviews,
-        isNew: product.isNew,
-        isSale: product.isSale,
+        image: product.images?.[0] || '/images/placeholder.png',
+        category: product.categories?.[0] || 'General',
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        isNew: product.isNew || false,
+        isSale: product.isSale || false,
         slug: slug
       }
       addToRecentlyViewed(productForRecentlyViewed)
       
       // Track product view for analytics
-      trackProductView(product._id, product.categories[0] || 'General', product.brand)
+      trackProductView(product._id, product.categories?.[0] || 'General', product.brand || 'Unknown')
     }
   }, [product, slug, addToRecentlyViewed, trackProductView])
 
@@ -175,11 +180,15 @@ export default function ProductPage() {
   }
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % product.images.length)
+    if (product.images && product.images.length > 0) {
+      setSelectedImage((prev) => (prev + 1) % product.images.length)
+    }
   }
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)
+    if (product.images && product.images.length > 0) {
+      setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)
+    }
   }
 
   return (
@@ -199,7 +208,7 @@ export default function ProductPage() {
                 <span className="text-gray-400">/</span>
                 <a href="/shop" className="text-gray-500 hover:text-primary-600">Shop</a>
                 <span className="text-gray-400">/</span>
-                <a href={`/shop?category=${product.categories[0]?.toLowerCase().replace(' ', '-')}`} className="text-gray-500 hover:text-primary-600">{product.categories[0] || 'General'}</a>
+                <a href={`/shop?category=${product.categories?.[0]?.toLowerCase().replace(' ', '-') || 'general'}`} className="text-gray-500 hover:text-primary-600">{product.categories?.[0] || 'General'}</a>
                 <span className="text-gray-400">/</span>
                 <span className="text-gray-900">{product.name}</span>
               </nav>
@@ -214,8 +223,8 @@ export default function ProductPage() {
                 {/* Main Image */}
                 <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
                   <Image
-                    src={product.images[selectedImage] || '/images/placeholder.png'}
-                    alt={product.name}
+                    src={product.images?.[selectedImage] || product.images?.[0] || '/images/placeholder.png'}
+                    alt={product.name || 'Product'}
                     fill
                     className="object-cover"
                   />
@@ -235,7 +244,7 @@ export default function ProductPage() {
                   </div>
 
                   {/* Navigation Arrows */}
-                  {product.images.length > 1 && (
+                  {product.images && product.images.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
@@ -264,7 +273,7 @@ export default function ProductPage() {
                 </div>
 
                 {/* Thumbnail Images */}
-                {product.images.length > 1 && (
+                {product.images && product.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
                     {product.images.map((image, index) => (
                       <button
@@ -276,7 +285,7 @@ export default function ProductPage() {
                       >
                         <Image
                           src={image}
-                          alt={`${product.name} ${index + 1}`}
+                          alt={`${product.name || 'Product'} ${index + 1}`}
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -315,9 +324,9 @@ export default function ProductPage() {
                   {product.originalPrice && (
                     <span className="text-xl text-gray-400 line-through">₨{product.originalPrice.toLocaleString()}</span>
                   )}
-                  {product.isSale && (
+                  {product.isSale && product.originalPrice && (
                     <span className="bg-secondary-500 text-white text-sm px-2 py-1 rounded">
-                      Save ₨{(product.originalPrice! - product.price).toLocaleString()}
+                      Save ₨{(product.originalPrice - product.price).toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -392,7 +401,7 @@ export default function ProductPage() {
                       </button>
                     </div>
                     <span className="text-sm text-gray-600">
-                      {product.stockQuantity} in stock
+                      {product.stockQuantity || product.stockCount || 0} in stock
                     </span>
                   </div>
                 </div>
@@ -608,15 +617,15 @@ export default function ProductPage() {
           <SimilarProducts 
             currentProduct={{
               id: parseInt(product._id) || 0,
-              name: product.name,
-              price: product.price,
+              name: product.name || 'Product',
+              price: product.price || 0,
               originalPrice: product.originalPrice,
-              image: product.images[0],
-              category: product.categories[0] || 'General',
-              rating: product.rating,
-              reviews: product.reviews,
-              isNew: product.isNew,
-              isSale: product.isSale,
+              image: product.images?.[0] || '/images/placeholder.png',
+              category: product.categories?.[0] || 'General',
+              rating: product.rating || 0,
+              reviews: product.reviews || 0,
+              isNew: product.isNew || false,
+              isSale: product.isSale || false,
               slug: slug
             }}
             products={relatedProducts}
