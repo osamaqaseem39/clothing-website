@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './api'
+import { API_BASE_URL, getCorsHeaders, getCorsConfig } from './api'
 
 export interface LoginPayload {
   email: string
@@ -15,7 +15,8 @@ export interface RegisterPayload {
 export async function loginCustomer(payload: LoginPayload) {
   const res = await fetch(`${API_BASE_URL}/customers/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getCorsHeaders(),
+    ...getCorsConfig(),
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error('Login failed')
@@ -25,7 +26,8 @@ export async function loginCustomer(payload: LoginPayload) {
 export async function registerCustomer(payload: RegisterPayload) {
   const res = await fetch(`${API_BASE_URL}/customers/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getCorsHeaders(),
+    ...getCorsConfig(),
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error('Registration failed')

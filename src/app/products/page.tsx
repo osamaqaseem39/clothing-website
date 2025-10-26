@@ -334,14 +334,14 @@ export default function ProductsPage() {
                       name={product.name}
                       price={product.price}
                       originalPrice={product.salePrice}
-                      image={product.images[0] || '/placeholder-product.svg'}
-                      category={product.categories[0] || 'Uncategorized'}
+                      image={product.images[0] || '/images/1.png'}
+                      category={product.categories?.[0] || product.category || 'Uncategorized'}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
                       isOnSale={!!product.salePrice}
                       slug={product.slug}
                     />
                   </motion.div>
-                ))}
+                ))} 
               </div>
             )}
 

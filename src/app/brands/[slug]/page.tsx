@@ -354,7 +354,7 @@ export default function BrandDetailPage() {
                       name={product.name}
                       price={product.price}
                       originalPrice={product.salePrice}
-                      image={product.images[0] || '/placeholder-product.svg'}
+                      image={product.images[0] || '/images/1.png'}
                       category={brand.name}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
                       isOnSale={!!product.salePrice}

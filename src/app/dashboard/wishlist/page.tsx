@@ -2,82 +2,50 @@
 
 import { motion } from 'framer-motion'
 import { Heart, ShoppingBag, Trash2, Eye, Search } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const wishlistItems = [
-  {
-    id: '1',
-    name: 'Silk Evening Gown',
-    price: 1299.99,
-    originalPrice: 1599.99,
-    image: '/images/1.png',
-    category: 'Evening Wear',
-    size: 'M',
-    color: 'Ivory',
-    isInStock: true,
-    addedDate: '2024-01-10'
-  },
-  {
-    id: '2',
-    name: 'Couture Cocktail Dress',
-    price: 899.99,
-    image: '/images/2.png',
-    category: 'Couture',
-    size: 'S',
-    color: 'Black',
-    isInStock: true,
-    addedDate: '2024-01-08'
-  },
-  {
-    id: '3',
-    name: 'Designer Blazer',
-    price: 699.99,
-    image: '/images/3.png',
-    category: 'Day Dresses',
-    size: 'L',
-    color: 'Navy',
-    isInStock: false,
-    addedDate: '2024-01-05'
-  },
-  {
-    id: '4',
-    name: 'Bridal Gown',
-    price: 2499.99,
-    image: '/images/4.png',
-    category: 'Bridal',
-    size: 'M',
-    color: 'White',
-    isInStock: true,
-    addedDate: '2024-01-03'
-  },
-  {
-    id: '5',
-    name: 'Luxury Handbag',
-    price: 1299.99,
-    image: '/images/5.png',
-    category: 'Accessories',
-    size: 'One Size',
-    color: 'Black',
-    isInStock: true,
-    addedDate: '2023-12-28'
-  },
-  {
-    id: '6',
-    name: 'Pearl Necklace Set',
-    price: 599.99,
-    originalPrice: 799.99,
-    image: '/images/6.png',
-    category: 'Jewelry',
-    size: 'One Size',
-    color: 'Pearl',
-    isInStock: true,
-    addedDate: '2023-12-25'
-  }
-]
+// No hardcoded data - fetch from API
+
+interface WishlistItem {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+  image: string
+  category: string
+  size: string
+  color: string
+  isInStock: boolean
+  addedDate: string
+}
 
 export default function WishlistPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [wishlist, setWishlist] = useState(wishlistItems)
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        // TODO: Replace with actual API call when wishlist API is available
+        // const response = await apiClient.getWishlist()
+        // setWishlist(response.data)
+        
+        // For now, show empty state
+        setWishlist([])
+      } catch (err) {
+        setError('Failed to fetch wishlist')
+        console.error('Error fetching wishlist:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchWishlist()
+  }, [])
 
   const removeFromWishlist = (id: string) => {
     setWishlist(wishlist.filter(item => item.id !== id))

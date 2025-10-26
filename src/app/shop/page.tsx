@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
@@ -9,631 +9,7 @@ import Footer from '@/components/Footer'
 import { Search, Filter, Star, Heart, ShoppingBag, Grid3X3, Grid2X2, Grid, Layout } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-
-// Comprehensive product database with 50 products
-const products = [
-  // Evening Wear (8 products)
-  {
-    id: 1,
-    name: 'Elegant Evening Gown',
-    price: 1299,
-    originalPrice: 1599,
-    image: '/images/1.png',
-    category: 'Evening Wear',
-    rating: 4.8,
-    reviews: 24,
-    isNew: true,
-    isSale: true,
-    slug: 'elegant-evening-gown'
-  },
-  {
-    id: 2,
-    name: 'Black Tie Evening Dress',
-    price: 1899,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Evening Wear',
-    rating: 4.9,
-    reviews: 18,
-    isNew: false,
-    isSale: false,
-    slug: 'black-tie-evening-dress'
-  },
-  {
-    id: 3,
-    name: 'Sequin Party Dress',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/3.png',
-    category: 'Evening Wear',
-    rating: 4.6,
-    reviews: 31,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 4,
-    name: 'Velvet Evening Gown',
-    price: 1599,
-    originalPrice: null,
-    image: '/images/4.png',
-    category: 'Evening Wear',
-    rating: 4.7,
-    reviews: 12,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 5,
-    name: 'Cocktail Party Dress',
-    price: 699,
-    originalPrice: 899,
-    image: '/images/5.png',
-    category: 'Evening Wear',
-    rating: 4.5,
-    reviews: 28,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 6,
-    name: 'Formal Evening Attire',
-    price: 2199,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Evening Wear',
-    rating: 4.8,
-    reviews: 15,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 7,
-    name: 'Silk Evening Dress',
-    price: 1399,
-    originalPrice: 1799,
-    image: '/images/7.png',
-    category: 'Evening Wear',
-    rating: 4.7,
-    reviews: 22,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 8,
-    name: 'Luxury Evening Gown',
-    price: 2599,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Evening Wear',
-    rating: 4.9,
-    reviews: 8,
-    isNew: false,
-    isSale: false
-  },
-
-  // Day Dresses (8 products)
-  {
-    id: 9,
-    name: 'Summer Day Dress',
-    price: 599,
-    originalPrice: null,
-    image: '/images/1.png',
-    category: 'Day Dresses',
-    rating: 4.6,
-    reviews: 18,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 10,
-    name: 'Floral Spring Dress',
-    price: 499,
-    originalPrice: 699,
-    image: '/images/2.png',
-    category: 'Day Dresses',
-    rating: 4.5,
-    reviews: 35,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 11,
-    name: 'Casual Day Dress',
-    price: 399,
-    originalPrice: null,
-    image: '/images/3.png',
-    category: 'Day Dresses',
-    rating: 4.4,
-    reviews: 42,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 12,
-    name: 'Office Day Dress',
-    price: 799,
-    originalPrice: 999,
-    image: '/images/4.png',
-    category: 'Day Dresses',
-    rating: 4.7,
-    reviews: 26,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 13,
-    name: 'Weekend Day Dress',
-    price: 349,
-    originalPrice: null,
-    image: '/images/5.png',
-    category: 'Day Dresses',
-    rating: 4.3,
-    reviews: 38,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 14,
-    name: 'Chic Day Dress',
-    price: 699,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Day Dresses',
-    rating: 4.6,
-    reviews: 19,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 15,
-    name: 'Elegant Day Dress',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/7.png',
-    category: 'Day Dresses',
-    rating: 4.8,
-    reviews: 14,
-    isNew: false,
-    isSale: true
-  },
-  {
-    id: 16,
-    name: 'Modern Day Dress',
-    price: 549,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Day Dresses',
-    rating: 4.5,
-    reviews: 33,
-    isNew: true,
-    isSale: false
-  },
-
-  // Couture (6 products)
-  {
-    id: 17,
-    name: 'Luxury Couture Piece',
-    price: 3500,
-    originalPrice: null,
-    image: '/images/1.png',
-    category: 'Couture',
-    rating: 4.9,
-    reviews: 12,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 18,
-    name: 'Designer Couture Dress',
-    price: 4200,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Couture',
-    rating: 4.8,
-    reviews: 8,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 19,
-    name: 'Haute Couture Gown',
-    price: 5800,
-    originalPrice: null,
-    image: '/images/3.png',
-    category: 'Couture',
-    rating: 4.9,
-    reviews: 5,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 20,
-    name: 'Exclusive Couture Piece',
-    price: 3200,
-    originalPrice: 4000,
-    image: '/images/4.png',
-    category: 'Couture',
-    rating: 4.7,
-    reviews: 9,
-    isNew: false,
-    isSale: true
-  },
-  {
-    id: 21,
-    name: 'Artisan Couture Dress',
-    price: 4500,
-    originalPrice: null,
-    image: '/images/5.png',
-    category: 'Couture',
-    rating: 4.8,
-    reviews: 7,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 22,
-    name: 'Masterpiece Couture',
-    price: 6500,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Couture',
-    rating: 4.9,
-    reviews: 3,
-    isNew: false,
-    isSale: false
-  },
-
-  // Bridal (6 products)
-  {
-    id: 23,
-    name: 'Bridal Collection Dress',
-    price: 2500,
-    originalPrice: null,
-    image: '/images/7.png',
-    category: 'Bridal',
-    rating: 4.7,
-    reviews: 8,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 24,
-    name: 'Wedding Gown',
-    price: 3200,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Bridal',
-    rating: 4.8,
-    reviews: 6,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 25,
-    name: 'Bridal Party Dress',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/1.png',
-    category: 'Bridal',
-    rating: 4.6,
-    reviews: 15,
-    isNew: false,
-    isSale: true
-  },
-  {
-    id: 26,
-    name: 'Elegant Bridal Gown',
-    price: 2800,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Bridal',
-    rating: 4.9,
-    reviews: 4,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 27,
-    name: 'Classic Wedding Dress',
-    price: 1900,
-    originalPrice: 2400,
-    image: '/images/3.png',
-    category: 'Bridal',
-    rating: 4.7,
-    reviews: 11,
-    isNew: false,
-    isSale: true
-  },
-  {
-    id: 28,
-    name: 'Modern Bridal Dress',
-    price: 3600,
-    originalPrice: null,
-    image: '/images/4.png',
-    category: 'Bridal',
-    rating: 4.8,
-    reviews: 7,
-    isNew: true,
-    isSale: false
-  },
-
-  // Casual Wear (6 products)
-  {
-    id: 29,
-    name: 'Casual Chic Top',
-    price: 299,
-    originalPrice: 399,
-    image: '/images/5.png',
-    category: 'Casual Wear',
-    rating: 4.4,
-    reviews: 31,
-    isNew: false,
-    isSale: true
-  },
-  {
-    id: 30,
-    name: 'Weekend Casual Shirt',
-    price: 199,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Casual Wear',
-    rating: 4.3,
-    reviews: 45,
-    isNew: true,
-    isSale: false
-  },
-  {
-    id: 31,
-    name: 'Relaxed Casual Top',
-    price: 249,
-    originalPrice: 349,
-    image: '/images/7.png',
-    category: 'Casual Wear',
-    rating: 4.5,
-    reviews: 28,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 32,
-    name: 'Comfortable Casual Dress',
-    price: 399,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Casual Wear',
-    rating: 4.4,
-    reviews: 36,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 33,
-    name: 'Trendy Casual Top',
-    price: 179,
-    originalPrice: 229,
-    image: '/images/1.png',
-    category: 'Casual Wear',
-    rating: 4.2,
-    reviews: 52,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 34,
-    name: 'Stylish Casual Shirt',
-    price: 329,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Casual Wear',
-    rating: 4.6,
-    reviews: 24,
-    isNew: false,
-    isSale: false
-  },
-
-  // Formal Wear (4 products)
-  {
-    id: 35,
-    name: 'Formal Business Suit',
-    price: 799,
-    originalPrice: null,
-    image: '/images/3.png',
-    category: 'Formal Wear',
-    rating: 4.6,
-    reviews: 22,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 36,
-    name: 'Executive Formal Dress',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/4.png',
-    category: 'Formal Wear',
-    rating: 4.7,
-    reviews: 18,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 37,
-    name: 'Professional Formal Suit',
-    price: 1099,
-    originalPrice: null,
-    image: '/images/5.png',
-    category: 'Formal Wear',
-    rating: 4.8,
-    reviews: 14,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 38,
-    name: 'Corporate Formal Dress',
-    price: 699,
-    originalPrice: 899,
-    image: '/images/6.png',
-    category: 'Formal Wear',
-    rating: 4.5,
-    reviews: 26,
-    isNew: true,
-    isSale: true
-  },
-
-  // Accessories (4 products)
-  {
-    id: 39,
-    name: 'Designer Handbag',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/7.png',
-    category: 'Accessories',
-    rating: 4.5,
-    reviews: 15,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 40,
-    name: 'Luxury Scarf',
-    price: 299,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Accessories',
-    rating: 4.4,
-    reviews: 32,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 41,
-    name: 'Elegant Clutch',
-    price: 499,
-    originalPrice: 699,
-    image: '/images/1.png',
-    category: 'Accessories',
-    rating: 4.6,
-    reviews: 21,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 42,
-    name: 'Designer Belt',
-    price: 199,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Accessories',
-    rating: 4.3,
-    reviews: 28,
-    isNew: false,
-    isSale: false
-  },
-
-  // Jewelry (4 products)
-  {
-    id: 43,
-    name: 'Luxury Jewelry Set',
-    price: 1500,
-    originalPrice: 2000,
-    image: '/images/3.png',
-    category: 'Jewelry',
-    rating: 4.8,
-    reviews: 6,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 44,
-    name: 'Diamond Necklace',
-    price: 2500,
-    originalPrice: null,
-    image: '/images/4.png',
-    category: 'Jewelry',
-    rating: 4.9,
-    reviews: 4,
-    isNew: false,
-    isSale: false
-  },
-  {
-    id: 45,
-    name: 'Pearl Earrings',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/5.png',
-    category: 'Jewelry',
-    rating: 4.7,
-    reviews: 12,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 46,
-    name: 'Gold Bracelet',
-    price: 1299,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Jewelry',
-    rating: 4.6,
-    reviews: 9,
-    isNew: false,
-    isSale: false
-  },
-
-  // Handbags (2 products)
-  {
-    id: 47,
-    name: 'Luxury Handbag',
-    price: 1199,
-    originalPrice: 1599,
-    image: '/images/7.png',
-    category: 'Handbags',
-    rating: 4.8,
-    reviews: 11,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 48,
-    name: 'Designer Tote',
-    price: 799,
-    originalPrice: null,
-    image: '/images/8.png',
-    category: 'Handbags',
-    rating: 4.5,
-    reviews: 19,
-    isNew: false,
-    isSale: false
-  },
-
-  // Shoes (2 products)
-  {
-    id: 49,
-    name: 'Designer Heels',
-    price: 599,
-    originalPrice: 799,
-    image: '/images/1.png',
-    category: 'Shoes',
-    rating: 4.6,
-    reviews: 25,
-    isNew: true,
-    isSale: true
-  },
-  {
-    id: 50,
-    name: 'Luxury Flats',
-    price: 399,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Shoes',
-    rating: 4.4,
-    reviews: 33,
-    isNew: false,
-    isSale: false
-  }
-]
+import { apiClient, Product, ProductFilters } from '@/lib/api'
 
 const categories = [
   'All',
@@ -648,6 +24,25 @@ const categories = [
   'Handbags',
   'Shoes',
   'Lingerie',
+  'Outerwear',
+  'Swimwear',
+  'Activewear',
+  'Sleepwear',
+  'Maternity',
+  'Plus Size',
+  'Petite',
+  'Vintage',
+  'Sustainable',
+  'Designer',
+  'Limited Edition',
+  'Seasonal',
+  'Occasion',
+  'Workwear',
+  'Travel',
+  'Home',
+  'Special',
+  'Custom',
+  'Final',
   'Activewear'
 ]
 
@@ -669,6 +64,33 @@ export default function ShopPage() {
   const [priceRange, setPriceRange] = useState([0, 5000])
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const filters: ProductFilters = {
+          page: 1,
+          limit: 100, // Get more products for the shop page
+          sortBy: 'createdAt',
+          sortOrder: 'desc'
+        }
+        const response = await apiClient.getProducts(filters)
+        setProducts(response.data)
+      } catch (err) {
+        setError('Failed to fetch products')
+        console.error('Error fetching products:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -703,236 +125,337 @@ export default function ShopPage() {
       case 'Price: High to Low':
         return b.price - a.price
       case 'Newest':
-        return b.isNew ? -1 : 1
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       case 'Best Rated':
-        return b.rating - a.rating
+        return (b.rating || 0) - (a.rating || 0)
       default:
         return 0
     }
   })
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Search is handled by the filter function
+  }
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category)
+  }
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort)
+  }
+
+  const handlePriceRangeChange = (range: number[]) => {
+    setPriceRange(range)
+  }
+
+  const handleColorToggle = (color: string) => {
+    setSelectedColors(prev => 
+      prev.includes(color) 
+        ? prev.filter(c => c !== color)
+        : [...prev, color]
+    )
+  }
+
+  const handleSizeToggle = (size: string) => {
+    setSelectedSizes(prev => 
+      prev.includes(size) 
+        ? prev.filter(s => s !== size)
+        : [...prev, size]
+    )
+  }
+
+  const clearFilters = () => {
+    setSelectedCategory('All')
+    setSearchQuery('')
+    setPriceRange([0, 5000])
+    setSelectedColors([])
+    setSelectedSizes([])
+    setSortBy('Featured')
+  }
+
+  const getGridCols = () => {
+    switch (productsPerRow) {
+      case 1: return 'grid-cols-1'
+      case 2: return 'grid-cols-1 sm:grid-cols-2'
+      case 3: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      case 4: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+      default: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuToggle={handleMenuToggle} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(9)].map((_, index) => (
+                <div key={index} className="bg-white rounded-lg p-6">
+                  <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuToggle={handleMenuToggle} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        onMenuClick={handleMenuToggle} 
-        isMobileMenuOpen={isMobileMenuOpen}
-        onFilterClick={handleFilterToggle}
-      />
-      <div className="flex">
-        <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
-        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
-          {/* Page Header */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <h1 className="text-3xl font-serif font-bold text-gray-900">Shop</h1>
-                  <p className="text-gray-600 mt-2">
-                    Discover our curated collection of luxury fashion pieces
-                  </p>
-                </div>
-                
-                {/* Desktop Search */}
-                <div className="mt-4 lg:mt-0 lg:w-96">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <input
-                      type="text"
-                      placeholder="Search products..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+      <Header onMenuToggle={handleMenuToggle} />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Shop All Products</h1>
+          <p className="text-gray-600">Discover our complete collection of luxury fashion</p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar */}
+          <div className="lg:w-1/4">
+            <Sidebar
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+              priceRange={priceRange}
+              onPriceRangeChange={handlePriceRangeChange}
+              selectedColors={selectedColors}
+              onColorToggle={handleColorToggle}
+              selectedSizes={selectedSizes}
+              onSizeToggle={handleSizeToggle}
+              onClearFilters={clearFilters}
+            />
           </div>
 
-          {/* Filters and Controls */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                {/* Category Filter */}
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        selectedCategory === category
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {category}
-                    </button>
+          {/* Main Content */}
+          <div className="lg:w-3/4">
+            {/* Toolbar */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">
+                  {sortedProducts.length} products found
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Search */}
+                <form onSubmit={handleSearch} className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </form>
+
+                {/* Sort */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {sortOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
                   ))}
-                </div>
+                </select>
 
-                {/* Sort and View Controls */}
-                <div className="flex items-center gap-4">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-600"
+                {/* View Options */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setProductsPerRow(1)}
+                    className={`p-2 rounded ${productsPerRow === 1 ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
                   >
-                    {sortOptions.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-
-                  {/* Products Per Row Selector */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">View:</span>
-                    <div className="flex border border-gray-200 rounded-lg">
-                      {/* Mobile: Show only 1 and 2 options */}
-                      <div className="flex sm:hidden">
-                        {[
-                          { count: 1, icon: Grid2X2, label: '1 per row' },
-                          { count: 2, icon: Grid3X3, label: '2 per row' }
-                        ].map(({ count, icon: Icon, label }) => (
-                          <button
-                            key={count}
-                            onClick={() => setProductsPerRow(count)}
-                            title={label}
-                            className={`p-2 transition-colors ${
-                              productsPerRow === count
-                                ? 'bg-primary-600 text-white'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {/* Desktop: Show all 3 options */}
-                      <div className="hidden sm:flex">
-                        {[
-                          { count: 1, icon: Grid2X2, label: '1 per row' },
-                          { count: 2, icon: Grid3X3, label: '2 per row' },
-                          { count: 3, icon: Grid, label: '3 per row' }
-                        ].map(({ count, icon: Icon, label }) => (
-                          <button
-                            key={count}
-                            onClick={() => setProductsPerRow(count)}
-                            title={label}
-                            className={`p-2 transition-colors ${
-                              productsPerRow === count
-                                ? 'bg-primary-600 text-white'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                    <Layout className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setProductsPerRow(2)}
+                    className={`p-2 rounded ${productsPerRow === 2 ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <Grid2X2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setProductsPerRow(3)}
+                    className={`p-2 rounded ${productsPerRow === 3 ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <Grid className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setProductsPerRow(4)}
+                    className={`p-2 rounded ${productsPerRow === 4 ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Products Grid */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-gray-600">
-                Showing {sortedProducts.length} of {products.length} products
-              </p>
-            </div>
+            {/* Products Grid */}
+            {sortedProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <ShoppingBag className="h-16 w-16 mx-auto" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                <p className="text-gray-600 mb-4">Try adjusting your filters or search terms</p>
+                <button
+                  onClick={clearFilters}
+                  className="btn-primary"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className={`grid ${getGridCols()} gap-6`}>
+                {sortedProducts.map((product) => (
+                  <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
+                    <div className="relative overflow-hidden rounded-t-lg">
+                      <Link href={`/products/${product.slug}`}>
+                        <Image
+                          src={product.images[0] || '/images/1.png'}
+                          alt={product.name}
+                          width={400}
+                          height={400}
+                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                      </Link>
+                      
+                      {/* Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        {product.isNew && (
+                          <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            New
+                          </span>
+                        )}
+                        {product.isSale && (
+                          <span className="bg-secondary-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                            Sale
+                          </span>
+                        )}
+                      </div>
 
-            <div className={`grid gap-6 ${
-              productsPerRow === 1 
-                ? 'grid-cols-1' 
-                : productsPerRow === 2
-                ? 'grid-cols-1 sm:grid-cols-2'
-                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-            }`}>
-              {sortedProducts.map((product) => (
-                <Link key={product.id} href={product.slug ? `/products/${product.slug}` : `/products/${product.id}`}>
-                  <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="relative aspect-square">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover rounded-t-lg"
-                    />
-                    
-                    {/* Badges */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {product.isNew && (
-                        <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                          New
-                        </span>
-                      )}
-                      {product.isSale && (
-                        <span className="bg-secondary-500 text-white text-xs px-2 py-1 rounded-full">
-                          Sale
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Wishlist Button */}
-                    <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                      <Heart className="h-4 w-4 text-gray-600" />
-                    </button>
-                  </div>
-
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium text-gray-900 text-sm lg:text-base">
-                        {product.name}
-                      </h3>
-                      <button className="p-1 hover:bg-gray-100 rounded transition-colors">
-                        <ShoppingBag className="h-4 w-4 text-gray-600" />
+                      {/* Wishlist Button */}
+                      <button className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">
+                        <Heart className="h-4 w-4 text-gray-400 hover:text-red-500" />
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-1 mb-2">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600">{product.rating}</span>
-                      <span className="text-sm text-gray-400">({product.reviews})</span>
-                    </div>
+                    <div className="p-4">
+                      <div className="mb-2">
+                        <h3 className="font-semibold text-gray-900 text-lg line-clamp-2 mb-1">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">{product.brand}</p>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary-600">
-                      ₨{product.price.toLocaleString()}
-                    </span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-gray-400 line-through">
-                        ₨{product.originalPrice.toLocaleString()}
-                      </span>
-                    )}
-                    </div>
+                      <div className="flex items-center gap-1 mb-3">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                        <span className="text-sm text-gray-600 font-medium">{product.rating || 0}</span>
+                        <span className="text-sm text-gray-400">({product.reviews || 0} reviews)</span>
+                      </div>
 
-                    <div className="mt-2">
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        {product.category}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-primary-600">
+                            ₨{product.price.toLocaleString()}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-sm text-gray-400 line-through">
+                              ₨{product.originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                        <button className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200">
+                          <ShoppingBag className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Load More Button */}
-            <div className="text-center mt-12">
-              <button className="btn-primary">
-                Load More Products
-              </button>
-            </div>
+                ))}
+              </div>
+            )}
           </div>
-
-          <Footer />
-        </main>
+        </div>
       </div>
+
+      <Footer />
       
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleMenuClose} />
+          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
+            <Sidebar
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+              priceRange={priceRange}
+              onPriceRangeChange={handlePriceRangeChange}
+              selectedColors={selectedColors}
+              onColorToggle={handleColorToggle}
+              selectedSizes={selectedSizes}
+              onSizeToggle={handleSizeToggle}
+              onClearFilters={clearFilters}
+              onClose={handleMenuClose}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Filters */}
+      {isMobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleFilterClose} />
+          <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-xl">
+            <MobileFilters
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+              priceRange={priceRange}
+              onPriceRangeChange={handlePriceRangeChange}
+              selectedColors={selectedColors}
+              onColorToggle={handleColorToggle}
+              selectedSizes={selectedSizes}
+              onSizeToggle={handleSizeToggle}
+              onClearFilters={clearFilters}
+              onClose={handleFilterClose}
+            />
+          </div>
+        </div>
+      )}
+
       <MobileBottomNav />
-      <MobileFilters isOpen={isMobileFiltersOpen} onClose={handleFilterClose} />
     </div>
   )
 }

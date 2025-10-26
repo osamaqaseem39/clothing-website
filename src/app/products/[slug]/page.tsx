@@ -11,6 +11,7 @@ import MobileBottomNav from '@/components/MobileBottomNav'
 import Footer from '@/components/Footer'
 import SimilarProducts from '@/components/SimilarProducts'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import SizeChart from '@/components/SizeChart'
 import { Star, Heart, ShoppingBag, Minus, Plus, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, User } from 'lucide-react'
 import Image from 'next/image'
 
@@ -105,6 +106,29 @@ export default function ProductPage() {
     }
   }, [slug])
 
+  // Add product to recently viewed when component mounts
+  useEffect(() => {
+    if (product) {
+      const productForRecentlyViewed = {
+        id: parseInt(product._id) || 0, // Convert string ID to number
+        name: product.name || 'Product',
+        price: product.price || 0,
+        originalPrice: product.originalPrice,
+        image: product.images?.[0] || '/images/1.png',
+        category: product.categories?.[0] || 'General',
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        isNew: product.isNew || false,
+        isSale: product.isSale || false,
+        slug: slug
+      }
+      addToRecentlyViewed(productForRecentlyViewed)
+      
+      // Track product view for analytics
+      trackProductView(product._id, product.categories?.[0] || 'General', product.brand || 'Unknown')
+    }
+  }, [product, slug, addToRecentlyViewed, trackProductView])
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -127,29 +151,6 @@ export default function ProductPage() {
       </div>
     )
   }
-
-  // Add product to recently viewed when component mounts
-  useEffect(() => {
-    if (product) {
-      const productForRecentlyViewed = {
-        id: parseInt(product._id) || 0, // Convert string ID to number
-        name: product.name || 'Product',
-        price: product.price || 0,
-        originalPrice: product.originalPrice,
-        image: product.images?.[0] || '/images/placeholder.png',
-        category: product.categories?.[0] || 'General',
-        rating: product.rating || 0,
-        reviews: product.reviews || 0,
-        isNew: product.isNew || false,
-        isSale: product.isSale || false,
-        slug: slug
-      }
-      addToRecentlyViewed(productForRecentlyViewed)
-      
-      // Track product view for analytics
-      trackProductView(product._id, product.categories?.[0] || 'General', product.brand || 'Unknown')
-    }
-  }, [product, slug, addToRecentlyViewed, trackProductView])
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -223,7 +224,7 @@ export default function ProductPage() {
                 {/* Main Image */}
                 <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
                   <Image
-                    src={product.images?.[selectedImage] || product.images?.[0] || '/images/placeholder.png'}
+                    src={product.images?.[selectedImage] || product.images?.[0] || '/images/1.png'}
                     alt={product.name || 'Product'}
                     fill
                     className="object-cover"
@@ -307,12 +308,12 @@ export default function ProductPage() {
                         <Star
                           key={i}
                           className={`h-4 w-4 ${
-                            i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                            i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                           }`}
                         />
                       ))}
                       <span className="text-sm text-gray-600 ml-2">
-                        {product.rating} ({product.reviews} reviews)
+                        {product.rating || 0} ({product.reviews || 0} reviews)
                       </span>
                     </div>
                   </div>
@@ -359,6 +360,14 @@ export default function ProductPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Size Chart */}
+                <div className="mt-4">
+                  <SizeChart 
+                    sizeChart={product.sizeChart} 
+                    availableSizes={product.availableSizes || ['S', 'M', 'L', 'XL']} 
+                  />
                 </div>
 
                 {/* Color Selection */}
@@ -620,7 +629,7 @@ export default function ProductPage() {
               name: product.name || 'Product',
               price: product.price || 0,
               originalPrice: product.originalPrice,
-              image: product.images?.[0] || '/images/placeholder.png',
+              image: product.images?.[0] || '/images/1.png',
               category: product.categories?.[0] || 'General',
               rating: product.rating || 0,
               reviews: product.reviews || 0,

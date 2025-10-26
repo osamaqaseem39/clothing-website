@@ -7,99 +7,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { apiClient, Product } from '@/lib/api'
 
-// Featured/Top Seller products data
-const featuredProducts = [
-  {
-    id: 1,
-    name: 'Elegant Evening Gown',
-    price: 1299,
-    originalPrice: 1599,
-    image: '/images/1.png',
-    category: 'Evening Wear',
-    brand: 'Élégance Couture',
-    rating: 4.8,
-    reviews: 24,
-    isNew: true,
-    isSale: true,
-    isTopSeller: true,
-    slug: 'elegant-evening-gown'
-  },
-  {
-    id: 17,
-    name: 'Luxury Couture Piece',
-    price: 3500,
-    originalPrice: null,
-    image: '/images/2.png',
-    category: 'Couture',
-    brand: 'Luxury Line',
-    rating: 4.9,
-    reviews: 12,
-    isNew: true,
-    isSale: false,
-    isTopSeller: false,
-    slug: 'luxury-couture-piece'
-  },
-  {
-    id: 9,
-    name: 'Summer Day Dress',
-    price: 599,
-    originalPrice: null,
-    image: '/images/3.png',
-    category: 'Day Dresses',
-    brand: 'Couture Collection',
-    rating: 4.6,
-    reviews: 18,
-    isNew: false,
-    isSale: false,
-    isTopSeller: true,
-    slug: 'summer-day-dress'
-  },
-  {
-    id: 43,
-    name: 'Luxury Jewelry Set',
-    price: 1500,
-    originalPrice: 2000,
-    image: '/images/4.png',
-    category: 'Jewelry',
-    brand: 'Premium',
-    rating: 4.8,
-    reviews: 6,
-    isNew: true,
-    isSale: true,
-    isTopSeller: true,
-    slug: 'luxury-jewelry-set'
-  },
-  {
-    id: 39,
-    name: 'Designer Handbag',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/5.png',
-    category: 'Accessories',
-    brand: 'Élégance Couture',
-    rating: 4.5,
-    reviews: 15,
-    isNew: true,
-    isSale: true,
-    isTopSeller: false,
-    slug: 'designer-handbag'
-  },
-  {
-    id: 23,
-    name: 'Bridal Collection Dress',
-    price: 2500,
-    originalPrice: null,
-    image: '/images/6.png',
-    category: 'Bridal',
-    brand: 'Luxury Line',
-    rating: 4.7,
-    reviews: 8,
-    isNew: false,
-    isSale: false,
-    isTopSeller: true,
-    slug: 'bridal-collection-dress'
-  }
-]
+// No hardcoded data - fetch from API
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -184,7 +92,7 @@ export default function FeaturedProducts() {
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative aspect-square overflow-hidden rounded-t-lg">
                     <Image
-                      src={product.images[0] || '/images/placeholder.png'}
+                      src={product.images[0] || '/images/1.png'}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -202,7 +110,7 @@ export default function FeaturedProducts() {
                           Sale
                         </span>
                       )}
-                      {product.rating >= 4.5 && (
+                      {(product.rating || 0) >= 4.5 && (
                         <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
                           <TrendingUp className="h-3 w-3" />
                           Top Seller
@@ -250,9 +158,9 @@ export default function FeaturedProducts() {
 
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                        {product.categories[0] || 'General'}
+                        {product.categories?.[0] || product.category || 'General'}
                       </span>
-                      {product.rating >= 4.5 && (
+                      {(product.rating || 0) >= 4.5 && (
                         <div className="flex items-center gap-1 text-xs text-primary-600 font-medium">
                           <TrendingUp className="h-3 w-3" />
                           Bestseller

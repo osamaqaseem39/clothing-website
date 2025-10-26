@@ -1,82 +1,30 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
-
-const trendingProducts = [
-  {
-    id: '1',
-    name: 'Designer Blazer',
-    price: 899,
-    image: '/images/7.png',
-    category: 'Day Dresses',
-    isNew: true,
-    slug: 'designer-blazer'
-  },
-  {
-    id: '2',
-    name: 'Silk Evening Gown',
-    price: 1299,
-    originalPrice: 1599,
-    image: '/images/8.png',
-    category: 'Evening Wear',
-    isOnSale: true,
-    slug: 'silk-evening-gown'
-  },
-  {
-    id: '3',
-    name: 'Pearl Necklace',
-    price: 599,
-    image: '/images/9.png',
-    category: 'Jewelry',
-    slug: 'pearl-necklace'
-  },
-  {
-    id: '4',
-    name: 'Couture Cocktail Dress',
-    price: 899,
-    image: '/images/7 (2).png',
-    category: 'Couture',
-    slug: 'couture-cocktail-dress'
-  },
-  {
-    id: '5',
-    name: 'Luxury Handbag',
-    price: 1299,
-    image: '/images/1.png',
-    category: 'Accessories',
-    isNew: true,
-    slug: 'luxury-handbag'
-  },
-  {
-    id: '6',
-    name: 'Cashmere Wrap',
-    price: 699,
-    originalPrice: 899,
-    image: '/images/2.png',
-    category: 'Accessories',
-    isOnSale: true,
-    slug: 'cashmere-wrap'
-  },
-  {
-    id: '7',
-    name: 'Diamond Earrings',
-    price: 1999,
-    image: '/images/3.png',
-    category: 'Jewelry',
-    slug: 'diamond-earrings'
-  },
-  {
-    id: '8',
-    name: 'Bridal Gown',
-    price: 2499,
-    image: '/images/4.png',
-    category: 'Bridal',
-    slug: 'bridal-gown'
-  }
-]
+import { apiClient, Product } from '@/lib/api'
 
 export default function TrendingProducts() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchTrendingProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await apiClient.getTrendingProducts()
+        setProducts(response.slice(0, 8)) // Show only 8 products
+      } catch (error) {
+        console.error('Error fetching trending products:', error)
+        setProducts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTrendingProducts()
+  }, [])
   return (
     <section className="py-8 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,19 +43,33 @@ export default function TrendingProducts() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trendingProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <ProductCard {...product} />
-            </motion.div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="bg-gray-200 h-64 rounded-lg"></div>
+                <div className="mt-4 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.map((product, index) => (
+              <motion.div
+                key={product._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <ProductCard {...product} />
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -2,56 +2,9 @@
 
 import { motion } from 'framer-motion'
 import { Package, Search, Filter, Download, Eye, Truck } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const orders = [
-  {
-    id: 'ORD-001',
-    date: '2024-01-15',
-    status: 'Delivered',
-    total: 2199.99,
-    items: [
-      { name: 'Silk Evening Gown', quantity: 1, price: 1299.99, image: '/images/1.png' },
-      { name: 'Couture Cocktail Dress', quantity: 1, price: 899.99, image: '/images/2.png' },
-      { name: 'Pearl Necklace Set', quantity: 1, price: 599.99, image: '/images/6.png' }
-    ],
-    tracking: 'TRK123456789',
-    shippingAddress: '123 Main St, New York, NY 10001'
-  },
-  {
-    id: 'ORD-002',
-    date: '2024-01-10',
-    status: 'Shipped',
-    total: 699.99,
-    items: [
-      { name: 'Designer Blazer', quantity: 1, price: 699.99, image: '/images/3.png' }
-    ],
-    tracking: 'TRK987654321',
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90210'
-  },
-  {
-    id: 'ORD-003',
-    date: '2024-01-05',
-    status: 'Processing',
-    total: 2499.99,
-    items: [
-      { name: 'Bridal Gown', quantity: 1, price: 2499.99, image: '/images/4.png' }
-    ],
-    tracking: null,
-    shippingAddress: '789 Pine St, Chicago, IL 60601'
-  },
-  {
-    id: 'ORD-004',
-    date: '2023-12-28',
-    status: 'Cancelled',
-    total: 1299.99,
-    items: [
-      { name: 'Luxury Handbag', quantity: 1, price: 1299.99, image: '/images/5.png' }
-    ],
-    tracking: null,
-    shippingAddress: '321 Elm St, Miami, FL 33101'
-  }
-]
+// No hardcoded data - fetch from API
 
 const statusColors = {
   'Delivered': 'bg-green-100 text-green-800',
@@ -60,9 +13,49 @@ const statusColors = {
   'Cancelled': 'bg-red-100 text-red-800'
 }
 
+interface Order {
+  id: string
+  date: string
+  status: string
+  total: number
+  items: Array<{
+    name: string
+    quantity: number
+    price: number
+    image: string
+  }>
+  tracking?: string
+  shippingAddress: string
+}
+
 export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        // TODO: Replace with actual API call when orders API is available
+        // const response = await apiClient.getOrders()
+        // setOrders(response.data)
+        
+        // For now, show empty state
+        setOrders([])
+      } catch (err) {
+        setError('Failed to fetch orders')
+        console.error('Error fetching orders:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrders()
+  }, [])
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,7 +107,58 @@ export default function OrdersPage() {
 
       {/* Orders List */}
       <div className="space-y-4">
-        {filteredOrders.map((order, index) => (
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="h-10 w-10 bg-gray-200 rounded-lg"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-32"></div>
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+            <div className="text-red-500 mb-4">
+              <Package className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Orders</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <Package className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
+            <p className="text-gray-600 mb-4">
+              {orders.length === 0 
+                ? "You haven't placed any orders yet." 
+                : "No orders match your current filters."
+              }
+            </p>
+            {orders.length === 0 && (
+              <button className="btn-primary">
+                Start Shopping
+              </button>
+            )}
+          </div>
+        ) : (
+          filteredOrders.map((order, index) => (
           <motion.div
             key={order.id}
             initial={{ opacity: 0, y: 20 }}
@@ -197,21 +241,9 @@ export default function OrdersPage() {
               </div>
             </div>
           </motion.div>
-        ))}
+          ))
+        )}
       </div>
-
-      {/* Empty State */}
-      {filteredOrders.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12"
-        >
-          <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-          <p className="text-gray-600">Try adjusting your search or filter criteria</p>
-        </motion.div>
-      )}
     </div>
   )
 }
