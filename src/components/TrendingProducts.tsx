@@ -65,7 +65,17 @@ export default function TrendingProducts() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <ProductCard {...product} />
+                <ProductCard 
+                  id={product._id}
+                  name={product.name}
+                  price={product.price}
+                  originalPrice={product.originalPrice}
+                  image={product.images[0] || ''}
+                  category={product.category || ''}
+                  isNew={product.isNew}
+                  isOnSale={product.isSale}
+                  slug={product.slug}
+                />
               </motion.div>
             ))}
           </div>

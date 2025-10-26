@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
+import FiltersSidebar from '@/components/FiltersSidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
 import Footer from '@/components/Footer'
@@ -188,7 +189,7 @@ export default function ShopPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onMenuToggle={handleMenuToggle} />
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -211,7 +212,7 @@ export default function ShopPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onMenuToggle={handleMenuToggle} />
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
@@ -231,7 +232,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onMenuToggle={handleMenuToggle} />
+      <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
@@ -243,7 +244,7 @@ export default function ShopPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <div className="lg:w-1/4">
-            <Sidebar
+            <FiltersSidebar
               categories={categories}
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
@@ -417,16 +418,7 @@ export default function ShopPage() {
           <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleMenuClose} />
           <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
             <Sidebar
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              priceRange={priceRange}
-              onPriceRangeChange={handlePriceRangeChange}
-              selectedColors={selectedColors}
-              onColorToggle={handleColorToggle}
-              selectedSizes={selectedSizes}
-              onSizeToggle={handleSizeToggle}
-              onClearFilters={clearFilters}
+              isOpen={isMobileMenuOpen}
               onClose={handleMenuClose}
             />
           </div>
@@ -439,16 +431,7 @@ export default function ShopPage() {
           <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleFilterClose} />
           <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-xl">
             <MobileFilters
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              priceRange={priceRange}
-              onPriceRangeChange={handlePriceRangeChange}
-              selectedColors={selectedColors}
-              onColorToggle={handleColorToggle}
-              selectedSizes={selectedSizes}
-              onSizeToggle={handleSizeToggle}
-              onClearFilters={clearFilters}
+              isOpen={isMobileFiltersOpen}
               onClose={handleFilterClose}
             />
           </div>
