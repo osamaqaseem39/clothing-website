@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { X, Image } from 'lucide-react';
 
 interface SizeChartProps {
   sizeChart?: {
@@ -59,7 +59,7 @@ const SizeChart: React.FC<SizeChartProps> = ({ sizeChart, availableSizes = [] })
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 
@@ -69,7 +69,7 @@ const SizeChart: React.FC<SizeChartProps> = ({ sizeChart, availableSizes = [] })
               {sizeChart.imageUrl && (
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <PhotoIcon className="h-5 w-5 text-gray-500" />
+                    <Image className="h-5 w-5 text-gray-500" />
                     <h3 className="text-lg font-semibold text-gray-900">Size Guide</h3>
                   </div>
                   <div className="flex justify-center">
@@ -83,7 +83,7 @@ const SizeChart: React.FC<SizeChartProps> = ({ sizeChart, availableSizes = [] })
                       }}
                     />
                     <div className="hidden text-center text-gray-500 py-8">
-                      <PhotoIcon className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                      <Image className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                       <p>Size chart image not available</p>
                     </div>
                   </div>
