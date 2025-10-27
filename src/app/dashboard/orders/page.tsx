@@ -3,14 +3,30 @@
 import { motion } from 'framer-motion'
 import { Package, Search, Filter, Download, Eye, Truck } from 'lucide-react'
 import { useState, useEffect } from 'react'
-
-// No hardcoded data - fetch from API
+import { useCustomer } from '@/contexts/CustomerContext'
+import { apiClient } from '@/lib/api'
 
 const statusColors = {
   'Delivered': 'bg-green-100 text-green-800',
   'Shipped': 'bg-blue-100 text-blue-800',
   'Processing': 'bg-yellow-100 text-yellow-800',
   'Cancelled': 'bg-red-100 text-red-800'
+}
+
+interface APIOrder {
+  _id: string
+  orderNumber: string
+  createdAt: string
+  status: string
+  totalAmount: number
+  items: Array<{
+    productId: any
+    variationId: any
+    quantity: number
+    price: number
+  }>
+  shippingAddress?: any
+  trackingNumber?: string
 }
 
 interface Order {
@@ -29,6 +45,7 @@ interface Order {
 }
 
 export default function OrdersPage() {
+  const { customer } = useCustomer()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [orders, setOrders] = useState<Order[]>([])
@@ -36,26 +53,53 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        // TODO: Replace with actual API call when orders API is available
-        // const response = await apiClient.getOrders()
-        // setOrders(response.data)
-        
-        // For now, show empty state
-        setOrders([])
-      } catch (err) {
-        setError('Failed to fetch orders')
-        console.error('Error fetching orders:', err)
-      } finally {
-        setLoading(false)
-      }
+    if (customer?._id) {
+      fetchOrders()
+    } else {
+      setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer])
 
-    fetchOrders()
-  }, [])
+  const fetchOrders = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      if (!customer?._id) return
+      
+      const response = await apiClient.getCustomerOrders(customer._id, { page: 1, limit: 50 })
+      
+      // Map API response to display format
+      const mappedOrders: Order[] = (response.data || []).map((order: APIOrder) => {
+        const items = order.items.map(item => ({
+          name: item.productId?.name || 'Unknown Product',
+          quantity: item.quantity,
+          price: item.price,
+          image: item.productId?.images?.[0] || '/placeholder.jpg'
+        }))
+        
+        return {
+          id: order.orderNumber || order._id.slice(-8),
+          date: new Date(order.createdAt).toLocaleDateString(),
+          status: order.status,
+          total: order.totalAmount,
+          items,
+          tracking: order.trackingNumber,
+          shippingAddress: order.shippingAddress ? 
+            `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.country}` : 
+            'N/A'
+        }
+      })
+      
+      setOrders(mappedOrders)
+    } catch (err) {
+      setError('Failed to fetch orders')
+      console.error('Error fetching orders:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,6 +183,19 @@ export default function OrdersPage() {
               Try Again
             </button>
           </div>
+        ) : !customer ? (
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <Package className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Please Log In</h3>
+            <p className="text-gray-600 mb-4">
+              You need to be logged in to view your orders.
+            </p>
+            <a href="/login" className="btn-primary inline-block">
+              Log In
+            </a>
+          </div>
         ) : filteredOrders.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
             <div className="text-gray-400 mb-4">
@@ -152,9 +209,9 @@ export default function OrdersPage() {
               }
             </p>
             {orders.length === 0 && (
-              <button className="btn-primary">
+              <a href="/shop" className="btn-primary inline-block">
                 Start Shopping
-              </button>
+              </a>
             )}
           </div>
         ) : (

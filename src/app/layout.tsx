@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Manrope } from 'next/font/google'
 import './globals.css'
 import { RecentlyViewedProvider } from '@/contexts/RecentlyViewedContext'
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext'
+import { CustomerProvider } from '@/contexts/CustomerContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 
 const cormorant = Cormorant_Garamond({ 
@@ -31,12 +32,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${cormorant.variable} font-sans`}>
-        <AnalyticsProvider>
-          <RecentlyViewedProvider>
-            {children}
-            <CookieConsentBanner />
-          </RecentlyViewedProvider>
-        </AnalyticsProvider>
+        <CustomerProvider>
+          <AnalyticsProvider>
+            <RecentlyViewedProvider>
+              {children}
+              <CookieConsentBanner />
+            </RecentlyViewedProvider>
+          </AnalyticsProvider>
+        </CustomerProvider>
       </body>
     </html>
   )

@@ -286,6 +286,24 @@ class ApiClient {
     const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ''
     return await this.request<PaginatedResponse<Brand>>(`/brands/country/${country}${suffix}`)
   }
+
+  // Orders API - TODO: Connect to backend
+  async getCustomerOrders(customerId: string, filters: { page?: number; limit?: number } = {}): Promise<any> {
+    const params = new URLSearchParams()
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, value.toString())
+      }
+    })
+
+    const suffix = params.toString() ? `?${params.toString()}` : ''
+    return await this.request(`/orders/customer/${customerId}${suffix}`)
+  }
+
+  async getOrder(id: string): Promise<any> {
+    return await this.request(`/orders/${id}`)
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL)
