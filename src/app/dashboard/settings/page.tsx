@@ -20,7 +20,7 @@ export default function SettingsPage() {
     preferences: {
       theme: 'light',
       language: 'en',
-      currency: 'USD',
+      currency: 'PKR',
       timezone: 'America/New_York'
     }
   })
@@ -271,7 +271,7 @@ export default function SettingsPage() {
               })}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="USD">USD ($)</option>
+              <option value="PKR">PKR (₨)</option>
               <option value="EUR">EUR (€)</option>
               <option value="GBP">GBP (£)</option>
               <option value="CAD">CAD (C$)</option>

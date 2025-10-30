@@ -24,9 +24,12 @@ export interface Customer {
 }
 
 export async function loginCustomer(payload: LoginPayload) {
-  const res = await fetch(`${API_BASE_URL}/customers/login`, {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
-    headers: getCorsHeaders(),
+    headers: {
+      ...getCorsHeaders(),
+      'Content-Type': 'application/json',
+    },
     ...getCorsConfig(),
     body: JSON.stringify(payload),
   })
@@ -35,9 +38,12 @@ export async function loginCustomer(payload: LoginPayload) {
 }
 
 export async function registerCustomer(payload: RegisterPayload) {
-  const res = await fetch(`${API_BASE_URL}/customers/register`, {
+  const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
-    headers: getCorsHeaders(),
+    headers: {
+      ...getCorsHeaders(),
+      'Content-Type': 'application/json',
+    },
     ...getCorsConfig(),
     body: JSON.stringify(payload),
   })
@@ -46,7 +52,7 @@ export async function registerCustomer(payload: RegisterPayload) {
 }
 
 export async function getCurrentUser(token: string): Promise<Customer> {
-  const res = await fetch(`${API_BASE_URL}/customers/me`, {
+  const res = await fetch(`${API_BASE_URL}/auth/profile`, {
     method: 'GET',
     headers: {
       ...getCorsHeaders(),
@@ -55,7 +61,9 @@ export async function getCurrentUser(token: string): Promise<Customer> {
     ...getCorsConfig(),
   })
   if (!res.ok) throw new Error('Failed to get user')
-  return res.json()
+  const payload = await res.json()
+  // Normalize to return the user object directly
+  return (payload?.data?.user || payload?.user || payload) as Customer
 }
 
 
