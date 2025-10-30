@@ -4,23 +4,24 @@ import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { apiClient, Category } from '@/lib/api'
+
+interface CategoryGridProps {
+  showHeader?: boolean
+}
 
 // No hardcoded data - fetch from API
 
-export default function CategoryGrid() {
-  const [categories, setCategories] = useState<any[]>([])
+export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true)
-        // TODO: Replace with actual API call
-        // const response = await apiClient.getCategories()
-        // setCategories(response.data)
-        
-        // For now, show empty state
-        setCategories([])
+        const data = await apiClient.getCategories()
+        setCategories(data)
       } catch (error) {
         console.error('Error fetching categories:', error)
         setCategories([])
@@ -34,21 +35,23 @@ export default function CategoryGrid() {
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
-            Our Collections
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Exquisite couture pieces crafted for the sophisticated woman. 
-            Each collection tells a story of elegance and luxury.
-          </p>
-        </motion.div>
+        {showHeader && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
+              Our Collections
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Exquisite couture pieces crafted for the sophisticated woman. 
+              Each collection tells a story of elegance and luxury.
+            </p>
+          </motion.div>
+        )}
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

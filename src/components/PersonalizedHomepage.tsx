@@ -223,7 +223,7 @@ const PersonalizedHomepage: React.FC = () => {
               {userProfile ? 'Based on your preferences' : 'Explore our collections'}
             </p>
           </div>
-          <CategoryGrid />
+          <CategoryGrid showHeader={false} />
         </div>
       </div>
 
@@ -238,7 +238,7 @@ const PersonalizedHomepage: React.FC = () => {
               {userProfile ? 'Popular items in your preferred categories' : 'Discover our curated collection'}
             </p>
           </div>
-          <FeaturedProducts />
+          <FeaturedProducts showHeader={false} />
         </div>
       </div>
 

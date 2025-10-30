@@ -12,8 +12,7 @@ import {
   Settings, 
   Star,
   ShoppingBag,
-  Bell,
-  HelpCircle
+  
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -23,10 +22,8 @@ const navigation = [
   { name: 'Wishlist', href: '/dashboard/wishlist', icon: Heart },
   { name: 'Addresses', href: '/dashboard/addresses', icon: MapPin },
   { name: 'Payment Methods', href: '/dashboard/payment', icon: CreditCard },
-  { name: 'Reviews', href: '/dashboard/reviews', icon: Star },
-  { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+  { name: 'Profile', href: '/dashboard/profile', icon: Star },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-  { name: 'Help & Support', href: '/dashboard/help', icon: HelpCircle },
 ]
 
 export default function DashboardSidebar() {
@@ -54,7 +51,7 @@ export default function DashboardSidebar() {
         {/* Navigation */}
         <nav className="space-y-2">
           {navigation.map((item) => {
-            const isActive = pathname === item.href
+            const isActive = item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
             return (
               <Link
                 key={item.name}

@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://clothing-server-cyan.vercel.app/api'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 // Minimal default headers to avoid triggering unnecessary CORS preflights
 export const getCorsHeaders = () => ({
