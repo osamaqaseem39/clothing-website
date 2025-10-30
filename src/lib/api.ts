@@ -36,6 +36,7 @@ export interface Product {
   reviews?: number
   availableSizes?: string[]
   colors?: string[]
+  sizeChartImageUrl?: string
   features?: string[]
   bodyType?: string[]
   occasion?: string
