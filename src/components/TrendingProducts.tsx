@@ -72,6 +72,8 @@ export default function TrendingProducts() {
                   originalPrice={product.originalPrice}
                   image={product.images[0] || ''}
                   category={product.category || ''}
+                  brand={product.brand}
+                  color={(product as any)?.attributes?.color || (product.colors && product.colors[0])}
                   isNew={product.isNew}
                   isOnSale={product.isSale}
                   slug={product.slug}

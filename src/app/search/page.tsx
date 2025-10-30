@@ -299,6 +299,8 @@ export default function SearchPage() {
                       originalPrice={product.salePrice}
                       image={product.images[0] || '/images/1.png'}
                       category={product.categories?.[0] || product.category || 'Uncategorized'}
+                      brand={product.brand}
+                      color={(product as any)?.attributes?.color || (product.colors && product.colors[0])}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
                       isOnSale={!!product.salePrice}
                       slug={product.slug}

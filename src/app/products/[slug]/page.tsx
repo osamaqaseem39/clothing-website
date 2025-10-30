@@ -12,7 +12,7 @@ import Footer from '@/components/Footer'
 // import SimilarProducts from '@/components/SimilarProducts'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import SizeChart from '@/components/SizeChart'
-import { Star, Heart, ShoppingBag, Minus, Plus, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, User } from 'lucide-react'
+import { Star, Heart, ShoppingBag, Minus, Plus, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, User, X } from 'lucide-react'
 import Image from 'next/image'
 
 // No hardcoded related products
@@ -29,9 +29,11 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const [activeTab, setActiveTab] = useState<string>('Overview')
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSizeImageOpen, setIsSizeImageOpen] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -328,7 +330,43 @@ export default function ProductPage() {
                   {!product.sizeChart && product.sizeChartImageUrl && (
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-gray-900">Size Guide</h4>
-                      <img src={product.sizeChartImageUrl} alt="Size chart" className="w-full max-w-md rounded border border-gray-200" />
+                      <button
+                        onClick={() => setIsSizeImageOpen(true)}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        View Size Chart
+                      </button>
+
+                      {isSizeImageOpen && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                              <h3 className="text-lg font-semibold text-gray-900">Size Guide</h3>
+                              <button
+                                onClick={() => setIsSizeImageOpen(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                              >
+                                <X className="h-6 w-6" />
+                              </button>
+                            </div>
+                            <div className="p-4 flex justify-center">
+                              <img
+                                src={product.sizeChartImageUrl}
+                                alt="Size chart"
+                                className="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+                              />
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                              <button
+                                onClick={() => setIsSizeImageOpen(false)}
+                                className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
