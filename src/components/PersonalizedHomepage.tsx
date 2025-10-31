@@ -239,40 +239,7 @@ const PersonalizedHomepage: React.FC = () => {
       {/* Brands */}
       <Brands />
 
-      {/* User Profile Insights */}
-      {userProfile && (
-        <div className="py-8 bg-primary-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-primary-900 mb-2">
-                Your Style Profile
-              </h3>
-              <div className="flex flex-wrap justify-center gap-4 text-sm text-primary-700">
-                {userProfile.preferences.favoriteCategories.length > 0 && (
-                  <span className="bg-primary-100 px-3 py-1 rounded-full">
-                    {userProfile.preferences.favoriteCategories.length} Favorite Categories
-                  </span>
-                )}
-                {userProfile.preferences.favoriteColors.length > 0 && (
-                  <span className="bg-primary-100 px-3 py-1 rounded-full">
-                    {userProfile.preferences.favoriteColors.length} Favorite Colors
-                  </span>
-                )}
-                {userProfile.behavior.totalVisits > 0 && (
-                  <span className="bg-primary-100 px-3 py-1 rounded-full">
-                    {userProfile.behavior.totalVisits} Visits
-                  </span>
-                )}
-                {userProfile.location && (
-                  <span className="bg-primary-100 px-3 py-1 rounded-full">
-                    From {userProfile.location.city}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* User Profile Insights removed per request */}
     </div>
   )
 }
