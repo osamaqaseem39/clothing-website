@@ -81,7 +81,7 @@ const PersonalizedHomepage: React.FC = () => {
     // Load trending products based on user preferences
     try {
       const trendingResponse = await apiClient.getTrendingProducts()
-      content.trendingProducts = (trendingResponse as any).data.slice(0, 4)
+      content.trendingProducts = (trendingResponse as any)?.slice ? (trendingResponse as any).slice(0, 4) : []
     } catch (error) {
       console.error('Error loading trending products:', error)
     }

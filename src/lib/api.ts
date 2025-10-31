@@ -1,4 +1,5 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+// Prefer a relative base so we can proxy via Next.js rewrites in all environments
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 // Minimal default headers to avoid triggering unnecessary CORS preflights
 export const getCorsHeaders = () => ({
@@ -252,9 +253,26 @@ class ApiClient {
       categories.forEach((cat: string) => params.append('categories', cat))
     }
 
-    // Append the rest of the filters
+    // Only send supported keys to avoid 400s from backend validation
+    const allowedKeys = new Set([
+      'page',
+      'limit',
+      'search',
+      'brand',
+      'minPrice',
+      'maxPrice',
+      'inStock',
+      'status',
+      'sizes',
+      'sortBy',
+      'sortOrder',
+    ])
     Object.entries(rest).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
+      if (!allowedKeys.has(key)) return
+      if (value === undefined || value === null) return
+      if (Array.isArray(value)) {
+        value.forEach(v => params.append(key, v.toString()))
+      } else {
         params.append(key, value.toString())
       }
     })
