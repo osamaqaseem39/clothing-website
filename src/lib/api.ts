@@ -164,7 +164,8 @@ class ApiClient {
     // Normalize brand to a string name if object/id provided
     let brandName: string = ''
     if (typeof raw?.brand === 'string') {
-      brandName = raw.brand
+      const looksLikeObjectId = /^[a-f\d]{24}$/i.test(raw.brand)
+      brandName = looksLikeObjectId ? '' : raw.brand
     } else if (raw?.brand && typeof raw.brand === 'object') {
       brandName = raw.brand.name || raw.brand.slug || raw.brand._id || ''
     }

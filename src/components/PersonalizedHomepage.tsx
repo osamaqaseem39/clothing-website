@@ -219,9 +219,6 @@ const PersonalizedHomepage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               {userProfile ? "Your Favorite Categories" : "Shop by Category"}
             </h2>
-            <p className="text-lg text-gray-600">
-              {userProfile ? 'Based on your preferences' : 'Explore our collections'}
-            </p>
           </div>
           <CategoryGrid showHeader={false} />
         </div>
@@ -234,9 +231,6 @@ const PersonalizedHomepage: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               {userProfile ? "Trending in Your Style" : "Featured Products"}
             </h2>
-            <p className="text-lg text-gray-600">
-              {userProfile ? 'Popular items in your preferred categories' : 'Discover our curated collection'}
-            </p>
           </div>
           <FeaturedProducts showHeader={false} />
         </div>

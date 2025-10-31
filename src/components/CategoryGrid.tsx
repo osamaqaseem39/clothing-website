@@ -72,7 +72,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
-              <Link key={category._id || category.id} href={category.href || `/categories/${category.slug}`}>
+              <Link key={category._id || category.slug || String(index)} href={category.href || `/categories/${category.slug}`}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
