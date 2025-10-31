@@ -25,21 +25,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { 
       name: 'Women', 
       href: '/shop?category=women', 
-      icon: Users,
-      submenu: [
-        { name: 'Evening Wear', href: '/shop?category=evening-wear' },
-        { name: 'Day Dresses', href: '/shop?category=day-dresses' },
-        { name: 'Couture', href: '/shop?category=couture' },
-        { name: 'Bridal', href: '/shop?category=bridal' },
-        { name: 'Casual Wear', href: '/shop?category=casual-wear' },
-        { name: 'Formal Wear', href: '/shop?category=formal-wear' },
-        { name: 'Accessories', href: '/shop?category=accessories' },
-        { name: 'Jewelry', href: '/shop?category=jewelry' },
-        { name: 'Handbags', href: '/shop?category=handbags' },
-        { name: 'Shoes', href: '/shop?category=shoes' },
-        { name: 'Lingerie', href: '/shop?category=lingerie' },
-        { name: 'Activewear', href: '/shop?category=activewear' }
-      ]
+      icon: Users
     },
     { name: 'Brands', href: '/brands', icon: Tag },
     { name: 'Top Curations', href: '/shop?filter=featured', icon: Star },
@@ -66,35 +52,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <a
                   href={item.href}
                   className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                  onClick={item.name === 'Women' ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
                 >
                   <div className="flex items-center space-x-3">
                     {item.icon && <item.icon className="h-4 w-4" />}
                     <span>{item.name}</span>
                   </div>
-                  {item.name === 'Women' && (
-                    <ChevronDown 
-                      className={`h-4 w-4 transition-transform ${
-                        expandedItems.includes(item.name) ? 'rotate-180' : ''
-                      }`} 
-                    />
-                  )}
                 </a>
                 
-                {/* Submenu */}
-                {item.submenu && expandedItems.includes(item.name) && (
-                  <div className="ml-4 mt-1 space-y-1">
-                    {item.submenu.map((subItem) => (
-                      <a
-                        key={subItem.name}
-                        href={subItem.href}
-                        className="block px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                      >
-                        {subItem.name}
-                      </a>
-                    ))}
-                  </div>
-                )}
+                {/* Submenu removed for Women */}
               </div>
             ))}
           </nav>
@@ -148,36 +113,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <a
                       href={item.href}
                       className="flex items-center justify-between w-full px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                      onClick={item.name === 'Women' ? (e) => { e.preventDefault(); toggleExpanded(item.name) } : undefined}
                     >
                       <div className="flex items-center space-x-3">
                         {item.icon && <item.icon className="h-4 w-4" />}
                         <span>{item.name}</span>
                       </div>
-                      {item.name === 'Women' && (
-                        <ChevronDown 
-                          className={`h-4 w-4 transition-transform ${
-                            expandedItems.includes(item.name) ? 'rotate-180' : ''
-                          }`} 
-                        />
-                      )}
                     </a>
                     
-                    {/* Submenu */}
-                    {item.submenu && expandedItems.includes(item.name) && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        {item.submenu.map((subItem) => (
-                          <a
-                            key={subItem.name}
-                            href={subItem.href}
-                            className="block px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                            onClick={onClose}
-                          >
-                            {subItem.name}
-                          </a>
-                        ))}
-                      </div>
-                    )}
+                    {/* Submenu removed for Women */}
                   </div>
                 ))}
               </nav>

@@ -39,11 +39,6 @@ export default function MobileFilters({ isOpen, onClose }: MobileFiltersProps) {
       id: 'color',
       title: 'Color',
       options: ['Black', 'White', 'Red', 'Blue', 'Pink', 'Gold']
-    },
-    {
-      id: 'brand',
-      title: 'Brand',
-      options: ['Élégance', 'Luxury Line', 'Couture Collection', 'Premium']
     }
   ]
 
