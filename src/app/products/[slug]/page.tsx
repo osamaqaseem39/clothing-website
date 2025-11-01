@@ -666,7 +666,7 @@ export default function ProductPage() {
                         ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
                         ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
                         ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
-                      ].filter(([, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
+                      ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
                         <tr key={k as string} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
                             {k as string}
