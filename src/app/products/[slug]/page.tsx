@@ -186,7 +186,100 @@ export default function ProductPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* Product Images */}
-              <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Thumbnail Images - Left Side */}
+                {(() => {
+                  const normalizeImageUrl = (img: any): string => {
+                    if (!img) return '/images/1.png'
+                    
+                    let imageUrl = ''
+                    
+                    // Extract URL from various formats
+                    if (typeof img === 'string') {
+                      imageUrl = img.trim()
+                    } else if (typeof img === 'object') {
+                      imageUrl = (img.url || img.imageUrl || img.path || '').trim()
+                    }
+                    
+                    // Return placeholder if empty or ObjectId
+                    if (!imageUrl || /^[a-f\d]{24}$/i.test(imageUrl)) {
+                      return '/images/1.png'
+                    }
+                    
+                    // Handle absolute URLs (http/https)
+                    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle absolute paths starting with /
+                    if (imageUrl.startsWith('/')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle relative paths - check if it's an API path
+                    // If it looks like an API upload path, construct full URL
+                    if (imageUrl.startsWith('uploads/') || imageUrl.includes('/uploads/')) {
+                      // Try to get API base URL from environment
+                      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api'
+                      const cleanApiBase = apiBase.replace(/\/api\/?$/, '')
+                      // If it's a full URL, use it; otherwise assume relative to API
+                      if (cleanApiBase.startsWith('http')) {
+                        return `${cleanApiBase}/${imageUrl}`
+                      }
+                      return `/${imageUrl}`
+                    }
+                    
+                    // Default: make it an absolute path
+                    return `/${imageUrl}`
+                  }
+
+                  const imageArray = Array.isArray(product.images) ? product.images : []
+                  
+                  if (imageArray.length > 1) {
+                    return (
+                      <div className="flex flex-row sm:flex-col gap-3 flex-shrink-0 order-2 sm:order-1">
+                        {imageArray.map((image, index) => {
+                          const imageUrl = normalizeImageUrl(image)
+                          const isExternalUrl = imageUrl.startsWith('http')
+                          
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => setSelectedImage(index)}
+                              className={`w-16 h-20 sm:w-20 sm:h-28 rounded-lg overflow-hidden border-2 transition-all duration-200 relative ${
+                                selectedImage === index 
+                                  ? 'border-primary-600 ring-2 ring-primary-200 shadow-md' 
+                                  : 'border-gray-200 hover:border-primary-400 hover:shadow-sm'
+                              }`}
+                            >
+                              {isExternalUrl ? (
+                                <Image
+                                  src={imageUrl}
+                                  alt={`${product.name || 'Product'} ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized={true}
+                                  sizes="80px"
+                                />
+                              ) : (
+                                <img
+                                  src={imageUrl}
+                                  alt={`${product.name || 'Product'} ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/images/1.png'
+                                  }}
+                                />
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
+
                 {/* Main Image */}
                 {(() => {
                   // Normalize image - handle both string arrays and object arrays
@@ -244,7 +337,7 @@ export default function ProductPage() {
                   const imageSrc = mainImageUrl.startsWith('/') ? mainImageUrl : (isExternalUrl ? mainImageUrl : `/images/1.png`)
 
                   return (
-                    <div className="relative aspect-square bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                    <div className="relative aspect-[9/16] bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 flex-1 order-1 sm:order-2">
                       {isExternalUrl ? (
                         <Image
                           src={imageSrc}
@@ -308,99 +401,6 @@ export default function ProductPage() {
                       </button>
                     </div>
                   )
-                })()}
-
-                {/* Thumbnail Images */}
-                {(() => {
-                  const normalizeImageUrl = (img: any): string => {
-                    if (!img) return '/images/1.png'
-                    
-                    let imageUrl = ''
-                    
-                    // Extract URL from various formats
-                    if (typeof img === 'string') {
-                      imageUrl = img.trim()
-                    } else if (typeof img === 'object') {
-                      imageUrl = (img.url || img.imageUrl || img.path || '').trim()
-                    }
-                    
-                    // Return placeholder if empty or ObjectId
-                    if (!imageUrl || /^[a-f\d]{24}$/i.test(imageUrl)) {
-                      return '/images/1.png'
-                    }
-                    
-                    // Handle absolute URLs (http/https)
-                    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-                      return imageUrl
-                    }
-                    
-                    // Handle absolute paths starting with /
-                    if (imageUrl.startsWith('/')) {
-                      return imageUrl
-                    }
-                    
-                    // Handle relative paths - check if it's an API path
-                    // If it looks like an API upload path, construct full URL
-                    if (imageUrl.startsWith('uploads/') || imageUrl.includes('/uploads/')) {
-                      // Try to get API base URL from environment
-                      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api'
-                      const cleanApiBase = apiBase.replace(/\/api\/?$/, '')
-                      // If it's a full URL, use it; otherwise assume relative to API
-                      if (cleanApiBase.startsWith('http')) {
-                        return `${cleanApiBase}/${imageUrl}`
-                      }
-                      return `/${imageUrl}`
-                    }
-                    
-                    // Default: make it an absolute path
-                    return `/${imageUrl}`
-                  }
-
-                  const imageArray = Array.isArray(product.images) ? product.images : []
-                  
-                  if (imageArray.length > 1) {
-                    return (
-                      <div className="grid grid-cols-4 gap-3">
-                        {imageArray.map((image, index) => {
-                          const imageUrl = normalizeImageUrl(image)
-                          const isExternalUrl = imageUrl.startsWith('http')
-                          
-                          return (
-                            <button
-                              key={index}
-                              onClick={() => setSelectedImage(index)}
-                              className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 relative ${
-                                selectedImage === index 
-                                  ? 'border-primary-600 ring-2 ring-primary-200 shadow-md' 
-                                  : 'border-gray-200 hover:border-primary-400 hover:shadow-sm'
-                              }`}
-                            >
-                              {isExternalUrl ? (
-                                <Image
-                                  src={imageUrl}
-                                  alt={`${product.name || 'Product'} ${index + 1}`}
-                                  fill
-                                  className="object-cover"
-                                  unoptimized={true}
-                                  sizes="100px"
-                                />
-                              ) : (
-                                <img
-                                  src={imageUrl}
-                                  alt={`${product.name || 'Product'} ${index + 1}`}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    e.currentTarget.src = '/images/1.png'
-                                  }}
-                                />
-                              )}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    )
-                  }
-                  return null
                 })()}
               </div>
 
@@ -594,164 +594,262 @@ export default function ProductPage() {
                   </button>
                 </div>
 
-                {/* No hardcoded shipping info */}
+                {/* Care Instructions */}
+                {(product as any).careInstructions && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Care Instructions</h3>
+                    <p className="text-gray-700 leading-relaxed text-base">{(product as any).careInstructions}</p>
+                  </div>
+                )}
 
               </div>
             </div>
 
-            {/* Product Description and Details - Full Width */}
+            {/* Product Description and Details - Tabbed Interface */}
             <div className="mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Description */}
-                {(product.description || product.shortDescription) && (
-                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Description</h3>
-                    <p className="text-gray-600 leading-relaxed text-base">{product.description || product.shortDescription}</p>
-                  </div>
-                )}
-
-                {/* Features */}
-                {Array.isArray(product.features) && product.features.length > 0 && (
-                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
-                    <ul className="space-y-3">
-                      {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-3 text-gray-700">
-                          <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-base">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* Product Details (dynamic from API) */}
-              <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Product Details</h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Specification</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Details</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {[
-                        ['SKU', (product as any).sku],
-                        ['Stock Status', (product as any).stockStatus],
-                        ['In Stock', product.inStock ? 'Yes' : 'No'],
-                        ['Stock Quantity', (product.stockQuantity || product.stockCount || 0).toString()],
-                        ['Currency', (product as any).currency || 'PKR'],
-                        ['Category', (() => {
-                          const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
-                          if (!product.categories || product.categories.length === 0) return '—'
-                          const validCategories = product.categories
-                            .filter((cat: any) => cat && typeof cat === 'string' && !isObjectId(cat))
-                          return validCategories.length > 0 ? validCategories.join(', ') : '—'
-                        })()],
-                        ['Brand', product.brand && product.brand !== 'Unknown' ? product.brand : '—'],
-                        ['Collection', (product as any).collectionName],
-                        ['Occasion', product.occasion],
-                        ['Season', product.season],
-                        ['Fabric', (product as any).fabric],
-                        ['Pattern', (product as any).pattern],
-                        ['Sleeve Length', (product as any).sleeveLength],
-                        ['Neckline', (product as any).neckline],
-                        ['Length', (product as any).length],
-                        ['Fit', (product as any).fit],
-                        ['Age Group', (product as any).ageGroup],
-                        ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
-                        ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
-                        ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
-                        ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
-                      ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
-                        <tr key={k as string} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
-                            {k as string}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">
-                            {v as string}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* Tab Headers */}
+                <div className="border-b border-gray-200">
+                  <nav className="flex flex-wrap -mb-px px-6" aria-label="Tabs">
+                    <button
+                      onClick={() => setActiveTab('Overview')}
+                      className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'Overview'
+                          ? 'border-primary-600 text-primary-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Overview
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('Details')}
+                      className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'Details'
+                          ? 'border-primary-600 text-primary-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Product Details
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('Stock')}
+                      className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'Stock'
+                          ? 'border-primary-600 text-primary-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Stock & Inventory
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('Additional')}
+                      className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'Additional'
+                          ? 'border-primary-600 text-primary-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Additional Info
+                    </button>
+                  </nav>
                 </div>
-              </div>
 
-              {/* Designer & Handwork */}
-              {(product as any).designer || (product as any).handwork?.length ? (
-                <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {(product as any).designer && (
-                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Designer</h3>
-                      <p className="text-gray-700 text-base">{(product as any).designer}</p>
+                {/* Tab Content */}
+                <div className="p-8">
+                  {/* Overview Tab */}
+                  {activeTab === 'Overview' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Description */}
+                      {(product.description || product.shortDescription) && (
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-4">Description</h3>
+                          <p className="text-gray-600 leading-relaxed text-base">{product.description || product.shortDescription}</p>
+                        </div>
+                      )}
+
+                      {/* Features */}
+                      {Array.isArray(product.features) && product.features.length > 0 && (
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
+                          <ul className="space-y-3">
+                            {product.features.map((feature, index) => (
+                              <li key={index} className="flex items-start gap-3 text-gray-700">
+                                <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                                <span className="text-base">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {(!product.description && !product.shortDescription && (!Array.isArray(product.features) || product.features.length === 0)) && (
+                        <div className="text-gray-500 text-center py-8">
+                          No overview information available
+                        </div>
+                      )}
                     </div>
                   )}
-                  {Array.isArray((product as any).handwork) && (product as any).handwork.length > 0 && (
-                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Handwork</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {(product as any).handwork.map((h: string) => (
-                          <span key={h} className="px-4 py-2 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200">{h}</span>
-                        ))}
+
+                  {/* Details Tab */}
+                  {activeTab === 'Details' && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-6">Product Specifications</h3>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Specification</th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {[
+                              ['SKU', (product as any).sku],
+                              ['Currency', (product as any).currency || 'PKR'],
+                              ['Category', (() => {
+                                const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                                if (!product.categories || product.categories.length === 0) return '—'
+                                const validCategories = product.categories
+                                  .filter((cat: any) => cat && typeof cat === 'string' && !isObjectId(cat))
+                                return validCategories.length > 0 ? validCategories.join(', ') : '—'
+                              })()],
+                              ['Brand', product.brand && product.brand !== 'Unknown' ? product.brand : '—'],
+                              ['Collection', (product as any).collectionName],
+                              ['Occasion', product.occasion],
+                              ['Season', product.season],
+                              ['Fabric', (product as any).fabric],
+                              ['Pattern', (product as any).pattern],
+                              ['Sleeve Length', (product as any).sleeveLength],
+                              ['Neckline', (product as any).neckline],
+                              ['Length', (product as any).length],
+                              ['Fit', (product as any).fit],
+                              ['Age Group', (product as any).ageGroup],
+                              ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
+                              ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
+                              ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
+                              ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
+                            ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
+                              <tr key={k as string} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
+                                  {k as string}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                  {v as string}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   )}
-                </div>
-              ) : null}
 
-              {/* Care Instructions */}
-              {(product as any).careInstructions ? (
-                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Care Instructions</h3>
-                  <p className="text-gray-700 leading-relaxed text-base">{(product as any).careInstructions}</p>
-                </div>
-              ) : null}
-
-              {/* Model Measurements */}
-              {(product as any).modelMeasurements ? (
-                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Model Measurements</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {Object.entries((product as any).modelMeasurements).map(([k, v]) => (
-                      v ? (
-                        <div key={k} className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                          <div className="text-xs text-gray-500 uppercase font-semibold mb-2">{k === 'bust' ? 'Chest' : k}</div>
-                          <div className="text-lg font-bold text-gray-900">{v as string}</div>
-                        </div>
-                      ) : null
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Shipping Details */}
-              {(product as any).shippingWeight || (product as any).shippingDimensions ? (
-                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Shipping Details</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {(product as any).shippingWeight ? (
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="text-sm text-gray-600 font-medium mb-1">Weight</div>
-                        <div className="text-lg font-bold text-gray-900">{(product as any).shippingWeight}</div>
+                  {/* Stock Tab */}
+                  {activeTab === 'Stock' && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-6">Stock & Inventory Information</h3>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stock Information</th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {[
+                              ['Stock Status', (product as any).stockStatus],
+                              ['In Stock', product.inStock ? 'Yes' : 'No'],
+                              ['Stock Quantity', (product.stockQuantity || product.stockCount || 0).toString()],
+                            ].filter(([k, v]) => !!v && v !== '—').map(([k, v]) => (
+                              <tr key={k as string} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
+                                  {k as string}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                  {v as string}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    ) : null}
-                    {(product as any).shippingDimensions ? (
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="text-sm text-gray-600 font-medium mb-1">Dimensions</div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {`${(product as any).shippingDimensions.length || '-'} × ${(product as any).shippingDimensions.width || '-'} × ${(product as any).shippingDimensions.height || '-'}`}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
+                    </div>
+                  )}
 
-              {/* No hardcoded additional description, disclaimers, or shopping security */}
+                  {/* Additional Info Tab */}
+                  {activeTab === 'Additional' && (
+                    <div className="space-y-8">
+                      {/* Designer & Handwork */}
+                      {(product as any).designer || (product as any).handwork?.length ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                          {(product as any).designer && (
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 mb-4">Designer</h3>
+                              <p className="text-gray-700 text-base">{(product as any).designer}</p>
+                            </div>
+                          )}
+                          {Array.isArray((product as any).handwork) && (product as any).handwork.length > 0 && (
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 mb-4">Handwork</h3>
+                              <div className="flex flex-wrap gap-2">
+                                {(product as any).handwork.map((h: string) => (
+                                  <span key={h} className="px-4 py-2 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200">{h}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {/* Model Measurements */}
+                      {(product as any).modelMeasurements ? (
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-6">Model Measurements</h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            {Object.entries((product as any).modelMeasurements).map(([k, v]) => (
+                              v ? (
+                                <div key={k} className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                                  <div className="text-xs text-gray-500 uppercase font-semibold mb-2">{k === 'bust' ? 'Chest' : k}</div>
+                                  <div className="text-lg font-bold text-gray-900">{v as string}</div>
+                                </div>
+                              ) : null
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {/* Shipping Details */}
+                      {(product as any).shippingWeight || (product as any).shippingDimensions ? (
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-6">Shipping Details</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {(product as any).shippingWeight ? (
+                              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="text-sm text-gray-600 font-medium mb-1">Weight</div>
+                                <div className="text-lg font-bold text-gray-900">{(product as any).shippingWeight}</div>
+                              </div>
+                            ) : null}
+                            {(product as any).shippingDimensions ? (
+                              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="text-sm text-gray-600 font-medium mb-1">Dimensions</div>
+                                <div className="text-lg font-bold text-gray-900">
+                                  {`${(product as any).shippingDimensions.length || '-'} × ${(product as any).shippingDimensions.width || '-'} × ${(product as any).shippingDimensions.height || '-'}`}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {!((product as any).designer || (product as any).handwork?.length || (product as any).modelMeasurements || (product as any).shippingWeight || (product as any).shippingDimensions) && (
+                        <div className="text-gray-500 text-center py-8">
+                          No additional information available
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* No hardcoded related products */}
