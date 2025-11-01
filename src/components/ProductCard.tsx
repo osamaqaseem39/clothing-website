@@ -47,7 +47,7 @@ export default function ProductCard({
         onMouseLeave={() => setIsHovered(false)}
       >
       {/* Image Container */}
-      <div className="relative aspect-[2/3] overflow-hidden">
+      <div className="relative aspect-[9/16] overflow-hidden">
         <img
           src={image}
           alt={name}

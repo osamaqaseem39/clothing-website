@@ -319,12 +319,116 @@ class ApiClient {
 
   async getProduct(id: string): Promise<Product> {
     const raw = await this.request<any>(`/products/${id}`)
-    return this.normalizeProduct(raw)
+    const normalized = this.normalizeProduct(raw)
+    
+    // Fallback: If brand is still an ObjectId, fetch the brand details
+    if (normalized.brand === 'Unknown' || normalized.brand === '') {
+      const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+      const brandId = raw?.brand
+      
+      if (brandId && ((typeof brandId === 'string' && isObjectId(brandId)) || (typeof brandId === 'object' && brandId._id))) {
+        try {
+          const brandData = typeof brandId === 'string' 
+            ? await this.getBrand(brandId)
+            : await this.getBrand(brandId._id)
+          if (brandData && brandData.name) {
+            normalized.brand = brandData.name
+          }
+        } catch (err) {
+          console.warn('Failed to fetch brand details:', err)
+        }
+      }
+    }
+    
+    // Fallback: If categories are still ObjectIds, fetch category details
+    const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+    if (!normalized.categories || normalized.categories.length === 0 || 
+        (Array.isArray(normalized.categories) && normalized.categories.every((cat: any) => 
+          typeof cat === 'string' && isObjectId(cat)))) {
+      if (Array.isArray(raw?.categories) && raw.categories.length > 0) {
+        try {
+          const categoryPromises = raw.categories
+            .map((catId: any) => {
+              const id = typeof catId === 'string' ? catId : (catId?._id || catId)
+              if (id && isObjectId(String(id))) {
+                return this.getCategory(String(id))
+              }
+              return null
+            })
+            .filter(Boolean)
+          
+          const categoryData = await Promise.all(categoryPromises)
+          const categoryNames = categoryData
+            .filter((cat: any) => cat && cat.name)
+            .map((cat: any) => cat.name)
+          
+          if (categoryNames.length > 0) {
+            normalized.categories = categoryNames
+          }
+        } catch (err) {
+          console.warn('Failed to fetch category details:', err)
+        }
+      }
+    }
+    
+    return normalized
   }
 
   async getProductBySlug(slug: string): Promise<Product> {
     const raw = await this.request<any>(`/products/slug/${slug}`)
-    return this.normalizeProduct(raw)
+    const normalized = this.normalizeProduct(raw)
+    
+    // Fallback: If brand is still an ObjectId, fetch the brand details
+    if (normalized.brand === 'Unknown' || normalized.brand === '') {
+      const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+      const brandId = raw?.brand
+      
+      if (brandId && ((typeof brandId === 'string' && isObjectId(brandId)) || (typeof brandId === 'object' && brandId._id))) {
+        try {
+          const brandData = typeof brandId === 'string' 
+            ? await this.getBrand(brandId)
+            : await this.getBrand(brandId._id)
+          if (brandData && brandData.name) {
+            normalized.brand = brandData.name
+          }
+        } catch (err) {
+          console.warn('Failed to fetch brand details:', err)
+        }
+      }
+    }
+    
+    // Fallback: If categories are still ObjectIds, fetch category details
+    const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+    if (!normalized.categories || normalized.categories.length === 0 || 
+        (Array.isArray(normalized.categories) && normalized.categories.every((cat: any) => 
+          typeof cat === 'string' && isObjectId(cat)))) {
+      if (Array.isArray(raw?.categories) && raw.categories.length > 0) {
+        try {
+          const categoryPromises = raw.categories
+            .map((catId: any) => {
+              const id = typeof catId === 'string' ? catId : (catId?._id || catId)
+              if (id && isObjectId(String(id))) {
+                return this.getCategory(String(id))
+              }
+              return null
+            })
+            .filter(Boolean)
+          
+          const categoryData = await Promise.all(categoryPromises)
+          const categoryNames = categoryData
+            .filter((cat: any) => cat && cat.name)
+            .map((cat: any) => cat.name)
+          
+          if (categoryNames.length > 0) {
+            normalized.categories = categoryNames
+          }
+        } catch (err) {
+          console.warn('Failed to fetch category details:', err)
+        }
+      }
+    }
+    
+    return normalized
   }
 
   async getFeaturedProducts(): Promise<Product[]> {

@@ -184,7 +184,7 @@ export default function ProductPage() {
 
           {/* Product Details */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* Product Images */}
               <div className="space-y-4">
                 {/* Main Image */}
@@ -192,11 +192,46 @@ export default function ProductPage() {
                   // Normalize image - handle both string arrays and object arrays
                   const normalizeImageUrl = (img: any): string => {
                     if (!img) return '/images/1.png'
-                    if (typeof img === 'string') return img
-                    if (typeof img === 'object') {
-                      return img.url || img.imageUrl || img.path || '/images/1.png'
+                    
+                    let imageUrl = ''
+                    
+                    // Extract URL from various formats
+                    if (typeof img === 'string') {
+                      imageUrl = img.trim()
+                    } else if (typeof img === 'object') {
+                      imageUrl = (img.url || img.imageUrl || img.path || '').trim()
                     }
-                    return '/images/1.png'
+                    
+                    // Return placeholder if empty or ObjectId
+                    if (!imageUrl || /^[a-f\d]{24}$/i.test(imageUrl)) {
+                      return '/images/1.png'
+                    }
+                    
+                    // Handle absolute URLs (http/https)
+                    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle absolute paths starting with /
+                    if (imageUrl.startsWith('/')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle relative paths - check if it's an API path
+                    // If it looks like an API upload path, construct full URL
+                    if (imageUrl.startsWith('uploads/') || imageUrl.includes('/uploads/')) {
+                      // Try to get API base URL from environment
+                      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api'
+                      const cleanApiBase = apiBase.replace(/\/api\/?$/, '')
+                      // If it's a full URL, use it; otherwise assume relative to API
+                      if (cleanApiBase.startsWith('http')) {
+                        return `${cleanApiBase}/${imageUrl}`
+                      }
+                      return `/${imageUrl}`
+                    }
+                    
+                    // Default: make it an absolute path
+                    return `/${imageUrl}`
                   }
 
                   const imageArray = Array.isArray(product.images) ? product.images : []
@@ -204,28 +239,41 @@ export default function ProductPage() {
                     ? normalizeImageUrl(imageArray[selectedImage] || imageArray[0])
                     : '/images/1.png'
 
+                  // Determine if we should use Next.js Image or regular img
+                  const isExternalUrl = mainImageUrl.startsWith('http')
+                  const imageSrc = mainImageUrl.startsWith('/') ? mainImageUrl : (isExternalUrl ? mainImageUrl : `/images/1.png`)
+
                   return (
-                    <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
-                      <Image
-                        src={mainImageUrl}
-                        alt={product.name || 'Product'}
-                        fill
-                        className="object-cover"
-                        unoptimized={mainImageUrl.startsWith('http')}
-                        onError={(e) => {
-                          e.currentTarget.src = '/images/1.png'
-                        }}
-                      />
+                    <div className="relative aspect-square bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                      {isExternalUrl ? (
+                        <Image
+                          src={imageSrc}
+                          alt={product.name || 'Product'}
+                          fill
+                          className="object-cover transition-transform duration-300"
+                          unoptimized={true}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <img
+                          src={imageSrc}
+                          alt={product.name || 'Product'}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300"
+                          onError={(e) => {
+                            e.currentTarget.src = '/images/1.png'
+                          }}
+                        />
+                      )}
                   
                       {/* Badges */}
-                      <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                         {product.isNew && (
-                          <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full">
+                          <span className="bg-primary-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
                             New
                           </span>
                         )}
                         {product.isSale && (
-                          <span className="bg-secondary-500 text-white text-xs px-3 py-1 rounded-full">
+                          <span className="bg-secondary-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
                             Sale
                           </span>
                         )}
@@ -236,15 +284,15 @@ export default function ProductPage() {
                         <>
                           <button
                             onClick={prevImage}
-                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110 z-10"
                           >
-                            <ChevronLeft className="h-5 w-5 text-gray-600" />
+                            <ChevronLeft className="h-5 w-5 text-gray-700" />
                           </button>
                           <button
                             onClick={nextImage}
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110 z-10"
                           >
-                            <ChevronRight className="h-5 w-5 text-gray-600" />
+                            <ChevronRight className="h-5 w-5 text-gray-700" />
                           </button>
                         </>
                       )}
@@ -252,8 +300,8 @@ export default function ProductPage() {
                       {/* Wishlist Button */}
                       <button
                         onClick={handleWishlist}
-                        className={`absolute top-4 right-4 p-2 rounded-full shadow-lg transition-colors ${
-                          isWishlisted ? 'bg-primary-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                        className={`absolute top-4 right-4 p-3 rounded-full shadow-xl transition-all duration-200 hover:scale-110 z-10 ${
+                          isWishlisted ? 'bg-primary-600 text-white' : 'bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-white'
                         }`}
                       >
                         <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -266,39 +314,86 @@ export default function ProductPage() {
                 {(() => {
                   const normalizeImageUrl = (img: any): string => {
                     if (!img) return '/images/1.png'
-                    if (typeof img === 'string') return img
-                    if (typeof img === 'object') {
-                      return img.url || img.imageUrl || img.path || '/images/1.png'
+                    
+                    let imageUrl = ''
+                    
+                    // Extract URL from various formats
+                    if (typeof img === 'string') {
+                      imageUrl = img.trim()
+                    } else if (typeof img === 'object') {
+                      imageUrl = (img.url || img.imageUrl || img.path || '').trim()
                     }
-                    return '/images/1.png'
+                    
+                    // Return placeholder if empty or ObjectId
+                    if (!imageUrl || /^[a-f\d]{24}$/i.test(imageUrl)) {
+                      return '/images/1.png'
+                    }
+                    
+                    // Handle absolute URLs (http/https)
+                    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle absolute paths starting with /
+                    if (imageUrl.startsWith('/')) {
+                      return imageUrl
+                    }
+                    
+                    // Handle relative paths - check if it's an API path
+                    // If it looks like an API upload path, construct full URL
+                    if (imageUrl.startsWith('uploads/') || imageUrl.includes('/uploads/')) {
+                      // Try to get API base URL from environment
+                      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api'
+                      const cleanApiBase = apiBase.replace(/\/api\/?$/, '')
+                      // If it's a full URL, use it; otherwise assume relative to API
+                      if (cleanApiBase.startsWith('http')) {
+                        return `${cleanApiBase}/${imageUrl}`
+                      }
+                      return `/${imageUrl}`
+                    }
+                    
+                    // Default: make it an absolute path
+                    return `/${imageUrl}`
                   }
 
                   const imageArray = Array.isArray(product.images) ? product.images : []
                   
                   if (imageArray.length > 1) {
                     return (
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-4 gap-3">
                         {imageArray.map((image, index) => {
                           const imageUrl = normalizeImageUrl(image)
+                          const isExternalUrl = imageUrl.startsWith('http')
+                          
                           return (
                             <button
                               key={index}
                               onClick={() => setSelectedImage(index)}
-                              className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                                selectedImage === index ? 'border-primary-600' : 'border-gray-200 hover:border-gray-300'
+                              className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 relative ${
+                                selectedImage === index 
+                                  ? 'border-primary-600 ring-2 ring-primary-200 shadow-md' 
+                                  : 'border-gray-200 hover:border-primary-400 hover:shadow-sm'
                               }`}
                             >
-                              <Image
-                                src={imageUrl}
-                                alt={`${product.name || 'Product'} ${index + 1}`}
-                                width={100}
-                                height={100}
-                                className="w-full h-full object-cover"
-                                unoptimized={imageUrl.startsWith('http')}
-                                onError={(e) => {
-                                  e.currentTarget.src = '/images/1.png'
-                                }}
-                              />
+                              {isExternalUrl ? (
+                                <Image
+                                  src={imageUrl}
+                                  alt={`${product.name || 'Product'} ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized={true}
+                                  sizes="100px"
+                                />
+                              ) : (
+                                <img
+                                  src={imageUrl}
+                                  alt={`${product.name || 'Product'} ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/images/1.png'
+                                  }}
+                                />
+                              )}
                             </button>
                           )
                         })}
@@ -312,14 +407,14 @@ export default function ProductPage() {
               {/* Product Info */}
               <div className="space-y-6">
                 {/* Product Title & Rating */}
-                <div>
-                  <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">{product.name}</h1>
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-3">{product.name}</h1>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-4 w-4 ${
+                          className={`h-5 w-5 ${
                             i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                           }`}
                         />
@@ -329,42 +424,42 @@ export default function ProductPage() {
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {/* Price */}
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl font-bold text-primary-600">₨{product.price.toLocaleString()}</span>
-                  {product.originalPrice && (
-                    <span className="text-xl text-gray-400 line-through">₨{product.originalPrice.toLocaleString()}</span>
-                  )}
-                  {product.isSale && product.originalPrice && (
-                    <span className="bg-secondary-500 text-white text-sm px-2 py-1 rounded">
-                      Save ₨{(product.originalPrice - product.price).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Brand */}
-                {product.brand && (
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-sm text-gray-600">Brand:</span>
-                    <span className="text-lg font-semibold text-primary-600">{product.brand}</span>
+                  {/* Price */}
+                  <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+                    <span className="text-3xl md:text-4xl font-bold text-primary-600">₨{product.price.toLocaleString()}</span>
+                    {product.originalPrice && (
+                      <span className="text-xl text-gray-400 line-through">₨{product.originalPrice.toLocaleString()}</span>
+                    )}
+                    {product.isSale && product.originalPrice && (
+                      <span className="bg-secondary-500 text-white text-sm font-semibold px-3 py-1.5 rounded-full">
+                        Save ₨{(product.originalPrice - product.price).toLocaleString()}
+                      </span>
+                    )}
                   </div>
-                )}
+
+                  {/* Brand */}
+                  {product.brand && product.brand !== 'Unknown' && (
+                    <div className="flex items-center gap-3 mt-4">
+                      <span className="text-sm text-gray-600 font-medium">Brand:</span>
+                      <span className="text-lg font-semibold text-primary-600">{product.brand}</span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Size Selection */}
                 {Array.isArray(product.availableSizes) && product.availableSizes.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Size:</h3>
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Size</h3>
                     <div className="flex flex-wrap gap-2">
                       {product.availableSizes.map((size) => (
                         <button
                           key={size}
                           onClick={() => setSelectedSize(size)}
-                          className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                          className={`px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                             selectedSize === size
-                              ? 'border-primary-600 bg-primary-50 text-primary-600'
-                              : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                              ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
+                              : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
                           }`}
                         >
                           {size}
@@ -376,8 +471,8 @@ export default function ProductPage() {
 
                 {/* Color Selection */}
                 {Array.isArray((product as any).colors) && (product as any).colors.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Color:</h3>
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Color</h3>
                     <div className="flex flex-wrap gap-2">
                       {(product as any).colors.map((c: any, idx: number) => {
                         const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
@@ -390,14 +485,14 @@ export default function ProductPage() {
                           <button
                             key={label + idx}
                             onClick={() => setSelectedColor(label)}
-                            className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                            className={`flex items-center gap-2 px-4 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                               selectedColor === label
-                                ? 'border-primary-600 bg-primary-50 text-primary-600'
-                                : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                                ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
+                                : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
                             }`}
                           >
                             {imgUrl ? (
-                              <img src={imgUrl} alt={label} className="h-6 w-6 rounded object-cover" />
+                              <img src={imgUrl} alt={label} className="h-6 w-6 rounded object-cover border border-gray-200" />
                             ) : null}
                             <span>{label}</span>
                           </button>
@@ -409,25 +504,25 @@ export default function ProductPage() {
 
                 {/* Quantity */}
                 {(typeof product.stockQuantity === 'number' || typeof product.stockCount === 'number') && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Quantity:</h3>
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Quantity</h3>
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center border border-gray-300 rounded-lg">
+                      <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
                         <button
                           onClick={() => handleQuantityChange(-1)}
-                          className="p-2 hover:bg-gray-50 transition-colors"
+                          className="p-3 hover:bg-gray-50 transition-colors"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="px-4 py-2 font-medium">{quantity}</span>
+                        <span className="px-6 py-3 font-semibold text-lg border-x border-gray-300">{quantity}</span>
                         <button
                           onClick={() => handleQuantityChange(1)}
-                          className="p-2 hover:bg-gray-50 transition-colors"
+                          className="p-3 hover:bg-gray-50 transition-colors"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 font-medium">
                         {(product.stockQuantity ?? product.stockCount) as number} in stock
                       </span>
                     </div>
@@ -436,7 +531,7 @@ export default function ProductPage() {
 
                 {/* Size Chart Link */}
                 {(product.sizeChart || product.sizeChartImageUrl) && (
-                  <div className="mb-4">
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     {product.sizeChart ? (
                       <SizeChart 
                         sizeChart={product.sizeChart} 
@@ -445,7 +540,7 @@ export default function ProductPage() {
                     ) : product.sizeChartImageUrl ? (
                       <button
                         onClick={() => setIsSizeImageOpen(true)}
-                        className="text-sm text-primary-600 hover:text-primary-800 underline font-medium"
+                        className="text-sm text-primary-600 hover:text-primary-800 underline font-semibold"
                       >
                         View Size Chart
                       </button>
@@ -453,27 +548,27 @@ export default function ProductPage() {
 
                     {isSizeImageOpen && product.sizeChartImageUrl && (
                       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                          <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900">Size Guide</h3>
+                        <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                          <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                            <h3 className="text-xl font-bold text-gray-900">Size Guide</h3>
                             <button
                               onClick={() => setIsSizeImageOpen(false)}
-                              className="text-gray-400 hover:text-gray-600"
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
                             >
                               <X className="h-6 w-6" />
                             </button>
                           </div>
-                          <div className="p-4 flex justify-center">
+                          <div className="p-6 flex justify-center">
                             <img
                               src={product.sizeChartImageUrl}
                               alt="Size chart"
-                              className="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+                              className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm"
                             />
                           </div>
-                          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
                             <button
                               onClick={() => setIsSizeImageOpen(false)}
-                              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                              className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
                             >
                               Close
                             </button>
@@ -485,15 +580,15 @@ export default function ProductPage() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 btn-primary flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
                   >
                     <ShoppingBag className="h-5 w-5" />
                     Add to Cart
                   </button>
-                  <button className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                  <button className="w-full border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 py-4 px-6 flex items-center justify-center gap-3">
                     <Share2 className="h-5 w-5" />
                     Share
                   </button>
@@ -509,21 +604,21 @@ export default function ProductPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Description */}
                 {(product.description || product.shortDescription) && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Description:</h3>
-                    <p className="text-gray-600 leading-relaxed">{product.description || product.shortDescription}</p>
+                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Description</h3>
+                    <p className="text-gray-600 leading-relaxed text-base">{product.description || product.shortDescription}</p>
                   </div>
                 )}
 
                 {/* Features */}
                 {Array.isArray(product.features) && product.features.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-3">Features:</h3>
-                    <ul className="space-y-2">
+                  <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
+                    <ul className="space-y-3">
                       {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2 text-gray-600">
-                          <div className="w-1.5 h-1.5 bg-primary-600 rounded-full"></div>
-                          {feature}
+                        <li key={index} className="flex items-start gap-3 text-gray-700">
+                          <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-base">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -532,10 +627,16 @@ export default function ProductPage() {
               </div>
 
               {/* Product Details (dynamic from API) */}
-              <div className="mt-8">
-                <h3 className="font-semibold text-gray-900 mb-4">Product Details</h3>
+              <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Product Details</h3>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Specification</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Details</th>
+                      </tr>
+                    </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {[
                         ['SKU', (product as any).sku],
@@ -565,12 +666,12 @@ export default function ProductPage() {
                         ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
                         ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
                         ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
-                      ].filter(([, v]) => !!v && v !== '—').map(([k, v]) => (
+                      ].filter(([, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
                         <tr key={k as string} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
                             {k as string}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 text-sm text-gray-900">
                             {v as string}
                           </td>
                         </tr>
@@ -584,17 +685,17 @@ export default function ProductPage() {
               {(product as any).designer || (product as any).handwork?.length ? (
                 <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {(product as any).designer && (
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-3">Designer</h3>
-                      <p className="text-gray-700">{(product as any).designer}</p>
+                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Designer</h3>
+                      <p className="text-gray-700 text-base">{(product as any).designer}</p>
                     </div>
                   )}
                   {Array.isArray((product as any).handwork) && (product as any).handwork.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-3">Handwork</h3>
+                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Handwork</h3>
                       <div className="flex flex-wrap gap-2">
                         {(product as any).handwork.map((h: string) => (
-                          <span key={h} className="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700">{h}</span>
+                          <span key={h} className="px-4 py-2 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200">{h}</span>
                         ))}
                       </div>
                     </div>
@@ -604,22 +705,22 @@ export default function ProductPage() {
 
               {/* Care Instructions */}
               {(product as any).careInstructions ? (
-                <div className="mt-8">
-                  <h3 className="font-semibold text-gray-900 mb-3">Care Instructions</h3>
-                  <p className="text-gray-700 leading-relaxed">{(product as any).careInstructions}</p>
+                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Care Instructions</h3>
+                  <p className="text-gray-700 leading-relaxed text-base">{(product as any).careInstructions}</p>
                 </div>
               ) : null}
 
               {/* Model Measurements */}
               {(product as any).modelMeasurements ? (
-                <div className="mt-8">
-                  <h3 className="font-semibold text-gray-900 mb-3">Model Measurements</h3>
+                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">Model Measurements</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {Object.entries((product as any).modelMeasurements).map(([k, v]) => (
                       v ? (
-                        <div key={k} className="p-3 bg-gray-50 rounded-lg">
-                          <div className="text-xs text-gray-500 uppercase">{k}</div>
-                          <div className="text-sm font-medium text-gray-900">{v as string}</div>
+                        <div key={k} className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-2">{k === 'bust' ? 'Chest' : k}</div>
+                          <div className="text-lg font-bold text-gray-900">{v as string}</div>
                         </div>
                       ) : null
                     ))}
@@ -629,21 +730,21 @@ export default function ProductPage() {
 
               {/* Shipping Details */}
               {(product as any).shippingWeight || (product as any).shippingDimensions ? (
-                <div className="mt-8">
-                  <h3 className="font-semibold text-gray-900 mb-3">Shipping Details</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">Shipping Details</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {(product as any).shippingWeight ? (
-                      <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-600">Weight</span>
-                        <span className="text-gray-900 font-medium">{(product as any).shippingWeight}</span>
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="text-sm text-gray-600 font-medium mb-1">Weight</div>
+                        <div className="text-lg font-bold text-gray-900">{(product as any).shippingWeight}</div>
                       </div>
                     ) : null}
                     {(product as any).shippingDimensions ? (
-                      <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-600">Dimensions</span>
-                        <span className="text-gray-900 font-medium">
-                          {`${(product as any).shippingDimensions.length || '-'} x ${(product as any).shippingDimensions.width || '-'} x ${(product as any).shippingDimensions.height || '-'}`}
-                        </span>
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="text-sm text-gray-600 font-medium mb-1">Dimensions</div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {`${(product as any).shippingDimensions.length || '-'} × ${(product as any).shippingDimensions.width || '-'} × ${(product as any).shippingDimensions.height || '-'}`}
+                        </div>
                       </div>
                     ) : null}
                   </div>
