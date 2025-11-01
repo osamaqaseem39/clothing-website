@@ -162,7 +162,7 @@ class ApiClient {
       imageUrls = [placeholder]
     }
 
-    // Normalize brand to a string name if object/id provided
+    // Normalize brand to a readable string; avoid showing ObjectId
     let brandName: string = ''
     if (typeof raw?.brand === 'string') {
       const looksLikeObjectId = /^[a-f\d]{24}$/i.test(raw.brand)
@@ -170,15 +170,25 @@ class ApiClient {
     } else if (raw?.brand && typeof raw.brand === 'object') {
       brandName = raw.brand.name || raw.brand.slug || raw.brand._id || ''
     }
+    const brandDisplay = brandName && String(brandName).trim() !== '' ? brandName : ''
 
-    // Normalize categories to names array if objects/ids provided
+    // Normalize categories to human-readable names; avoid ObjectIds
     let categoryNames: string[] | undefined = undefined
     if (Array.isArray(raw?.categories)) {
-      categoryNames = raw.categories.map((cat: any) => {
-        if (typeof cat === 'string') return cat
-        if (cat && typeof cat === 'object') return cat.name || cat.slug || cat._id || 'General'
-        return 'General'
-      })
+      const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+      categoryNames = raw.categories
+        .map((cat: any) => {
+          if (!cat) return null
+          if (typeof cat === 'string') {
+            return isObjectId(cat) ? null : cat
+          }
+          if (typeof cat === 'object') {
+            const label = cat.name || cat.slug || ''
+            return label && !isObjectId(String(label)) ? String(label) : null
+          }
+          return null
+        })
+        .filter((v: any) => typeof v === 'string' && v.trim() !== '')
     }
 
     // Align price/originalPrice when only salePrice is present
@@ -189,13 +199,36 @@ class ApiClient {
       normalizedPrice = raw.salePrice
     }
 
+    // Normalize colors to human-readable strings
+    let normalizedColors: string[] | undefined = undefined
+    if (Array.isArray(raw?.colors)) {
+      const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+      normalizedColors = raw.colors
+        .map((c: any) => {
+          if (!c) return null
+          if (typeof c === 'string') {
+            return isObjectId(c) ? null : c
+          }
+          if (typeof c === 'object') {
+            const label = c.name || c.colorName || c.label || c.title || c.value || ''
+            if (label && !isObjectId(String(label))) return String(label)
+            // As a last resort, avoid exposing raw ObjectId colorId
+            if (c.colorId && !isObjectId(String(c.colorId))) return String(c.colorId)
+            return null
+          }
+          return null
+        })
+        .filter((v: any) => typeof v === 'string' && v.trim() !== '')
+    }
+
     return {
       ...raw,
       images: imageUrls,
-      brand: brandName || raw?.brand || 'Unknown',
+      brand: brandDisplay || 'Unknown',
       categories: categoryNames || raw?.categories,
       price: normalizedPrice,
       originalPrice: normalizedOriginalPrice,
+      colors: normalizedColors ?? raw?.colors,
     } as Product
   }
 

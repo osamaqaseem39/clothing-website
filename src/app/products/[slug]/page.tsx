@@ -159,12 +159,23 @@ export default function ProductPage() {
                 <a href="/" className="text-gray-500 hover:text-primary-600">Home</a>
                 <span className="text-gray-400">/</span>
                 <a href="/shop" className="text-gray-500 hover:text-primary-600">Shop</a>
-                {product.categories?.[0] && (
-                  <>
-                    <span className="text-gray-400">/</span>
-                    <a href={`/shop?category=${product.categories?.[0]?.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-500 hover:text-primary-600">{product.categories?.[0]}</a>
-                  </>
-                )}
+                {(() => {
+                  const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                  const firstCategory = product.categories?.[0]
+                  const categoryName = firstCategory && typeof firstCategory === 'string' && !isObjectId(firstCategory)
+                    ? firstCategory
+                    : null
+                  
+                  if (categoryName) {
+                    return (
+                      <>
+                        <span className="text-gray-400">/</span>
+                        <a href={`/shop?category=${categoryName.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-500 hover:text-primary-600">{categoryName}</a>
+                      </>
+                    )
+                  }
+                  return null
+                })()}
                 <span className="text-gray-400">/</span>
                 <span className="text-gray-900">{product.name}</span>
               </nav>
@@ -177,81 +188,125 @@ export default function ProductPage() {
               {/* Product Images */}
               <div className="space-y-4">
                 {/* Main Image */}
-                {product.images && product.images.length > 0 && (
-                <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
-                  <Image
-                    src={product.images?.[selectedImage] || product.images?.[0]}
-                    alt={product.name || 'Product'}
-                    fill
-                    className="object-cover"
-                  />
+                {(() => {
+                  // Normalize image - handle both string arrays and object arrays
+                  const normalizeImageUrl = (img: any): string => {
+                    if (!img) return '/images/1.png'
+                    if (typeof img === 'string') return img
+                    if (typeof img === 'object') {
+                      return img.url || img.imageUrl || img.path || '/images/1.png'
+                    }
+                    return '/images/1.png'
+                  }
+
+                  const imageArray = Array.isArray(product.images) ? product.images : []
+                  const mainImageUrl = imageArray.length > 0 
+                    ? normalizeImageUrl(imageArray[selectedImage] || imageArray[0])
+                    : '/images/1.png'
+
+                  return (
+                    <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
+                      <Image
+                        src={mainImageUrl}
+                        alt={product.name || 'Product'}
+                        fill
+                        className="object-cover"
+                        unoptimized={mainImageUrl.startsWith('http')}
+                        onError={(e) => {
+                          e.currentTarget.src = '/images/1.png'
+                        }}
+                      />
                   
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.isNew && (
-                      <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full">
-                        New
-                      </span>
-                    )}
-                    {product.isSale && (
-                      <span className="bg-secondary-500 text-white text-xs px-3 py-1 rounded-full">
-                        Sale
-                      </span>
-                    )}
-                  </div>
+                      {/* Badges */}
+                      <div className="absolute top-4 left-4 flex flex-col gap-2">
+                        {product.isNew && (
+                          <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full">
+                            New
+                          </span>
+                        )}
+                        {product.isSale && (
+                          <span className="bg-secondary-500 text-white text-xs px-3 py-1 rounded-full">
+                            Sale
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Navigation Arrows */}
-                  {product.images && product.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
-                      >
-                        <ChevronLeft className="h-5 w-5 text-gray-600" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
-                      >
-                        <ChevronRight className="h-5 w-5 text-gray-600" />
-                      </button>
-                    </>
-                  )}
+                      {/* Navigation Arrows */}
+                      {imageArray.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevImage}
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+                          >
+                            <ChevronLeft className="h-5 w-5 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={nextImage}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+                          >
+                            <ChevronRight className="h-5 w-5 text-gray-600" />
+                          </button>
+                        </>
+                      )}
 
-                  {/* Wishlist Button */}
-                  <button
-                    onClick={handleWishlist}
-                    className={`absolute top-4 right-4 p-2 rounded-full shadow-lg transition-colors ${
-                      isWishlisted ? 'bg-primary-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                  </button>
-                </div>
-                )}
-
-                {/* Thumbnail Images */}
-                {product.images && product.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {product.images.map((image, index) => (
+                      {/* Wishlist Button */}
                       <button
-                        key={index}
-                        onClick={() => setSelectedImage(index)}
-                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                          selectedImage === index ? 'border-primary-600' : 'border-gray-200 hover:border-gray-300'
+                        onClick={handleWishlist}
+                        className={`absolute top-4 right-4 p-2 rounded-full shadow-lg transition-colors ${
+                          isWishlisted ? 'bg-primary-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        <Image
-                          src={image}
-                          alt={`${product.name || 'Product'} ${index + 1}`}
-                          width={100}
-                          height={100}
-                          className="w-full h-full object-cover"
-                        />
+                        <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
                       </button>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  )
+                })()}
+
+                {/* Thumbnail Images */}
+                {(() => {
+                  const normalizeImageUrl = (img: any): string => {
+                    if (!img) return '/images/1.png'
+                    if (typeof img === 'string') return img
+                    if (typeof img === 'object') {
+                      return img.url || img.imageUrl || img.path || '/images/1.png'
+                    }
+                    return '/images/1.png'
+                  }
+
+                  const imageArray = Array.isArray(product.images) ? product.images : []
+                  
+                  if (imageArray.length > 1) {
+                    return (
+                      <div className="grid grid-cols-4 gap-2">
+                        {imageArray.map((image, index) => {
+                          const imageUrl = normalizeImageUrl(image)
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => setSelectedImage(index)}
+                              className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                                selectedImage === index ? 'border-primary-600' : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <Image
+                                src={imageUrl}
+                                alt={`${product.name || 'Product'} ${index + 1}`}
+                                width={100}
+                                height={100}
+                                className="w-full h-full object-cover"
+                                unoptimized={imageUrl.startsWith('http')}
+                                onError={(e) => {
+                                  e.currentTarget.src = '/images/1.png'
+                                }}
+                              />
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
               </div>
 
               {/* Product Info */}
@@ -319,66 +374,18 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* Size Chart */}
-                <div className="mt-4 space-y-3">
-                  {product.sizeChart && (
-                    <SizeChart 
-                      sizeChart={product.sizeChart} 
-                      availableSizes={product.availableSizes || []} 
-                    />
-                  )}
-                  {!product.sizeChart && product.sizeChartImageUrl && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-gray-900">Size Guide</h4>
-                      <button
-                        onClick={() => setIsSizeImageOpen(true)}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                      >
-                        View Size Chart
-                      </button>
-
-                      {isSizeImageOpen && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                              <h3 className="text-lg font-semibold text-gray-900">Size Guide</h3>
-                              <button
-                                onClick={() => setIsSizeImageOpen(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                              >
-                                <X className="h-6 w-6" />
-                              </button>
-                            </div>
-                            <div className="p-4 flex justify-center">
-                              <img
-                                src={product.sizeChartImageUrl}
-                                alt="Size chart"
-                                className="max-w-full h-auto rounded border border-gray-200 shadow-sm"
-                              />
-                            </div>
-                            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-                              <button
-                                onClick={() => setIsSizeImageOpen(false)}
-                                className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                              >
-                                Close
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
                 {/* Color Selection */}
                 {Array.isArray((product as any).colors) && (product as any).colors.length > 0 && (
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-3">Color:</h3>
                     <div className="flex flex-wrap gap-2">
                       {(product as any).colors.map((c: any, idx: number) => {
-                        const label = typeof c === 'string' ? c : (c.colorName || c.colorId || `Color ${idx+1}`)
+                        const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                        const label = typeof c === 'string' 
+                          ? (isObjectId(c) ? '' : c)
+                          : (c.name || c.colorName || c.label || c.title || (!isObjectId(String(c?.colorId)) ? String(c?.colorId) : ''))
                         const imgUrl = typeof c === 'object' ? (c.imageUrl || c.url) : ''
+                        if (!label) return null
                         return (
                           <button
                             key={label + idx}
@@ -424,6 +431,56 @@ export default function ProductPage() {
                         {(product.stockQuantity ?? product.stockCount) as number} in stock
                       </span>
                     </div>
+                  </div>
+                )}
+
+                {/* Size Chart Link */}
+                {(product.sizeChart || product.sizeChartImageUrl) && (
+                  <div className="mb-4">
+                    {product.sizeChart ? (
+                      <SizeChart 
+                        sizeChart={product.sizeChart} 
+                        availableSizes={product.availableSizes || []} 
+                      />
+                    ) : product.sizeChartImageUrl ? (
+                      <button
+                        onClick={() => setIsSizeImageOpen(true)}
+                        className="text-sm text-primary-600 hover:text-primary-800 underline font-medium"
+                      >
+                        View Size Chart
+                      </button>
+                    ) : null}
+
+                    {isSizeImageOpen && product.sizeChartImageUrl && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                          <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900">Size Guide</h3>
+                            <button
+                              onClick={() => setIsSizeImageOpen(false)}
+                              className="text-gray-400 hover:text-gray-600"
+                            >
+                              <X className="h-6 w-6" />
+                            </button>
+                          </div>
+                          <div className="p-4 flex justify-center">
+                            <img
+                              src={product.sizeChartImageUrl}
+                              alt="Size chart"
+                              className="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+                            />
+                          </div>
+                          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                            <button
+                              onClick={() => setIsSizeImageOpen(false)}
+                              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -476,47 +533,50 @@ export default function ProductPage() {
 
               {/* Product Details (dynamic from API) */}
               <div className="mt-8">
-                <h3 className="font-semibold text-gray-900 mb-3">Product Details:</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    {[
-                      ['SKU', (product as any).sku],
-                      ['Stock Status', (product as any).stockStatus],
-                      ['In Stock', product.inStock ? 'Yes' : 'No'],
-                      ['Stock Quantity', (product.stockQuantity || product.stockCount || 0).toString()],
-                      ['Currency', (product as any).currency || 'PKR'],
-                      ['Category', (product.categories && product.categories.join(', ')) || '—'],
-                      ['Brand', product.brand || '—'],
-                      ['Collection', (product as any).collectionName],
-                      ['Occasion', product.occasion],
-                      ['Season', product.season],
-                    ].filter(([, v]) => !!v).map(([k, v]) => (
-                      <div key={k as string} className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-600">{k as string}</span>
-                        <span className="text-gray-900 font-medium">{v as string}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      ['Fabric', (product as any).fabric],
-                      ['Pattern', (product as any).pattern],
-                      ['Sleeve Length', (product as any).sleeveLength],
-                      ['Neckline', (product as any).neckline],
-                      ['Length', (product as any).length],
-                      ['Fit', (product as any).fit],
-                      ['Age Group', (product as any).ageGroup],
-                      ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
-                      ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
-                      ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
-                      ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
-                    ].filter(([, v]) => !!v).map(([k, v]) => (
-                      <div key={k as string} className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-600">{k as string}</span>
-                        <span className="text-gray-900 font-medium">{v as string}</span>
-                      </div>
-                    ))}
-                  </div>
+                <h3 className="font-semibold text-gray-900 mb-4">Product Details</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {[
+                        ['SKU', (product as any).sku],
+                        ['Stock Status', (product as any).stockStatus],
+                        ['In Stock', product.inStock ? 'Yes' : 'No'],
+                        ['Stock Quantity', (product.stockQuantity || product.stockCount || 0).toString()],
+                        ['Currency', (product as any).currency || 'PKR'],
+                        ['Category', (() => {
+                          const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                          if (!product.categories || product.categories.length === 0) return '—'
+                          const validCategories = product.categories
+                            .filter((cat: any) => cat && typeof cat === 'string' && !isObjectId(cat))
+                          return validCategories.length > 0 ? validCategories.join(', ') : '—'
+                        })()],
+                        ['Brand', product.brand && product.brand !== 'Unknown' ? product.brand : '—'],
+                        ['Collection', (product as any).collectionName],
+                        ['Occasion', product.occasion],
+                        ['Season', product.season],
+                        ['Fabric', (product as any).fabric],
+                        ['Pattern', (product as any).pattern],
+                        ['Sleeve Length', (product as any).sleeveLength],
+                        ['Neckline', (product as any).neckline],
+                        ['Length', (product as any).length],
+                        ['Fit', (product as any).fit],
+                        ['Age Group', (product as any).ageGroup],
+                        ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
+                        ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
+                        ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
+                        ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
+                      ].filter(([, v]) => !!v && v !== '—').map(([k, v]) => (
+                        <tr key={k as string} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 bg-gray-50">
+                            {k as string}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {v as string}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
