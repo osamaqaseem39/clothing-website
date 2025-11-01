@@ -529,58 +529,58 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* Size Chart Link */}
-                {(product.sizeChart || product.sizeChartImageUrl) && (
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    {product.sizeChart ? (
-                      <SizeChart 
-                        sizeChart={product.sizeChart} 
-                        availableSizes={product.availableSizes || []} 
-                      />
-                    ) : product.sizeChartImageUrl ? (
-                      <button
-                        onClick={() => setIsSizeImageOpen(true)}
-                        className="text-sm text-primary-600 hover:text-primary-800 underline font-semibold"
-                      >
-                        View Size Chart
-                      </button>
-                    ) : null}
-
-                    {isSizeImageOpen && product.sizeChartImageUrl && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                          <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                            <h3 className="text-xl font-bold text-gray-900">Size Guide</h3>
-                            <button
-                              onClick={() => setIsSizeImageOpen(false)}
-                              className="text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                              <X className="h-6 w-6" />
-                            </button>
-                          </div>
-                          <div className="p-6 flex justify-center">
-                            <img
-                              src={product.sizeChartImageUrl}
-                              alt="Size chart"
-                              className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm"
-                            />
-                          </div>
-                          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                            <button
-                              onClick={() => setIsSizeImageOpen(false)}
-                              className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 {/* Action Buttons */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                  {/* Size Chart Link */}
+                  {(product.sizeChart || product.sizeChartImageUrl) && (
+                    <div className="mb-2">
+                      {product.sizeChart ? (
+                        <SizeChart 
+                          sizeChart={product.sizeChart} 
+                          availableSizes={product.availableSizes || []} 
+                        />
+                      ) : product.sizeChartImageUrl ? (
+                        <button
+                          onClick={() => setIsSizeImageOpen(true)}
+                          className="text-sm text-primary-600 hover:text-primary-800 underline font-semibold w-full text-center"
+                        >
+                          View Size Chart
+                        </button>
+                      ) : null}
+
+                      {isSizeImageOpen && product.sizeChartImageUrl && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+                            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                              <h3 className="text-xl font-bold text-gray-900">Size Guide</h3>
+                              <button
+                                onClick={() => setIsSizeImageOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                              >
+                                <X className="h-6 w-6" />
+                              </button>
+                            </div>
+                            <div className="p-6 flex justify-center">
+                              <img
+                                src={product.sizeChartImageUrl}
+                                alt="Size chart"
+                                className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm"
+                              />
+                            </div>
+                            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                              <button
+                                onClick={() => setIsSizeImageOpen(false)}
+                                className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   <button
                     onClick={handleAddToCart}
                     className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
