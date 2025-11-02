@@ -448,26 +448,46 @@ export default function ProductPage() {
                 </div>
 
                 {/* Size Selection */}
-                {Array.isArray(product.availableSizes) && product.availableSizes.length > 0 && (
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Size</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {product.availableSizes.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            selectedSize === size
-                              ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
-                              : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
+                {(() => {
+                  // Try to get sizes from multiple possible locations
+                  let sizes: string[] = []
+                  
+                  // Check availableSizes first
+                  if (Array.isArray(product.availableSizes) && product.availableSizes.length > 0) {
+                    sizes = product.availableSizes
+                  }
+                  // Check sizeChart.sizes
+                  else if (product.sizeChart && Array.isArray(product.sizeChart.sizes) && product.sizeChart.sizes.length > 0) {
+                    sizes = product.sizeChart.sizes.map((s: any) => s.size || s).filter(Boolean)
+                  }
+                  // Check attributes.sizes
+                  else if ((product as any).attributes?.sizes && Array.isArray((product as any).attributes.sizes) && (product as any).attributes.sizes.length > 0) {
+                    sizes = (product as any).attributes.sizes
+                  }
+                  
+                  if (sizes.length === 0) return null
+                  
+                  return (
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                      <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Size</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {sizes.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={`px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              selectedSize === size
+                                ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
+                                : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )
+                })()}
 
                 {/* Color Selection */}
                 {Array.isArray((product as any).colors) && (product as any).colors.length > 0 && (
@@ -648,7 +668,7 @@ export default function ProductPage() {
                 <div className="p-8">
                   {/* Overview Tab */}
                   {activeTab === 'Overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-8">
                       {/* Description */}
                       {(product.description || product.shortDescription) && (
                         <div>
@@ -656,6 +676,76 @@ export default function ProductPage() {
                           <p className="text-gray-600 leading-relaxed text-base">{product.description || product.shortDescription}</p>
                         </div>
                       )}
+
+                      {/* Model Height */}
+                      {(product as any).modelMeasurements?.height && (
+                        <div>
+                          <p className="text-gray-600 leading-relaxed text-base">
+                            <span className="font-semibold text-gray-900">Model height:</span> {(product as any).modelMeasurements.height}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Product Information */}
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Product Information</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Category */}
+                          {(() => {
+                            const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                            if (!product.categories || product.categories.length === 0) return null
+                            const validCategories = product.categories
+                              .filter((cat: any) => cat && typeof cat === 'string' && !isObjectId(cat))
+                            if (validCategories.length === 0) return null
+                            return (
+                              <div>
+                                <span className="text-sm font-semibold text-gray-700">Category:</span>
+                                <span className="ml-2 text-gray-600">{validCategories.join(', ')}</span>
+                              </div>
+                            )
+                          })()}
+
+                          {/* Brand */}
+                          {product.brand && product.brand !== 'Unknown' && (
+                            <div>
+                              <span className="text-sm font-semibold text-gray-700">Brand:</span>
+                              <span className="ml-2 text-gray-600">{product.brand}</span>
+                            </div>
+                          )}
+
+                          {/* Collection */}
+                          {(product as any).collectionName && (
+                            <div>
+                              <span className="text-sm font-semibold text-gray-700">Collection:</span>
+                              <span className="ml-2 text-gray-600">{(product as any).collectionName}</span>
+                            </div>
+                          )}
+
+                          {/* Occasion */}
+                          {product.occasion && (
+                            <div>
+                              <span className="text-sm font-semibold text-gray-700">Occasion:</span>
+                              <span className="ml-2 text-gray-600">{product.occasion}</span>
+                            </div>
+                          )}
+
+                          {/* Season */}
+                          {product.season && (
+                            <div>
+                              <span className="text-sm font-semibold text-gray-700">Season:</span>
+                              <span className="ml-2 text-gray-600">{product.season}</span>
+                            </div>
+                          )}
+
+                          {/* Fabric */}
+                          {(product as any).fabric && (
+                            <div>
+                              <span className="text-sm font-semibold text-gray-700">Fabric:</span>
+                              <span className="ml-2 text-gray-600">{(product as any).fabric}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
                       {/* Features */}
                       {Array.isArray(product.features) && product.features.length > 0 && (
@@ -671,7 +761,7 @@ export default function ProductPage() {
                           </ul>
                         </div>
                       )}
-                      {(!product.description && !product.shortDescription && (!Array.isArray(product.features) || product.features.length === 0)) && (
+                      {(!product.description && !product.shortDescription && (!Array.isArray(product.features) || product.features.length === 0) && !(product as any).modelMeasurements?.height) && (
                         <div className="text-gray-500 text-center py-8">
                           No overview information available
                         </div>
@@ -714,7 +804,6 @@ export default function ProductPage() {
                               ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
                               ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
                               ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
-                              ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
                             ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
                               <tr key={k as string} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
@@ -756,22 +845,6 @@ export default function ProductPage() {
                         </div>
                       ) : null}
 
-                      {/* Model Measurements */}
-                      {(product as any).modelMeasurements ? (
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-6">Model Measurements</h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            {Object.entries((product as any).modelMeasurements).map(([k, v]) => (
-                              v ? (
-                                <div key={k} className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                                  <div className="text-xs text-gray-500 uppercase font-semibold mb-2">{k === 'bust' ? 'Chest' : k}</div>
-                                  <div className="text-lg font-bold text-gray-900">{v as string}</div>
-                                </div>
-                              ) : null
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
 
                       {/* Shipping Details */}
                       {(product as any).shippingWeight || (product as any).shippingDimensions ? (
@@ -796,7 +869,7 @@ export default function ProductPage() {
                         </div>
                       ) : null}
 
-                      {!((product as any).designer || (product as any).handwork?.length || (product as any).modelMeasurements || (product as any).shippingWeight || (product as any).shippingDimensions) && (
+                      {!((product as any).designer || (product as any).handwork?.length || (product as any).shippingWeight || (product as any).shippingDimensions) && (
                         <div className="text-gray-500 text-center py-8">
                           No additional information available
                         </div>

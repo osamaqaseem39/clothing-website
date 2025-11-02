@@ -221,6 +221,31 @@ class ApiClient {
         .filter((v: any) => typeof v === 'string' && v.trim() !== '')
     }
 
+    // Normalize sizes from multiple possible locations
+    let normalizedSizes: string[] | undefined = undefined
+    // Check availableSizes first
+    if (Array.isArray(raw?.availableSizes) && raw.availableSizes.length > 0) {
+      normalizedSizes = raw.availableSizes.filter((s: any) => s && typeof s === 'string' && s.trim() !== '')
+    }
+    // Check sizes field
+    else if (Array.isArray(raw?.sizes) && raw.sizes.length > 0) {
+      normalizedSizes = raw.sizes.filter((s: any) => s && typeof s === 'string' && s.trim() !== '')
+    }
+    // Check sizeChart.sizes
+    else if (raw?.sizeChart && Array.isArray(raw.sizeChart.sizes) && raw.sizeChart.sizes.length > 0) {
+      normalizedSizes = raw.sizeChart.sizes
+        .map((s: any) => {
+          if (typeof s === 'string') return s
+          if (typeof s === 'object' && s.size) return s.size
+          return null
+        })
+        .filter((s: any): s is string => s && typeof s === 'string' && s.trim() !== '')
+    }
+    // Check attributes.sizes
+    else if (raw?.attributes?.sizes && Array.isArray(raw.attributes.sizes) && raw.attributes.sizes.length > 0) {
+      normalizedSizes = raw.attributes.sizes.filter((s: any) => s && typeof s === 'string' && s.trim() !== '')
+    }
+
     return {
       ...raw,
       images: imageUrls,
@@ -229,6 +254,7 @@ class ApiClient {
       price: normalizedPrice,
       originalPrice: normalizedOriginalPrice,
       colors: normalizedColors ?? raw?.colors,
+      availableSizes: normalizedSizes ?? raw?.availableSizes ?? raw?.sizes,
     } as Product
   }
 
