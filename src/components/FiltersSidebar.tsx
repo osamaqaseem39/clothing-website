@@ -9,15 +9,14 @@ interface FiltersSidebarProps {
   onCategoryChange: (category: string) => void
   priceRange: number[]
   onPriceRangeChange: (range: number[]) => void
+  colors: string[]
   selectedColors: string[]
   onColorToggle: (color: string) => void
+  sizes: string[]
   selectedSizes: string[]
   onSizeToggle: (size: string) => void
   onClearFilters: () => void
 }
-
-const colors = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple', 'Orange', 'Brown', 'Gray', 'Navy']
-const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 
 export default function FiltersSidebar({
   categories,
@@ -25,8 +24,10 @@ export default function FiltersSidebar({
   onCategoryChange,
   priceRange,
   onPriceRangeChange,
+  colors,
   selectedColors,
   onColorToggle,
+  sizes,
   selectedSizes,
   onSizeToggle,
   onClearFilters

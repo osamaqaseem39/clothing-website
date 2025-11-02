@@ -591,6 +591,17 @@ class ApiClient {
     return await this.request<PaginatedResponse<Brand>>(`/brands/country/${country}${suffix}`)
   }
 
+  // Filter Options API
+  async getFilterOptions(): Promise<{
+    categories: Array<{ _id: string; name: string; slug: string }>;
+    brands: Array<{ _id: string; name: string; slug: string }>;
+    sizes: string[];
+    colors: string[];
+    priceRange: { min: number; max: number };
+  }> {
+    return await this.request<any>('/products/filter-options')
+  }
+
   // Orders API - TODO: Connect to backend
   async getCustomerOrders(customerId: string, filters: { page?: number; limit?: number } = {}): Promise<any> {
     const params = new URLSearchParams()

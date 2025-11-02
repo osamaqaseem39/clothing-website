@@ -12,41 +12,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { apiClient, Product, ProductFilters } from '@/lib/api'
 
-const categories = [
-  'All',
-  'Evening Wear',
-  'Day Dresses',
-  'Couture',
-  'Bridal',
-  'Casual Wear',
-  'Formal Wear',
-  'Accessories',
-  'Jewelry',
-  'Handbags',
-  'Shoes',
-  'Lingerie',
-  'Outerwear',
-  'Swimwear',
-  'Activewear',
-  'Sleepwear',
-  'Maternity',
-  'Plus Size',
-  'Petite',
-  'Vintage',
-  'Sustainable',
-  'Designer',
-  'Limited Edition',
-  'Seasonal',
-  'Occasion',
-  'Workwear',
-  'Travel',
-  'Home',
-  'Special',
-  'Custom',
-  'Final',
-  'Activewear'
-]
-
 const sortOptions = [
   'Featured',
   'Price: Low to High',
@@ -68,12 +33,29 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Filter options from backend
+  const [categories, setCategories] = useState<string[]>(['All'])
+  const [colors, setColors] = useState<string[]>([])
+  const [sizes, setSizes] = useState<string[]>([])
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
         setError(null)
+        
+        // Fetch filter options from backend
+        const filterOptions = await apiClient.getFilterOptions()
+        const categoryNames = ['All', ...filterOptions.categories.map(cat => cat.name)]
+        setCategories(categoryNames)
+        setColors(filterOptions.colors)
+        setSizes(filterOptions.sizes)
+        
+        // Set price range from backend
+        setPriceRange([filterOptions.priceRange.min, filterOptions.priceRange.max])
+        
+        // Fetch products
         const filters: ProductFilters = {
           page: 1,
           limit: 100, // Get more products for the shop page
@@ -83,14 +65,14 @@ export default function ShopPage() {
         const response = await apiClient.getProducts(filters)
         setProducts(response.data)
       } catch (err) {
-        setError('Failed to fetch products')
-        console.error('Error fetching products:', err)
+        setError('Failed to fetch data')
+        console.error('Error fetching data:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProducts()
+    fetchData()
   }, [])
 
   const handleMenuToggle = () => {
@@ -170,7 +152,19 @@ export default function ShopPage() {
   const clearFilters = () => {
     setSelectedCategory('All')
     setSearchQuery('')
-    setPriceRange([0, 5000])
+    // Reset price range to backend values if available
+    if (priceRange[1] > priceRange[0]) {
+      // Keep current range, but reset to initial if needed
+      const resetRange = async () => {
+        try {
+          const filterOptions = await apiClient.getFilterOptions()
+          setPriceRange([filterOptions.priceRange.min, filterOptions.priceRange.max])
+        } catch (err) {
+          console.error('Error fetching price range:', err)
+        }
+      }
+      resetRange()
+    }
     setSelectedColors([])
     setSelectedSizes([])
     setSortBy('Featured')
@@ -250,8 +244,10 @@ export default function ShopPage() {
               onCategoryChange={handleCategoryChange}
               priceRange={priceRange}
               onPriceRangeChange={handlePriceRangeChange}
+              colors={colors}
               selectedColors={selectedColors}
               onColorToggle={handleColorToggle}
+              sizes={sizes}
               selectedSizes={selectedSizes}
               onSizeToggle={handleSizeToggle}
               onClearFilters={clearFilters}
