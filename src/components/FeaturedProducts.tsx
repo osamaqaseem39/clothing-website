@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Star, Heart, ShoppingBag, Eye, TrendingUp, Award } from 'lucide-react'
+import { Star, Heart, ShoppingBag, Award, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -47,7 +47,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
               <p className="text-lg text-gray-600">Loading...</p>
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
             ))}
@@ -86,7 +86,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
             <p className="text-gray-600">No featured products available at the moment.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, index) => (
             <motion.div
               key={product._id}
@@ -94,103 +94,65 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300"
+              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group"
             >
-              <div className="relative">
+              <div className="relative overflow-hidden rounded-t-lg">
                 <Link href={`/products/${product.slug}`}>
-                  <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                    <Image
-                      src={product.images[0] || '/images/1.png'}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      {product.isNew && (
-                        <span className="bg-primary-600 text-white text-xs px-3 py-1 rounded-full font-medium">
-                          New
-                        </span>
-                      )}
-                      {product.isSale && (
-                        <span className="bg-secondary-500 text-white text-xs px-3 py-1 rounded-full font-medium">
-                          Sale
-                        </span>
-                      )}
-                      {(product.rating || 0) >= 4.5 && (
-                        <span className="bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          Top Seller
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
-                  </div>
-
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-gray-900 text-lg line-clamp-2">
-                        {product.name}
-                      </h3>
-                    </div>
-
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-1">
-                                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                                <span className="text-sm text-gray-600 font-medium">{product.rating}</span>
-                                <span className="text-sm text-gray-400">({product.reviews} reviews)</span>
-                              </div>
-                              <span className="text-xs text-primary-600 font-medium bg-primary-50 px-2 py-1 rounded">
-                                {product.brand}
-                              </span>
-                            </div>
-
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-xl font-bold text-primary-600">
-                        ₨{product.price.toLocaleString()}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-400 line-through">
-                          ₨{product.originalPrice.toLocaleString()}
-                        </span>
-                      )}
-                      {product.isSale && (
-                        <span className="text-sm text-secondary-600 font-medium">
-                          Save ₨{(product.originalPrice! - product.price).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                        {product.categories?.[0] || product.category || 'General'}
-                      </span>
-                      {(product.rating || 0) >= 4.5 && (
-                        <div className="flex items-center gap-1 text-xs text-primary-600 font-medium">
-                          <TrendingUp className="h-3 w-3" />
-                          Bestseller
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <Image
+                    src={product.images[0] || '/images/1.png'}
+                    alt={product.name}
+                    width={400}
+                    height={400}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200"
+                  />
                 </Link>
-
-                {/* Quick Actions - Outside of Link to prevent navigation */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                    <Heart className="h-4 w-4 text-gray-600" />
-                  </button>
-                  <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                    <Eye className="h-4 w-4 text-gray-600" />
-                  </button>
+                
+                {/* Badges */}
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                  {product.isNew && (
+                    <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      New
+                    </span>
+                  )}
+                  {product.isSale && (
+                    <span className="bg-secondary-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Sale
+                    </span>
+                  )}
                 </div>
 
-                {/* Add to Cart Button */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 bg-primary-600 text-white rounded-full shadow-md hover:bg-primary-700 transition-colors">
+                {/* Wishlist Button */}
+                <button className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-200">
+                  <Heart className="h-4 w-4 text-gray-400 hover:text-red-500" />
+                </button>
+              </div>
+
+              <div className="p-4">
+                <div className="mb-2">
+                  <h3 className="font-semibold text-gray-900 text-lg line-clamp-2 mb-1">
+                    {product.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">{product.brand}</p>
+                </div>
+
+                <div className="flex items-center gap-1 mb-3">
+                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                  <span className="text-sm text-gray-600 font-medium">{product.rating || 0}</span>
+                  <span className="text-sm text-gray-400">({product.reviews || 0} reviews)</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-primary-600">
+                      ₨{product.price.toLocaleString()}
+                    </span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-400 line-through">
+                        ₨{product.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  <button className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200">
                     <ShoppingBag className="h-4 w-4" />
                   </button>
                 </div>

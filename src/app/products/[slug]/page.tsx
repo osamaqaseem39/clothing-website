@@ -632,16 +632,6 @@ export default function ProductPage() {
                       Product Details
                     </button>
                     <button
-                      onClick={() => setActiveTab('Stock')}
-                      className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'Stock'
-                          ? 'border-primary-600 text-primary-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Stock & Inventory
-                    </button>
-                    <button
                       onClick={() => setActiveTab('Additional')}
                       className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === 'Additional'
@@ -704,7 +694,6 @@ export default function ProductPage() {
                           <tbody className="bg-white divide-y divide-gray-200">
                             {[
                               ['SKU', (product as any).sku],
-                              ['Currency', (product as any).currency || 'PKR'],
                               ['Category', (() => {
                                 const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
                                 if (!product.categories || product.categories.length === 0) return '—'
@@ -722,45 +711,11 @@ export default function ProductPage() {
                               ['Neckline', (product as any).neckline],
                               ['Length', (product as any).length],
                               ['Fit', (product as any).fit],
-                              ['Age Group', (product as any).ageGroup],
                               ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
                               ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
                               ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
                               ['Custom Delivery Days', (product as any).customDeliveryDays?.toString()],
                             ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
-                              <tr key={k as string} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
-                                  {k as string}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                  {v as string}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Stock Tab */}
-                  {activeTab === 'Stock' && (
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-6">Stock & Inventory Information</h3>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stock Information</th>
-                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Details</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {[
-                              ['Stock Status', (product as any).stockStatus],
-                              ['In Stock', product.inStock ? 'Yes' : 'No'],
-                              ['Stock Quantity', (product.stockQuantity || product.stockCount || 0).toString()],
-                            ].filter(([k, v]) => !!v && v !== '—').map(([k, v]) => (
                               <tr key={k as string} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 bg-gray-50 w-1/3">
                                   {k as string}
