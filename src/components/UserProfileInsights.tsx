@@ -190,23 +190,6 @@ const UserProfileInsights: React.FC<UserProfileInsightsProps> = ({
               </div>
             )}
 
-            {/* Pakistani Clothing Preferences */}
-            {userProfile.preferences.bodyType.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Body Type Preferences</h4>
-                <div className="flex flex-wrap gap-2">
-                  {userProfile.preferences.bodyType.map((bodyType, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                    >
-                      {bodyType}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Occasion Preferences */}
             {userProfile.preferences.occasion.length > 0 && (
               <div>

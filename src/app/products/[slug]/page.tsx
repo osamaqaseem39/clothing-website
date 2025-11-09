@@ -614,14 +614,6 @@ export default function ProductPage() {
                   </button>
                 </div>
 
-                {/* Care Instructions */}
-                {(product as any).careInstructions && (
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Care Instructions</h3>
-                    <p className="text-gray-700 leading-relaxed text-base">{(product as any).careInstructions}</p>
-                  </div>
-                )}
-
               </div>
             </div>
 
@@ -798,10 +790,6 @@ export default function ProductPage() {
                               ['Fabric', (product as any).fabric],
                               ['Pattern', (product as any).pattern],
                               ['Sleeve Length', (product as any).sleeveLength],
-                              ['Neckline', (product as any).neckline],
-                              ['Length', (product as any).length],
-                              ['Fit', (product as any).fit],
-                              ['Body Type', Array.isArray((product as any).bodyType) ? (product as any).bodyType.join(', ') : (product as any).bodyType],
                               ['Limited Edition', (product as any).isLimitedEdition ? 'Yes' : undefined],
                               ['Custom Made', (product as any).isCustomMade ? 'Yes' : undefined],
                             ].filter(([k, v]) => !!v && v !== '—' && !(k as string).toLowerCase().includes('id')).map(([k, v]) => (
@@ -823,25 +811,13 @@ export default function ProductPage() {
                   {/* Additional Info Tab */}
                   {activeTab === 'Additional' && (
                     <div className="space-y-8">
-                      {/* Designer & Handwork */}
-                      {(product as any).designer || (product as any).handwork?.length ? (
+                      {/* Designer */}
+                      {(product as any).designer ? (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                          {(product as any).designer && (
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900 mb-4">Designer</h3>
-                              <p className="text-gray-700 text-base">{(product as any).designer}</p>
-                            </div>
-                          )}
-                          {Array.isArray((product as any).handwork) && (product as any).handwork.length > 0 && (
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900 mb-4">Handwork</h3>
-                              <div className="flex flex-wrap gap-2">
-                                {(product as any).handwork.map((h: string) => (
-                                  <span key={h} className="px-4 py-2 rounded-full text-sm font-medium bg-primary-50 text-primary-700 border border-primary-200">{h}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Designer</h3>
+                            <p className="text-gray-700 text-base">{(product as any).designer}</p>
+                          </div>
                         </div>
                       ) : null}
 
@@ -869,7 +845,7 @@ export default function ProductPage() {
                         </div>
                       ) : null}
 
-                      {!((product as any).designer || (product as any).handwork?.length || (product as any).shippingWeight || (product as any).shippingDimensions) && (
+                      {!((product as any).designer || (product as any).shippingWeight || (product as any).shippingDimensions) && (
                         <div className="text-gray-500 text-center py-8">
                           No additional information available
                         </div>

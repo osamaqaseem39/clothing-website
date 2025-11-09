@@ -15,7 +15,6 @@ const footerLinks = {
     { name: 'Personal Styling', href: '#' },
     { name: 'Size Consultation', href: '#' },
     { name: 'Private Viewing', href: '#' },
-    { name: 'Care Instructions', href: '#' },
     { name: 'Contact Atelier', href: '#' }
   ],
   legal: [

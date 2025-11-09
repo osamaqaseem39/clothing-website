@@ -337,14 +337,14 @@ export default function ShopPage() {
               <div className={`grid ${getGridCols()} gap-6`}>
                 {sortedProducts.map((product) => (
                   <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
-                    <div className="relative overflow-hidden rounded-t-lg">
+                    <div className="relative overflow-hidden rounded-t-lg aspect-[9/16]">
                       <Link href={`/products/${product.slug}`}>
                         <Image
                           src={product.images[0] || '/images/1.png'}
                           alt={product.name}
                           width={400}
-                          height={400}
-                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200"
+                          height={711}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         />
                       </Link>
                       
