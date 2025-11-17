@@ -5,6 +5,7 @@ import { RecentlyViewedProvider } from '@/contexts/RecentlyViewedContext'
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
+import WhatsAppButton from '@/components/WhatsAppButton'
 
 const cormorant = Cormorant_Garamond({ 
   subsets: ['latin'],
@@ -37,6 +38,7 @@ export default function RootLayout({
             <RecentlyViewedProvider>
               {children}
               <CookieConsentBanner />
+              <WhatsAppButton />
             </RecentlyViewedProvider>
           </AnalyticsProvider>
         </CustomerProvider>
