@@ -1,8 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Heart, ShoppingBag } from 'lucide-react'
-import { useState } from 'react'
+import { ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 
 interface ProductCardProps {
@@ -32,9 +31,6 @@ export default function ProductCard({
   isOnSale = false,
   slug
 }: ProductCardProps) {
-  const [isLiked, setIsLiked] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-
   return (
     <Link href={slug ? `/products/${slug}` : `/products/${id}`}>
       <motion.div
@@ -43,69 +39,66 @@ export default function ProductCard({
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
         className="group relative bg-white rounded-lg overflow-hidden card-hover cursor-pointer"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
-      {/* Image Container */}
-      <div className="relative aspect-[9/16] overflow-hidden">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {isNew && (
-            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-              New
-            </span>
-          )}
-          {isOnSale && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-              Sale
-            </span>
+        {/* Image Container - 4:3 Aspect Ratio */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          
+          {/* Badges */}
+          {(isNew || isOnSale) && (
+            <div className="absolute top-2 left-2 flex gap-1">
+              {isNew && (
+                <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded font-medium">
+                  New
+                </span>
+              )}
+              {isOnSale && (
+                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded font-medium">
+                  Sale
+                </span>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ 
-            opacity: isHovered ? 1 : 0, 
-            y: isHovered ? 0 : 10 
-          }}
-          transition={{ duration: 0.2 }}
-          className="absolute top-3 right-3 flex flex-col gap-2"
-        >
-          <button
-            onClick={() => setIsLiked(!isLiked)}
-            className={`p-2 rounded-full transition-colors ${
-              isLiked 
-                ? 'bg-red-500 text-white' 
-                : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-          </button>
-          <button className="p-2 bg-white text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
-            <ShoppingBag className="h-4 w-4" />
-          </button>
-        </motion.div>
-      </div>
+        {/* Product Info - Minimal Design */}
+        <div className="p-3">
+          {/* Name and Brand in one line */}
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="text-sm font-medium text-gray-900 truncate flex-1">{name}</h3>
+            {brand && (
+              <span className="text-xs text-gray-500 flex-shrink-0">{brand}</span>
+            )}
+          </div>
 
-      {/* Product Info */}
-      <div className="p-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-rose-600">PKR {Number(price).toLocaleString()}</span>
-          {originalPrice && originalPrice > price && (
-            <span className="text-sm text-gray-400 line-through">PKR {Number(originalPrice).toLocaleString()}</span>
-          )}
+          {/* Price and Add to Cart in one line */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-primary-600">
+                ₨{typeof price === 'number' ? price.toLocaleString() : '0'}
+              </span>
+              {originalPrice && typeof originalPrice === 'number' && originalPrice > price && (
+                <span className="text-xs text-gray-400 line-through">
+                  ₨{originalPrice.toLocaleString()}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                // Add to cart logic here
+              }}
+              className="p-1.5 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex-shrink-0"
+            >
+              <ShoppingBag className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-        <p className="text-xs text-gray-700 mt-2 truncate">{brand || category}{color ? ` • ${String(color).toUpperCase()}` : ''}</p>
-        <p className="text-xs text-gray-600 mt-1 line-clamp-1">{name}</p>
-      </div>
-    </motion.div>
+      </motion.div>
     </Link>
   )
 }

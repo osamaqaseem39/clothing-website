@@ -319,7 +319,7 @@ class ApiClient {
     const params = new URLSearchParams()
 
     // Normalize category/categories to backend expected repeated `categories` params
-    const { category, categories, ...rest } = filters as any
+    const { category, categories, brand, brands, colors, colorFamilies, occasion, occasions, season, seasons, bodyType, bodyTypes, ...rest } = filters as any
     if (category) {
       const categoryArray = Array.isArray(category) ? category : [category]
       categoryArray.forEach((cat: string) => params.append('categories', cat))
@@ -328,17 +328,73 @@ class ApiClient {
       categories.forEach((cat: string) => params.append('categories', cat))
     }
 
+    // Normalize brand/brands to backend expected repeated `brands` params
+    if (brand) {
+      const brandArray = Array.isArray(brand) ? brand : [brand]
+      brandArray.forEach((b: string) => params.append('brands', b))
+    }
+    if (Array.isArray(brands)) {
+      brands.forEach((b: string) => params.append('brands', b))
+    }
+
+    // Normalize colors/colorFamilies to backend expected `colorFamilies` params
+    if (colors) {
+      const colorArray = Array.isArray(colors) ? colors : [colors]
+      colorArray.forEach((c: string) => params.append('colorFamilies', c))
+    }
+    if (Array.isArray(colorFamilies)) {
+      colorFamilies.forEach((c: string) => params.append('colorFamilies', c))
+    }
+
+    // Normalize occasion/occasions to backend expected `occasions` params
+    if (occasion) {
+      const occasionArray = Array.isArray(occasion) ? occasion : [occasion]
+      occasionArray.forEach((o: string) => params.append('occasions', o))
+    }
+    if (Array.isArray(occasions)) {
+      occasions.forEach((o: string) => params.append('occasions', o))
+    }
+
+    // Normalize season/seasons to backend expected `seasons` params
+    if (season) {
+      const seasonArray = Array.isArray(season) ? season : [season]
+      seasonArray.forEach((s: string) => params.append('seasons', s))
+    }
+    if (Array.isArray(seasons)) {
+      seasons.forEach((s: string) => params.append('seasons', s))
+    }
+
+    // Normalize bodyType/bodyTypes to backend expected `bodyTypes` params
+    if (bodyType) {
+      const bodyTypeArray = Array.isArray(bodyType) ? bodyType : [bodyType]
+      bodyTypeArray.forEach((bt: string) => params.append('bodyTypes', bt))
+    }
+    if (Array.isArray(bodyTypes)) {
+      bodyTypes.forEach((bt: string) => params.append('bodyTypes', bt))
+    }
+
     // Only send supported keys to avoid 400s from backend validation
     const allowedKeys = new Set([
       'page',
       'limit',
       'search',
-      'brand',
       'minPrice',
       'maxPrice',
       'inStock',
       'status',
       'sizes',
+      'fabrics',
+      'collectionNames',
+      'designers',
+      'handwork',
+      'patterns',
+      'sleeveLengths',
+      'necklines',
+      'lengths',
+      'fits',
+      'ageGroups',
+      'isLimitedEdition',
+      'isCustomMade',
       'sortBy',
       'sortOrder',
     ])
@@ -347,6 +403,8 @@ class ApiClient {
       if (value === undefined || value === null) return
       if (Array.isArray(value)) {
         value.forEach(v => params.append(key, v.toString()))
+      } else if (typeof value === 'boolean') {
+        params.append(key, value.toString())
       } else {
         params.append(key, value.toString())
       }
