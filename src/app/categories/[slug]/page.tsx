@@ -333,13 +333,13 @@ export default function CategoryDetailPage() {
                       id={product._id}
                       name={product.name}
                       price={product.price}
-                      originalPrice={product.salePrice}
+                      originalPrice={product.originalPrice}
                       image={product.images[0] || '/images/1.png'}
                       category={category.name}
                       brand={product.brand}
                       color={(product as any)?.attributes?.color || (product.colors && product.colors[0])}
                       isNew={new Date(product.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000}
-                      isOnSale={!!product.salePrice}
+                      isOnSale={!!product.originalPrice && product.originalPrice > product.price}
                       slug={product.slug}
                     />
                   </motion.div>

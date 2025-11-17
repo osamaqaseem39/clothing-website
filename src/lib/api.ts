@@ -191,12 +191,28 @@ class ApiClient {
         .filter((v: any) => typeof v === 'string' && v.trim() !== '')
     }
 
-    // Align price/originalPrice when only salePrice is present
-    let normalizedPrice = raw?.price
+    // Normalize price/originalPrice/salePrice logic
+    // Priority: salePrice (if lower) > price > originalPrice
+    let normalizedPrice = raw?.price || 0
     let normalizedOriginalPrice = raw?.originalPrice
-    if (raw?.salePrice && (raw.salePrice < raw.price)) {
-      normalizedOriginalPrice = normalizedOriginalPrice ?? raw.price
+    
+    // If salePrice exists and is lower than price, use it as the display price
+    if (raw?.salePrice && typeof raw.salePrice === 'number' && raw.salePrice < normalizedPrice) {
+      // Use the higher of price or originalPrice as the original price
+      normalizedOriginalPrice = normalizedOriginalPrice 
+        ? Math.max(normalizedOriginalPrice, normalizedPrice)
+        : normalizedPrice
       normalizedPrice = raw.salePrice
+    } else if (normalizedOriginalPrice && normalizedOriginalPrice < normalizedPrice) {
+      // If originalPrice is less than price, swap them
+      const temp = normalizedPrice
+      normalizedPrice = normalizedOriginalPrice
+      normalizedOriginalPrice = temp
+    }
+    
+    // Ensure originalPrice is only shown if it's greater than the display price
+    if (normalizedOriginalPrice && normalizedOriginalPrice <= normalizedPrice) {
+      normalizedOriginalPrice = undefined
     }
 
     // Normalize colors to human-readable strings
@@ -537,14 +553,40 @@ class ApiClient {
   // Categories API
   async getCategories(): Promise<Category[]> {
     // Prefer active categories endpoint which returns an array
-    const payload = await this.request<any>('/categories/active')
-    if (Array.isArray(payload)) return payload as Category[]
-    if (payload?.data && Array.isArray(payload.data)) return payload.data as Category[]
-    // Fallback to paginated shape from /categories
-    if (payload?.data?.docs && Array.isArray(payload.data.docs)) return payload.data.docs as Category[]
-    // If direct call to /categories was made by some proxies, normalize here
-    if (payload?.docs && Array.isArray(payload.docs)) return payload.docs as Category[]
-    return []
+    try {
+      const payload = await this.request<any>('/categories/active')
+      if (Array.isArray(payload)) return payload as Category[]
+      if (payload?.data && Array.isArray(payload.data)) return payload.data as Category[]
+      // Fallback to paginated shape from /categories
+      if (payload?.data?.docs && Array.isArray(payload.data.docs)) return payload.data.docs as Category[]
+      // If direct call to /categories was made by some proxies, normalize here
+      if (payload?.docs && Array.isArray(payload.docs)) return payload.docs as Category[]
+      return []
+    } catch (error) {
+      console.error('Error in getCategories:', error)
+      // Fallback to root categories if active fails
+      try {
+        return await this.getRootCategories()
+      } catch (fallbackError) {
+        console.error('Fallback to root categories also failed:', fallbackError)
+        return []
+      }
+    }
+  }
+
+  async getRootCategories(): Promise<Category[]> {
+    // Get root categories (categories without parent) - good for homepage
+    try {
+      const payload = await this.request<any>('/categories/root')
+      if (Array.isArray(payload)) return payload as Category[]
+      if (payload?.data && Array.isArray(payload.data)) return payload.data as Category[]
+      if (payload?.data?.docs && Array.isArray(payload.data.docs)) return payload.data.docs as Category[]
+      if (payload?.docs && Array.isArray(payload.docs)) return payload.docs as Category[]
+      return []
+    } catch (error) {
+      console.error('Error fetching root categories:', error)
+      return []
+    }
   }
 
   async getCategory(id: string): Promise<Category> {

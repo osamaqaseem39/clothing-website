@@ -427,14 +427,18 @@ export default function ProductPage() {
 
                   {/* Price */}
                   <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
-                    <span className="text-3xl md:text-4xl font-bold text-primary-600">₨{product.price.toLocaleString()}</span>
-                    {product.originalPrice && (
-                      <span className="text-xl text-gray-400 line-through">₨{product.originalPrice.toLocaleString()}</span>
-                    )}
-                    {product.isSale && product.originalPrice && (
-                      <span className="bg-secondary-500 text-white text-sm font-semibold px-3 py-1.5 rounded-full">
-                        Save ₨{(product.originalPrice - product.price).toLocaleString()}
-                      </span>
+                    <span className="text-3xl md:text-4xl font-bold text-primary-600">
+                      ₨{typeof product.price === 'number' ? product.price.toLocaleString() : '0'}
+                    </span>
+                    {product.originalPrice && typeof product.originalPrice === 'number' && product.originalPrice > product.price && (
+                      <>
+                        <span className="text-xl text-gray-400 line-through">
+                          ₨{product.originalPrice.toLocaleString()}
+                        </span>
+                        <span className="bg-secondary-500 text-white text-sm font-semibold px-3 py-1.5 rounded-full">
+                          Save ₨{(product.originalPrice - product.price).toLocaleString()}
+                        </span>
+                      </>
                     )}
                   </div>
 
@@ -447,113 +451,114 @@ export default function ProductPage() {
                   )}
                 </div>
 
-                {/* Size Selection */}
-                {(() => {
-                  // Try to get sizes from multiple possible locations
-                  let sizes: string[] = []
-                  
-                  // Check availableSizes first
-                  if (Array.isArray(product.availableSizes) && product.availableSizes.length > 0) {
-                    sizes = product.availableSizes
-                  }
-                  // Check sizeChart.sizes
-                  else if (product.sizeChart && Array.isArray(product.sizeChart.sizes) && product.sizeChart.sizes.length > 0) {
-                    sizes = product.sizeChart.sizes.map((s: any) => s.size || s).filter(Boolean)
-                  }
-                  // Check attributes.sizes
-                  else if ((product as any).attributes?.sizes && Array.isArray((product as any).attributes.sizes) && (product as any).attributes.sizes.length > 0) {
-                    sizes = (product as any).attributes.sizes
-                  }
-                  
-                  if (sizes.length === 0) return null
-                  
-                  return (
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                      <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Size</h3>
+                {/* Product Options & Actions - Combined Card */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-6">
+                  {/* Size Selection */}
+                  {(() => {
+                    // Try to get sizes from multiple possible locations
+                    let sizes: string[] = []
+                    
+                    // Check availableSizes first
+                    if (Array.isArray(product.availableSizes) && product.availableSizes.length > 0) {
+                      sizes = product.availableSizes
+                    }
+                    // Check sizeChart.sizes
+                    else if (product.sizeChart && Array.isArray(product.sizeChart.sizes) && product.sizeChart.sizes.length > 0) {
+                      sizes = product.sizeChart.sizes.map((s: any) => s.size || s).filter(Boolean)
+                    }
+                    // Check attributes.sizes
+                    else if ((product as any).attributes?.sizes && Array.isArray((product as any).attributes.sizes) && (product as any).attributes.sizes.length > 0) {
+                      sizes = (product as any).attributes.sizes
+                    }
+                    
+                    if (sizes.length > 0) {
+                      return (
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Size</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {sizes.map((size) => (
+                              <button
+                                key={size}
+                                onClick={() => setSelectedSize(size)}
+                                className={`px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                  selectedSize === size
+                                    ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
+                                    : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
+                                }`}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    }
+                    return null
+                  })()}
+
+                  {/* Color Selection */}
+                  {Array.isArray((product as any).colors) && (product as any).colors.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Color</h3>
                       <div className="flex flex-wrap gap-2">
-                        {sizes.map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
-                            className={`px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                              selectedSize === size
-                                ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
-                                : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ))}
+                        {(product as any).colors.map((c: any, idx: number) => {
+                          const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
+                          const label = typeof c === 'string' 
+                            ? (isObjectId(c) ? '' : c)
+                            : (c.name || c.colorName || c.label || c.title || (!isObjectId(String(c?.colorId)) ? String(c?.colorId) : ''))
+                          const imgUrl = typeof c === 'object' ? (c.imageUrl || c.url) : ''
+                          if (!label) return null
+                          return (
+                            <button
+                              key={label + idx}
+                              onClick={() => setSelectedColor(label)}
+                              className={`flex items-center gap-2 px-4 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                selectedColor === label
+                                  ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
+                                  : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
+                              }`}
+                            >
+                              {imgUrl ? (
+                                <img src={imgUrl} alt={label} className="h-6 w-6 rounded object-cover border border-gray-200" />
+                              ) : null}
+                              <span>{label}</span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
-                  )
-                })()}
+                  )}
 
-                {/* Color Selection */}
-                {Array.isArray((product as any).colors) && (product as any).colors.length > 0 && (
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Select Color</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {(product as any).colors.map((c: any, idx: number) => {
-                        const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
-                        const label = typeof c === 'string' 
-                          ? (isObjectId(c) ? '' : c)
-                          : (c.name || c.colorName || c.label || c.title || (!isObjectId(String(c?.colorId)) ? String(c?.colorId) : ''))
-                        const imgUrl = typeof c === 'object' ? (c.imageUrl || c.url) : ''
-                        if (!label) return null
-                        return (
+                  {/* Quantity */}
+                  {(typeof product.stockQuantity === 'number' || typeof product.stockCount === 'number') && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-4 text-lg">Quantity</h3>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
                           <button
-                            key={label + idx}
-                            onClick={() => setSelectedColor(label)}
-                            className={`flex items-center gap-2 px-4 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                              selectedColor === label
-                                ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-sm'
-                                : 'border-gray-300 text-gray-700 hover:border-primary-400 hover:bg-gray-50'
-                            }`}
+                            onClick={() => handleQuantityChange(-1)}
+                            className="p-3 hover:bg-gray-50 transition-colors"
                           >
-                            {imgUrl ? (
-                              <img src={imgUrl} alt={label} className="h-6 w-6 rounded object-cover border border-gray-200" />
-                            ) : null}
-                            <span>{label}</span>
+                            <Minus className="h-4 w-4" />
                           </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Quantity */}
-                {(typeof product.stockQuantity === 'number' || typeof product.stockCount === 'number') && (
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-semibold text-gray-900 mb-4 text-lg">Quantity</h3>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
-                        <button
-                          onClick={() => handleQuantityChange(-1)}
-                          className="p-3 hover:bg-gray-50 transition-colors"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </button>
-                        <span className="px-6 py-3 font-semibold text-lg border-x border-gray-300">{quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(1)}
-                          className="p-3 hover:bg-gray-50 transition-colors"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
+                          <span className="px-6 py-3 font-semibold text-lg border-x border-gray-300">{quantity}</span>
+                          <button
+                            onClick={() => handleQuantityChange(1)}
+                            className="p-3 hover:bg-gray-50 transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <span className="text-sm text-gray-600 font-medium">
+                          {(product.stockQuantity ?? product.stockCount) as number} in stock
+                        </span>
                       </div>
-                      <span className="text-sm text-gray-600 font-medium">
-                        {(product.stockQuantity ?? product.stockCount) as number} in stock
-                      </span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Action Buttons */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
                   {/* Size Chart Link */}
                   {(product.sizeChart || product.sizeChartImageUrl) && (
-                    <div className="mb-2">
+                    <div>
                       {product.sizeChart ? (
                         <SizeChart 
                           sizeChart={product.sizeChart} 
@@ -601,17 +606,20 @@ export default function ProductPage() {
                     </div>
                   )}
                   
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-                  >
-                    <ShoppingBag className="h-5 w-5" />
-                    Add to Cart
-                  </button>
-                  <button className="w-full border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 py-4 px-6 flex items-center justify-center gap-3">
-                    <Share2 className="h-5 w-5" />
-                    Share
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="space-y-3 pt-2">
+                    <button
+                      onClick={handleAddToCart}
+                      className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                    >
+                      <ShoppingBag className="h-5 w-5" />
+                      Add to Cart
+                    </button>
+                    <button className="w-full border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 py-4 px-6 flex items-center justify-center gap-3">
+                      <Share2 className="h-5 w-5" />
+                      Share
+                    </button>
+                  </div>
                 </div>
 
               </div>

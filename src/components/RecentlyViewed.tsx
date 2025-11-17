@@ -105,9 +105,9 @@ export default function RecentlyViewed() {
 
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-primary-600">
-                      ₨{product.price.toLocaleString()}
+                      ₨{typeof product.price === 'number' ? product.price.toLocaleString() : '0'}
                     </span>
-                    {product.originalPrice && (
+                    {product.originalPrice && typeof product.originalPrice === 'number' && product.originalPrice > product.price && (
                       <span className="text-sm text-gray-400 line-through">
                         ₨{product.originalPrice.toLocaleString()}
                       </span>
