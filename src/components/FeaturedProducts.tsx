@@ -98,13 +98,14 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <Link href={`/products/${product.slug}`}>
-                  <Image
-                    src={product.images[0] || '/images/1.png'}
-                    alt={product.name}
-                    width={400}
-                    height={400}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200"
-                  />
+                  <div className="relative aspect-[3/4]">
+                    <Image
+                      src={product.images[0] || '/images/1.png'}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                  </div>
                 </Link>
                 
                 {/* Badges */}

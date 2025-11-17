@@ -68,7 +68,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="aspect-square bg-gray-200 rounded-2xl"></div>
+              <div className="aspect-[3/4] bg-gray-200 rounded-2xl"></div>
             </div>
           ))}
         </div>
@@ -94,7 +94,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative overflow-hidden rounded-2xl card-hover"
               >
-                <div className="aspect-square relative">
+                <div className="aspect-[3/4] relative">
                   <img
                     src={category.image || '/images/banner1.png'}
                     alt={category.name}
