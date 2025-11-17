@@ -9,7 +9,6 @@ import Hero from './Hero'
 import PersonalizedRecommendations from './PersonalizedRecommendations'
 import FeaturedProducts from './FeaturedProducts'
 import CategoryGrid from './CategoryGrid'
-import SmartSearch from './SmartSearch'
 import Brands from './Brands'
 
 const PersonalizedHomepage: React.FC = () => {
@@ -19,7 +18,6 @@ const PersonalizedHomepage: React.FC = () => {
     recommendedCategories: [] as string[],
     trendingProducts: [] as Product[],
     personalizedOffers: [] as string[],
-    showSearch: true,
     showCategories: true,
     showRecommendations: true
   })
@@ -40,7 +38,6 @@ const PersonalizedHomepage: React.FC = () => {
           recommendedCategories: ['evening-wear', 'day-dresses', 'couture'],
           trendingProducts: [],
           personalizedOffers: ['Welcome Offer: 10% off your first order'],
-          showSearch: true,
           showCategories: true,
           showRecommendations: true
         })
@@ -64,7 +61,6 @@ const PersonalizedHomepage: React.FC = () => {
       recommendedCategories: [],
       trendingProducts: [],
       personalizedOffers: [],
-      showSearch: true,
       showCategories: true,
       showRecommendations: true
     }
@@ -74,7 +70,6 @@ const PersonalizedHomepage: React.FC = () => {
       recommendedCategories: userProfile.preferences.favoriteCategories,
       trendingProducts: [] as Product[],
       personalizedOffers: userProfile.recommendations.personalizedOffers,
-      showSearch: true,
       showCategories: userProfile.behavior.totalVisits > 1,
       showRecommendations: userProfile.behavior.totalVisits > 0
     }
@@ -121,16 +116,6 @@ const PersonalizedHomepage: React.FC = () => {
     }
 
     return messages.join(' • ')
-  }
-
-  const handleSearch = (query: string, results: Product[]) => {
-    // Track search event
-    trackEvent({
-      type: 'search',
-      data: { query },
-      timestamp: new Date().toISOString(),
-      sessionId: ''
-    })
   }
 
   const handleProductClick = (product: Product) => {
@@ -187,22 +172,6 @@ const PersonalizedHomepage: React.FC = () => {
         </div>
       )}
 
-      {/* Smart Search */}
-      {personalizedContent.showSearch && (
-        <div className="py-8 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">
-                Find Your Perfect Style
-              </h2>
-              <p className="text-gray-600">
-                {userProfile ? 'Search powered by your preferences' : 'Discover our curated collection'}
-              </p>
-            </div>
-            <SmartSearch onSearch={handleSearch} />
-          </div>
-        </div>
-      )}
 
       {/* Personalized Recommendations */}
       {personalizedContent.showRecommendations && (
