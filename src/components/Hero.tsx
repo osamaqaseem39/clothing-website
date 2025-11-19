@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -78,42 +78,6 @@ export default function Hero() {
                     />
                   </div>
 
-                {/* Content */}
-                <div className="relative z-10 h-full flex items-center justify-center">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <motion.div
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8 }}
-                      className="max-w-4xl mx-auto text-center"
-                    >
-                      <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6">
-                        {banner.title}
-                        <span className="block text-gradient">
-                          {banner.subtitle}
-                        </span>
-                      </h1>
-                      <p className="text-xl text-gray-100 mb-8 leading-relaxed max-w-3xl mx-auto">
-                        {banner.description}
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-none">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          className="btn-primary flex items-center justify-center group pointer-events-auto"
-                        >
-                          Explore Collection
-                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          className="btn-luxury flex items-center justify-center pointer-events-auto"
-                        >
-                          Book Consultation
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </div>
               </motion.div>
               </Link>
             )
