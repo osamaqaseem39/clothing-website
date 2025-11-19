@@ -172,37 +172,60 @@ class ApiClient {
     }
     const brandDisplay = brandName && String(brandName).trim() !== '' ? brandName : ''
 
-    // Normalize categories to human-readable names; avoid ObjectIds
+    // Normalize categories to human-readable names; preserve IDs for filtering
     let categoryNames: string[] | undefined = undefined
+    let categoryIds: string[] | undefined = undefined
     if (Array.isArray(raw?.categories)) {
       const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s)
-      categoryNames = raw.categories
-        .map((cat: any) => {
-          if (!cat) return null
-          if (typeof cat === 'string') {
-            return isObjectId(cat) ? null : cat
+      const names: string[] = []
+      const ids: string[] = []
+      
+      raw.categories.forEach((cat: any) => {
+        if (!cat) return
+        if (typeof cat === 'string') {
+          if (isObjectId(cat)) {
+            // Preserve category ID for filtering
+            ids.push(cat)
+          } else {
+            // It's already a name
+            names.push(cat)
           }
-          if (typeof cat === 'object') {
-            const label = cat.name || cat.slug || ''
-            return label && !isObjectId(String(label)) ? String(label) : null
+        } else if (typeof cat === 'object') {
+          const label = cat.name || cat.slug || ''
+          if (label && !isObjectId(String(label))) {
+            names.push(String(label))
           }
-          return null
-        })
-        .filter((v: any) => typeof v === 'string' && v.trim() !== '')
+          // Also preserve the ID if available
+          if (cat._id && isObjectId(cat._id)) {
+            ids.push(cat._id)
+          }
+        }
+      })
+      
+      // Use names if available, otherwise preserve IDs for filtering
+      categoryNames = names.length > 0 ? names : undefined
+      categoryIds = ids.length > 0 ? ids : undefined
     }
 
     // Normalize price/originalPrice/salePrice logic
     // Priority: salePrice (if lower) > price > originalPrice
     let normalizedPrice = raw?.price || 0
     let normalizedOriginalPrice = raw?.originalPrice
+    let normalizedSalePrice = raw?.salePrice
+    let normalizedIsSale = raw?.isSale || false
     
-    // If salePrice exists and is lower than price, use it as the display price
-    if (raw?.salePrice && typeof raw.salePrice === 'number' && raw.salePrice < normalizedPrice) {
-      // Use the higher of price or originalPrice as the original price
-      normalizedOriginalPrice = normalizedOriginalPrice 
-        ? Math.max(normalizedOriginalPrice, normalizedPrice)
-        : normalizedPrice
-      normalizedPrice = raw.salePrice
+    // If salePrice exists, mark product as on sale
+    if (normalizedSalePrice !== undefined && typeof normalizedSalePrice === 'number' && normalizedSalePrice > 0) {
+      normalizedIsSale = true
+      
+      // If salePrice is lower than price, use it as the display price
+      if (normalizedSalePrice < normalizedPrice) {
+        // Use the higher of price or originalPrice as the original price
+        normalizedOriginalPrice = normalizedOriginalPrice 
+          ? Math.max(normalizedOriginalPrice, normalizedPrice)
+          : normalizedPrice
+        normalizedPrice = normalizedSalePrice
+      }
     } else if (normalizedOriginalPrice && normalizedOriginalPrice < normalizedPrice) {
       // If originalPrice is less than price, swap them
       const temp = normalizedPrice
@@ -266,9 +289,13 @@ class ApiClient {
       ...raw,
       images: imageUrls,
       brand: brandDisplay || 'Unknown',
-      categories: categoryNames || raw?.categories,
+      categories: categoryNames || categoryIds || raw?.categories,
+      // Preserve category field - use first category name or ID
+      category: categoryNames?.[0] || categoryIds?.[0] || raw?.category || '',
       price: normalizedPrice,
       originalPrice: normalizedOriginalPrice,
+      salePrice: normalizedSalePrice,
+      isSale: normalizedIsSale,
       colors: normalizedColors ?? raw?.colors,
       availableSizes: normalizedSizes ?? raw?.availableSizes ?? raw?.sizes,
     } as Product

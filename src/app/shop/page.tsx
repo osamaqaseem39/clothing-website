@@ -29,7 +29,7 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState('Featured')
   const [productsPerRow, setProductsPerRow] = useState(3)
   const [searchQuery, setSearchQuery] = useState('')
-  const [priceRange, setPriceRange] = useState([0, 5000])
+  const [priceRange, setPriceRange] = useState([0, 100000]) // Large initial range to show all products
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
@@ -39,6 +39,7 @@ export default function ShopPage() {
   
   // Filter options from backend
   const [categories, setCategories] = useState<string[]>(['All'])
+  const [categoryMap, setCategoryMap] = useState<Map<string, string>>(new Map()) // Map of category ID to name
   const [colors, setColors] = useState<string[]>([])
   const [sizes, setSizes] = useState<string[]>([])
 
@@ -66,6 +67,14 @@ export default function ShopPage() {
         const filterOptions = await apiClient.getFilterOptions()
         const categoryNames = ['All', ...filterOptions.categories.map(cat => cat.name)]
         setCategories(categoryNames)
+        
+        // Create a map of category ID to name for filtering
+        const catMap = new Map<string, string>()
+        filterOptions.categories.forEach(cat => {
+          catMap.set(cat._id, cat.name)
+        })
+        setCategoryMap(catMap)
+        
         setColors(filterOptions.colors)
         setSizes(filterOptions.sizes)
         
@@ -80,7 +89,22 @@ export default function ShopPage() {
           sortOrder: 'desc'
         }
         const response = await apiClient.getProducts(filters)
+        console.log('Fetched products:', response.data.length, response.data)
+        console.log('First product sample:', response.data[0])
         setProducts(response.data)
+        
+        // Update price range based on actual product prices if needed
+        if (response.data.length > 0) {
+          const prices = response.data.map(p => p.price).filter(p => p > 0)
+          if (prices.length > 0) {
+            const minPrice = Math.min(...prices)
+            const maxPrice = Math.max(...prices)
+            // Only update if the current range is too restrictive
+            if (priceRange[1] < maxPrice || priceRange[0] > minPrice) {
+              setPriceRange([Math.max(0, Math.floor(minPrice * 0.9)), Math.ceil(maxPrice * 1.1)])
+            }
+          }
+        }
       } catch (err) {
         setError('Failed to fetch data')
         console.error('Error fetching data:', err)
@@ -110,17 +134,17 @@ export default function ShopPage() {
 
   // Helper function to check if product is on sale
   const isProductOnSale = (product: Product): boolean => {
-    // Check if explicitly marked as sale
+    // If explicitly marked as sale, return true
     if (product.isSale === true) return true
     
-    // Check if salePrice exists and is different from price
+    // If salePrice exists (regardless of value), product is on sale
     if (product.salePrice !== undefined && 
         typeof product.salePrice === 'number' && 
-        product.salePrice < product.price) {
+        product.salePrice > 0) {
       return true
     }
     
-    // Check if originalPrice is higher than current price
+    // Check if originalPrice is higher than current price (fallback check)
     if (product.originalPrice !== undefined && 
         typeof product.originalPrice === 'number' && 
         product.originalPrice > product.price) {
@@ -149,9 +173,36 @@ export default function ShopPage() {
 
   // Filter products based on selected criteria
   const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory
+    // Category matching: check if product.category matches selectedCategory (by name or ID)
+    // or if any product.categories array item matches
+    let matchesCategory = true
+    if (selectedCategory !== 'All') {
+      // Check if product.category (string) matches the selected category name
+      const categoryMatches = product.category === selectedCategory
+      
+      // Check if product.category is an ID that maps to the selected category name
+      const categoryIdMatches = product.category && categoryMap.has(product.category) && 
+                                categoryMap.get(product.category) === selectedCategory
+      
+      // Check if product.categories array contains the selected category name or ID
+      const categoriesArrayMatches = Array.isArray(product.categories) && 
+        product.categories.some(cat => {
+          if (typeof cat === 'string') {
+            // Check if it's the category name
+            if (cat === selectedCategory) return true
+            // Check if it's a category ID that maps to the selected name
+            if (categoryMap.has(cat) && categoryMap.get(cat) === selectedCategory) return true
+          }
+          return false
+        })
+      
+      matchesCategory = categoryMatches || categoryIdMatches || categoriesArrayMatches
+    }
+    
     const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
+    // Use salePrice if available for price filtering, otherwise use price
+    const productPrice = product.salePrice && product.salePrice > 0 ? product.salePrice : product.price
+    const matchesPrice = productPrice >= priceRange[0] && productPrice <= priceRange[1]
     
     // Handle special filters
     let matchesSpecialFilters = true

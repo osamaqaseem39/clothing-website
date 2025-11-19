@@ -1,10 +1,11 @@
 'use client'
 
 import { Search, ShoppingBag, User, ChevronDown, Menu, X, Filter } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useCart } from '@/contexts/CartContext'
 import { motion, AnimatePresence } from 'framer-motion'
+import { apiClient, Category } from '@/lib/api'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -14,7 +15,25 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }: HeaderProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const { itemCount, message } = useCart()
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await apiClient.getCategories()
+        // Filter to only show active categories
+        const activeCategories = categoriesData.filter(cat => cat.isActive === true)
+        setCategories(activeCategories)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+        // Keep empty array on error, will just show "All Categories"
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   return (
     <>
@@ -39,14 +58,17 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
             <div className="flex-1 max-w-2xl mx-8">
               <div className="relative">
                 <div className="flex shadow-lg rounded-xl overflow-hidden bg-white border border-gray-200 hover:border-primary-300 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-200 transition-all duration-200">
-                  <select className="px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-sm font-medium text-gray-700 focus:outline-none border-r border-gray-200 hover:from-gray-100 hover:to-gray-200 transition-colors">
-                    <option>All Categories</option>
-                    <option>Evening Wear</option>
-                    <option>Day Dresses</option>
-                    <option>Couture</option>
-                    <option>Bridal</option>
-                    <option>Accessories</option>
-                    <option>Jewelry</option>
+                  <select 
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 text-sm font-medium text-gray-700 focus:outline-none border-r border-gray-200 hover:from-gray-100 hover:to-gray-200 transition-colors"
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                   <input
                     type="text"
