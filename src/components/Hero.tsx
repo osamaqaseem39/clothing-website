@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const banners = [
   {
@@ -60,23 +61,22 @@ export default function Hero() {
             if (index !== currentSlide) return null
 
             return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-                className="absolute inset-0"
-              >
-                {/* Background Image */}
-                <div className="absolute inset-0">
-                  <img
-                    src={banner.src}
-                    alt={banner.alt}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
-                </div>
+              <Link href="/shop" key={index}>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="absolute inset-0 cursor-pointer"
+                >
+                  {/* Background Image */}
+                  <div className="absolute inset-0">
+                    <img
+                      src={banner.src}
+                      alt={banner.alt}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
                 {/* Content */}
                 <div className="relative z-10 h-full flex items-center justify-center">
@@ -96,27 +96,26 @@ export default function Hero() {
                       <p className="text-xl text-gray-100 mb-8 leading-relaxed max-w-3xl mx-auto">
                         {banner.description}
                       </p>
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <motion.button
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-none">
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="btn-primary flex items-center justify-center group"
+                          className="btn-primary flex items-center justify-center group pointer-events-auto"
                         >
                           Explore Collection
                           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
-                        <motion.button
+                        </motion.div>
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="btn-luxury flex items-center justify-center"
+                          className="btn-luxury flex items-center justify-center pointer-events-auto"
                         >
                           Book Consultation
-                        </motion.button>
+                        </motion.div>
                       </div>
                     </motion.div>
                   </div>
                 </div>
               </motion.div>
+              </Link>
             )
           })}
         </AnimatePresence>
