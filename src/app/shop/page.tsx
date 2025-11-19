@@ -100,7 +100,7 @@ export default function ShopPage() {
     setIsMobileMenuOpen(false)
   }
 
-  const handleFilterToggle = () => {
+  const handleMobileFilterToggle = () => {
     setIsMobileFiltersOpen(!isMobileFiltersOpen)
   }
 
@@ -143,8 +143,8 @@ export default function ShopPage() {
   // Helper function to check if product is featured
   const isProductFeatured = (product: Product): boolean => {
     // Featured products typically have high ratings or are marked as featured
-    return (product.rating && product.rating >= 4.5) || 
-           (product.reviews && product.reviews >= 10)
+    return !!(product.rating && product.rating >= 4.5) || 
+           !!(product.reviews && product.reviews >= 10)
   }
 
   // Filter products based on selected criteria
@@ -284,7 +284,7 @@ export default function ShopPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -307,7 +307,7 @@ export default function ShopPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
@@ -327,7 +327,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+      <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
