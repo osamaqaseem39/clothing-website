@@ -17,7 +17,9 @@ export default function CategoriesPage() {
       setLoading(true)
       setError(null)
       const categoriesData = await apiClient.getCategories()
-      setCategories(categoriesData)
+      // Filter to only show active categories
+      const activeCategories = categoriesData.filter(cat => cat.isActive === true)
+      setCategories(activeCategories)
     } catch (err) {
       setError('Failed to fetch categories')
       console.error('Error fetching categories:', err)

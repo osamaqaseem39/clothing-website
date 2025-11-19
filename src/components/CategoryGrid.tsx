@@ -43,14 +43,14 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
         
         // Final check and set
         if (Array.isArray(data) && data.length > 0) {
-          // Filter out any invalid categories
+          // Filter out any invalid categories and only include active ones
           const validCategories = data.filter(cat => 
             cat && 
             (cat._id || cat.slug) && 
             cat.name &&
-            cat.isActive !== false // Include if isActive is true or undefined
+            cat.isActive === true // Only include active categories
           )
-          console.log(`Setting ${validCategories.length} valid categories`)
+          console.log(`Setting ${validCategories.length} valid active categories`)
           setCategories(validCategories)
         } else {
           console.warn('No categories returned from API or empty array. Data:', data)

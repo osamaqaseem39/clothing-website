@@ -31,6 +31,14 @@ export default function CategoryDetailPage() {
       
       // Fetch category details
       const categoryData = await apiClient.getCategoryBySlug(params.slug as string)
+      
+      // Check if category is active
+      if (!categoryData.isActive) {
+        setError('Category is not available')
+        setCategory(null)
+        return
+      }
+      
       setCategory(categoryData)
       
       // Fetch products in this category
