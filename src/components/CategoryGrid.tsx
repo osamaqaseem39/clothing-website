@@ -20,18 +20,40 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
     const fetchCategories = async () => {
       try {
         setLoading(true)
-        // Try to get root categories first (better for homepage), fallback to all active categories
-        let data = await apiClient.getRootCategories()
+        let data: Category[] = []
+        
+        // Try to get root categories first (better for homepage)
+        try {
+          data = await apiClient.getRootCategories()
+          console.log('Root categories fetched:', data)
+        } catch (rootError) {
+          console.warn('Failed to fetch root categories:', rootError)
+        }
+        
         // If no root categories, try all active categories
         if (!data || data.length === 0) {
           console.log('No root categories found, trying all active categories...')
-          data = await apiClient.getCategories()
+          try {
+            data = await apiClient.getCategories()
+            console.log('Active categories fetched:', data)
+          } catch (activeError) {
+            console.warn('Failed to fetch active categories:', activeError)
+          }
         }
-        console.log('Categories fetched:', data)
+        
+        // Final check and set
         if (Array.isArray(data) && data.length > 0) {
-          setCategories(data)
+          // Filter out any invalid categories
+          const validCategories = data.filter(cat => 
+            cat && 
+            (cat._id || cat.slug) && 
+            cat.name &&
+            cat.isActive !== false // Include if isActive is true or undefined
+          )
+          console.log(`Setting ${validCategories.length} valid categories`)
+          setCategories(validCategories)
         } else {
-          console.warn('No categories returned from API or empty array')
+          console.warn('No categories returned from API or empty array. Data:', data)
           setCategories([])
         }
       } catch (error) {
@@ -78,7 +100,10 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
             <ArrowRight className="h-12 w-12 mx-auto" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Categories Available</h3>
-          <p className="text-gray-600">Categories will appear here when available</p>
+          <p className="text-gray-600 mb-4">Categories will appear here when available</p>
+          <p className="text-sm text-gray-500">
+            Make sure categories are marked as active in the admin panel
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
