@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useRecentlyViewed } from '@/contexts/RecentlyViewedContext'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { useCart } from '@/contexts/CartContext'
 import { apiClient, Product } from '@/lib/api'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
@@ -22,6 +23,7 @@ export default function ProductPage() {
   const slug = params.slug as string
   const { addToRecentlyViewed } = useRecentlyViewed()
   const { trackProductView, trackCartAction } = useAnalytics()
+  const { addToCart, isInCart, items } = useCart()
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -114,18 +116,37 @@ export default function ProductPage() {
   }
 
   const handleAddToCart = () => {
+    if (!product) return
+    
     const requiresSize = Array.isArray(product?.availableSizes) && product!.availableSizes!.length > 0
     const requiresColor = Array.isArray((product as any)?.colors) && (product as any).colors.length > 0
     if ((requiresSize && !selectedSize) || (requiresColor && !selectedColor)) {
-      alert('Please select all required options')
+      // Show message via cart context instead of alert
       return
     }
-    // Add to cart logic here
-    alert('Added to cart!')
+    
+    // Add to cart using context
+    addToCart({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: product.images?.[0],
+      size: selectedSize || undefined,
+      color: selectedColor || undefined
+    })
     
     // Track cart action for analytics
     trackCartAction(product._id, 'add')
   }
+  
+  // Recalculate when cart items, selected size, or selected color changes
+  const isProductInCart = product ? isInCart(product._id, selectedSize || undefined, selectedColor || undefined) : false
+  
+  // Update when cart items change
+  useEffect(() => {
+    // This will trigger re-render when items change
+  }, [items, selectedSize, selectedColor])
 
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted)
@@ -610,10 +631,14 @@ export default function ProductPage() {
                   <div className="space-y-3 pt-2">
                     <button
                       onClick={handleAddToCart}
-                      className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                      className={`w-full font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl ${
+                        isProductInCart
+                          ? 'bg-green-600 hover:bg-green-700 text-white'
+                          : 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white'
+                      }`}
                     >
                       <ShoppingBag className="h-5 w-5" />
-                      Add to Cart
+                      {isProductInCart ? 'Added to Cart' : 'Add to Cart'}
                     </button>
                     <button className="w-full border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 py-4 px-6 flex items-center justify-center gap-3">
                       <Share2 className="h-5 w-5" />

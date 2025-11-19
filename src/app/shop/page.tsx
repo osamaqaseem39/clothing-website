@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import FiltersSidebar from '@/components/FiltersSidebar'
@@ -21,6 +22,7 @@ const sortOptions = [
 ]
 
 export default function ShopPage() {
+  const searchParams = useSearchParams()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -30,6 +32,7 @@ export default function ShopPage() {
   const [priceRange, setPriceRange] = useState([0, 5000])
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +41,20 @@ export default function ShopPage() {
   const [categories, setCategories] = useState<string[]>(['All'])
   const [colors, setColors] = useState<string[]>([])
   const [sizes, setSizes] = useState<string[]>([])
+
+  // Handle URL query parameters
+  useEffect(() => {
+    const filterParam = searchParams?.get('filter')
+    const categoryParam = searchParams?.get('category')
+    
+    if (filterParam) {
+      setSelectedFilters([filterParam])
+    }
+    
+    if (categoryParam) {
+      setSelectedCategory(categoryParam)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,13 +108,88 @@ export default function ShopPage() {
     setIsMobileFiltersOpen(false)
   }
 
+  // Helper function to check if product is on sale
+  const isProductOnSale = (product: Product): boolean => {
+    // Check if explicitly marked as sale
+    if (product.isSale === true) return true
+    
+    // Check if salePrice exists and is different from price
+    if (product.salePrice !== undefined && 
+        typeof product.salePrice === 'number' && 
+        product.salePrice < product.price) {
+      return true
+    }
+    
+    // Check if originalPrice is higher than current price
+    if (product.originalPrice !== undefined && 
+        typeof product.originalPrice === 'number' && 
+        product.originalPrice > product.price) {
+      return true
+    }
+    
+    return false
+  }
+
+  // Helper function to check if product is new
+  const isProductNew = (product: Product): boolean => {
+    if (product.isNew === true) return true
+    // Consider products created in the last 30 days as new
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const createdAt = new Date(product.createdAt)
+    return createdAt >= thirtyDaysAgo
+  }
+
+  // Helper function to check if product is featured
+  const isProductFeatured = (product: Product): boolean => {
+    // Featured products typically have high ratings or are marked as featured
+    return (product.rating && product.rating >= 4.5) || 
+           (product.reviews && product.reviews >= 10)
+  }
+
   // Filter products based on selected criteria
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory
     const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
     
-    return matchesCategory && matchesSearch && matchesPrice
+    // Handle special filters
+    let matchesSpecialFilters = true
+    if (selectedFilters.length > 0) {
+      matchesSpecialFilters = selectedFilters.some(filter => {
+        switch (filter) {
+          case 'sale':
+            return isProductOnSale(product)
+          case 'new':
+            return isProductNew(product)
+          case 'featured':
+            return isProductFeatured(product)
+          default:
+            return true
+        }
+      })
+    }
+    
+    // Handle color filter
+    let matchesColors = true
+    if (selectedColors.length > 0 && product.colors && product.colors.length > 0) {
+      matchesColors = selectedColors.some(color => 
+        product.colors?.some(pc => 
+          pc.toLowerCase().includes(color.toLowerCase()) || 
+          color.toLowerCase().includes(pc.toLowerCase())
+        )
+      )
+    }
+    
+    // Handle size filter
+    let matchesSizes = true
+    if (selectedSizes.length > 0 && product.availableSizes && product.availableSizes.length > 0) {
+      matchesSizes = selectedSizes.some(size => 
+        product.availableSizes?.includes(size)
+      )
+    }
+    
+    return matchesCategory && matchesSearch && matchesPrice && matchesSpecialFilters && matchesColors && matchesSizes
   })
 
   // Sort products
@@ -149,6 +241,14 @@ export default function ShopPage() {
     )
   }
 
+  const handleFilterToggle = (filter: string) => {
+    setSelectedFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    )
+  }
+
   const clearFilters = () => {
     setSelectedCategory('All')
     setSearchQuery('')
@@ -167,6 +267,7 @@ export default function ShopPage() {
     }
     setSelectedColors([])
     setSelectedSizes([])
+    setSelectedFilters([])
     setSortBy('Featured')
   }
 
@@ -250,6 +351,8 @@ export default function ShopPage() {
               sizes={sizes}
               selectedSizes={selectedSizes}
               onSizeToggle={handleSizeToggle}
+              selectedFilters={selectedFilters}
+              onFilterToggle={handleFilterToggle}
               onClearFilters={clearFilters}
             />
           </div>
@@ -350,12 +453,12 @@ export default function ShopPage() {
                       
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2">
-                        {product.isNew && (
+                        {isProductNew(product) && (
                           <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-medium">
                             New
                           </span>
                         )}
-                        {product.isSale && (
+                        {isProductOnSale(product) && (
                           <span className="bg-secondary-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                             Sale
                           </span>

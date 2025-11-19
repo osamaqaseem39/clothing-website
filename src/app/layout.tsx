@@ -4,6 +4,7 @@ import './globals.css'
 import { RecentlyViewedProvider } from '@/contexts/RecentlyViewedContext'
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
+import { CartProvider } from '@/contexts/CartContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import WhatsAppButton from '@/components/WhatsAppButton'
 
@@ -35,11 +36,13 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${cormorant.variable} font-sans`}>
         <CustomerProvider>
           <AnalyticsProvider>
-            <RecentlyViewedProvider>
-              {children}
-              <CookieConsentBanner />
-              <WhatsAppButton />
-            </RecentlyViewedProvider>
+            <CartProvider>
+              <RecentlyViewedProvider>
+                {children}
+                <CookieConsentBanner />
+                <WhatsAppButton />
+              </RecentlyViewedProvider>
+            </CartProvider>
           </AnalyticsProvider>
         </CustomerProvider>
       </body>

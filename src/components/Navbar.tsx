@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useCart } from '@/contexts/CartContext'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { itemCount } = useCart()
 
   const categories = [
     'Evening Wear',
@@ -79,11 +81,19 @@ export default function Navbar() {
             >
               <User className="h-5 w-5" />
             </a>
-            <button className="p-2 text-gray-700 hover:text-black transition-colors relative">
+            <button 
+              className="p-2 text-gray-700 hover:text-black transition-colors relative"
+              onClick={(e) => {
+                e.preventDefault()
+                // Prevent navigation to cart page
+              }}
+            >
               <ShoppingBag className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </button>
             
             {/* Mobile menu button */}

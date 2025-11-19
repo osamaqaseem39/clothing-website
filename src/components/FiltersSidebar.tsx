@@ -15,6 +15,8 @@ interface FiltersSidebarProps {
   sizes: string[]
   selectedSizes: string[]
   onSizeToggle: (size: string) => void
+  selectedFilters: string[]
+  onFilterToggle: (filter: string) => void
   onClearFilters: () => void
 }
 
@@ -30,9 +32,11 @@ export default function FiltersSidebar({
   sizes,
   selectedSizes,
   onSizeToggle,
+  selectedFilters,
+  onFilterToggle,
   onClearFilters
 }: FiltersSidebarProps) {
-  const [expandedSections, setExpandedSections] = useState<string[]>(['category', 'price', 'color', 'size'])
+  const [expandedSections, setExpandedSections] = useState<string[]>(['filters', 'category', 'price', 'color', 'size'])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev =>
@@ -52,6 +56,40 @@ export default function FiltersSidebar({
         >
           Clear all
         </button>
+      </div>
+
+      {/* Special Filters */}
+      <div className="mb-6">
+        <button
+          onClick={() => toggleSection('filters')}
+          className="flex items-center justify-between w-full text-left font-medium text-gray-900 mb-3"
+        >
+          Special Offers
+          {expandedSections.includes('filters') ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </button>
+        {expandedSections.includes('filters') && (
+          <div className="space-y-2">
+            {[
+              { value: 'sale', label: 'Sale' },
+              { value: 'new', label: 'New Arrivals' },
+              { value: 'featured', label: 'Featured' }
+            ].map((filter) => (
+              <label key={filter.value} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedFilters.includes(filter.value)}
+                  onChange={() => onFilterToggle(filter.value)}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-700">{filter.label}</span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Categories */}

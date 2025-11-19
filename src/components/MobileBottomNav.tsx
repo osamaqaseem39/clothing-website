@@ -2,15 +2,17 @@
 
 import { Home, Search, Heart, ShoppingBag, User } from 'lucide-react'
 import { useState } from 'react'
+import { useCart } from '@/contexts/CartContext'
 
 export default function MobileBottomNav() {
   const [activeTab, setActiveTab] = useState('home')
+  const { itemCount } = useCart()
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', href: '/' },
     { id: 'search', icon: Search, label: 'Search', href: '#' },
     { id: 'wishlist', icon: Heart, label: 'Wishlist', href: '/dashboard/wishlist' },
-    { id: 'cart', icon: ShoppingBag, label: 'Cart', href: '#', badge: 0 },
+    { id: 'cart', icon: ShoppingBag, label: 'Cart', href: '#', badge: itemCount },
     { id: 'account', icon: User, label: 'Account', href: '/dashboard' },
   ]
 
@@ -21,7 +23,13 @@ export default function MobileBottomNav() {
           <a
             key={item.id}
             href={item.href}
-            onClick={() => setActiveTab(item.id)}
+            onClick={(e) => {
+              if (item.id === 'cart') {
+                e.preventDefault()
+                // Prevent navigation to cart page
+              }
+              setActiveTab(item.id)
+            }}
             className={`flex flex-col items-center justify-center py-2 px-1 relative ${
               activeTab === item.id
                 ? 'text-primary-600'

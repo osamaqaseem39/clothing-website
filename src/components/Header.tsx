@@ -3,6 +3,8 @@
 import { Search, ShoppingBag, User, ChevronDown, Menu, X, Filter } from 'lucide-react'
 import { useState } from 'react'
 import Image from 'next/image'
+import { useCart } from '@/contexts/CartContext'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -12,6 +14,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }: HeaderProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const { itemCount, message } = useCart()
 
   return (
     <>
@@ -81,12 +84,37 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               </div>
 
               {/* Shopping Cart */}
-              <button className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
-                <ShoppingBag className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
-              </button>
+              <div className="relative">
+                <AnimatePresence>
+                  {message && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute -top-12 right-0 bg-primary-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-50"
+                    >
+                      {message}
+                      <div className="absolute bottom-0 right-4 transform translate-y-full">
+                        <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-primary-600"></div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <button 
+                  className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    // Prevent navigation to cart page
+                  }}
+                >
+                  <ShoppingBag className="h-6 w-6" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary-500 text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
+                </button>
+              </div>
 
               {/* User Menu */}
               <div className="relative">
@@ -158,12 +186,37 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               <button className="p-2 text-gray-700 hover:text-primary-600 transition-colors">
                 <Search className="h-5 w-5" />
               </button>
-              <button className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
-                <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  0
-                </span>
-              </button>
+              <div className="relative">
+                <AnimatePresence>
+                  {message && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute -top-12 right-0 bg-primary-600 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-50"
+                    >
+                      {message}
+                      <div className="absolute bottom-0 right-4 transform translate-y-full">
+                        <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-primary-600"></div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <button 
+                  className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    // Prevent navigation to cart page
+                  }}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary-500 text-black text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
