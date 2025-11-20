@@ -746,6 +746,13 @@ class ApiClient {
   async getOrder(id: string): Promise<any> {
     return await this.request(`/orders/${id}`)
   }
+
+  async createOrder(orderData: any): Promise<any> {
+    return await this.request('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    })
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL)
