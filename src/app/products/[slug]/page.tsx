@@ -59,7 +59,7 @@ export default function ProductPage() {
 
   // Add product to recently viewed when component mounts
   useEffect(() => {
-    if (product) {
+    if (product && product._id) {
       const productForRecentlyViewed = {
         id: parseInt(product._id) || 0, // Convert string ID to number
         name: product.name || 'Product',
@@ -78,7 +78,8 @@ export default function ProductPage() {
       // Track product view for analytics
       trackProductView(product._id, product.categories?.[0] || 'General', product.brand || 'Unknown')
     }
-  }, [product, slug, addToRecentlyViewed, trackProductView])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?._id, slug]) // Only depend on product ID and slug to prevent infinite loops
 
   if (loading) {
     return <LoadingSpinner />

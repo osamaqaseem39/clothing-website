@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { analytics } from '@/lib/analytics'
 
@@ -14,19 +14,19 @@ export const useAnalytics = () => {
     analytics.trackPageView(page)
   }, [pathname, searchParams])
 
-  const trackSearch = (query: string) => {
+  const trackSearch = useCallback((query: string) => {
     analytics.trackSearch(query)
-  }
+  }, [])
 
-  const trackProductView = (productId: string, category: string, brand: string) => {
+  const trackProductView = useCallback((productId: string, category: string, brand: string) => {
     analytics.trackProductView(productId, category, brand)
-  }
+  }, [])
 
-  const trackCartAction = (productId: string, action: 'add' | 'remove' | 'view') => {
+  const trackCartAction = useCallback((productId: string, action: 'add' | 'remove' | 'view') => {
     analytics.trackCartAction(productId, action)
-  }
+  }, [])
 
-  const updatePreferences = (preferences: {
+  const updatePreferences = useCallback((preferences: {
     priceRange?: [number, number]
     preferredCategories?: string[]
     preferredBrands?: string[]
@@ -34,23 +34,23 @@ export const useAnalytics = () => {
     preferredSizes?: string[]
   }) => {
     analytics.updatePreferences(preferences)
-  }
+  }, [])
 
-  const getRecommendations = () => {
+  const getRecommendations = useCallback(() => {
     return analytics.getRecommendations()
-  }
+  }, [])
 
-  const getAnalyticsSummary = () => {
+  const getAnalyticsSummary = useCallback(() => {
     return analytics.getAnalyticsSummary()
-  }
+  }, [])
 
-  const getUserBehavior = () => {
+  const getUserBehavior = useCallback(() => {
     return analytics.getUserBehavior()
-  }
+  }, [])
 
-  const clearUserData = () => {
+  const clearUserData = useCallback(() => {
     analytics.clearUserData()
-  }
+  }, [])
 
   return {
     trackSearch,
