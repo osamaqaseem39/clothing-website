@@ -16,12 +16,15 @@ interface CartContextType {
   items: CartItem[]
   itemCount: number
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeFromCart: (productId: string, size?: string, color?: string) => void
+  updateQuantity: (productId: string, quantity: number, size?: string, color?: string) => void
   clearCart: () => void
   message: string | null
   setMessage: (message: string | null) => void
   isInCart: (productId: string, size?: string, color?: string) => boolean
+  isOpen: boolean
+  openCart: () => void
+  closeCart: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -29,6 +32,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [message, setMessage] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -86,19 +90,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const removeFromCart = (productId: string) => {
-    setItems(prev => prev.filter(item => item.productId !== productId))
+  const removeFromCart = (productId: string, size?: string, color?: string) => {
+    setItems(prev => prev.filter(item => 
+      !(item.productId === productId && 
+        item.size === (size || undefined) && 
+        item.color === (color || undefined))
+    ))
     setMessage('Item removed from cart')
   }
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number, size?: string, color?: string) => {
     if (quantity <= 0) {
-      removeFromCart(productId)
+      removeFromCart(productId, size, color)
       return
     }
     setItems(prev =>
       prev.map(item =>
-        item.productId === productId ? { ...item, quantity } : item
+        item.productId === productId && 
+        item.size === (size || undefined) && 
+        item.color === (color || undefined)
+          ? { ...item, quantity } 
+          : item
       )
     )
   }
@@ -118,6 +130,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
+  const openCart = () => setIsOpen(true)
+  const closeCart = () => setIsOpen(false)
+
   return (
     <CartContext.Provider
       value={{
@@ -129,7 +144,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         message,
         setMessage,
-        isInCart
+        isInCart,
+        isOpen,
+        openCart,
+        closeCart
       }}
     >
       {children}

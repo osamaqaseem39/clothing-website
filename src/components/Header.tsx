@@ -17,7 +17,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const { itemCount, message } = useCart()
+  const { itemCount, message, openCart } = useCart()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -126,7 +126,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                   className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={(e) => {
                     e.preventDefault()
-                    // Prevent navigation to cart page
+                    openCart()
                   }}
                 >
                   <ShoppingBag className="h-6 w-6" />
@@ -228,7 +228,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                   className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={(e) => {
                     e.preventDefault()
-                    // Prevent navigation to cart page
+                    openCart()
                   }}
                 >
                   <ShoppingBag className="h-5 w-5" />

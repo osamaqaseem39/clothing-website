@@ -7,6 +7,7 @@ import { CustomerProvider } from '@/contexts/CustomerContext'
 import { CartProvider } from '@/contexts/CartContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import CartDrawer from '@/components/CartDrawer'
 
 const cormorant = Cormorant_Garamond({ 
   subsets: ['latin'],
@@ -39,6 +40,7 @@ export default function RootLayout({
             <CartProvider>
               <RecentlyViewedProvider>
                 {children}
+                <CartDrawer />
                 <CookieConsentBanner />
                 <WhatsAppButton />
               </RecentlyViewedProvider>
