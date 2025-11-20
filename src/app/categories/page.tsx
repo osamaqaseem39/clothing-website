@@ -17,8 +17,9 @@ export default function CategoriesPage() {
       setLoading(true)
       setError(null)
       const categoriesData = await apiClient.getCategories()
-      // Filter to only show active categories
-      const activeCategories = categoriesData.filter(cat => cat.isActive === true)
+      // Only exclude categories explicitly marked as inactive (isActive === false)
+      // Include categories where isActive is true or undefined (since form doesn't have this field)
+      const activeCategories = categoriesData.filter(cat => cat.isActive !== false)
       setCategories(activeCategories)
     } catch (err) {
       setError('Failed to fetch categories')
