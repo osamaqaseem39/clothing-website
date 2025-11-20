@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useRecentlyViewed } from '@/contexts/RecentlyViewedContext'
 import { useAnalytics } from '@/hooks/useAnalytics'
@@ -19,8 +19,9 @@ import Image from 'next/image'
 // No hardcoded related products
 
 export default function ProductPage() {
+  // All hooks must be called unconditionally at the top level - same order every render
   const params = useParams()
-  const slug = params.slug as string
+  const slug = (params?.slug as string) || ''
   const { addToRecentlyViewed } = useRecentlyViewed()
   const { trackProductView, trackCartAction } = useAnalytics()
   const { addToCart, isInCart, items } = useCart()
@@ -36,12 +37,21 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSizeImageOpen, setIsSizeImageOpen] = useState(false)
+  const hasAddedToRecentlyViewed = useRef<string | null>(null)
 
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!slug) {
+        setLoading(false)
+        setError('Invalid product')
+        return
+      }
+      
       try {
         setLoading(true)
         setError(null)
+        // Reset the ref when fetching a new product
+        hasAddedToRecentlyViewed.current = null
         const productData = await apiClient.getProductBySlug(slug)
         setProduct(productData)
       } catch (err) {
@@ -52,14 +62,13 @@ export default function ProductPage() {
       }
     }
 
-    if (slug) {
-      fetchProduct()
-    }
+    fetchProduct()
   }, [slug])
 
   // Add product to recently viewed when component mounts
   useEffect(() => {
-    if (product && product._id) {
+    if (product && product._id && hasAddedToRecentlyViewed.current !== product._id) {
+      hasAddedToRecentlyViewed.current = product._id
       const productForRecentlyViewed = {
         id: parseInt(product._id) || 0, // Convert string ID to number
         name: product.name || 'Product',
@@ -78,8 +87,7 @@ export default function ProductPage() {
       // Track product view for analytics
       trackProductView(product._id, product.categories?.[0] || 'General', product.brand || 'Unknown')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product?._id, slug]) // Only depend on product ID and slug to prevent infinite loops
+  }, [product?._id, slug, addToRecentlyViewed, trackProductView]) // Include all dependencies
 
   if (loading) {
     return <LoadingSpinner />
@@ -143,11 +151,6 @@ export default function ProductPage() {
   
   // Recalculate when cart items, selected size, or selected color changes
   const isProductInCart = product ? isInCart(product._id, selectedSize || undefined, selectedColor || undefined) : false
-  
-  // Update when cart items change
-  useEffect(() => {
-    // This will trigger re-render when items change
-  }, [items, selectedSize, selectedColor])
 
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted)
