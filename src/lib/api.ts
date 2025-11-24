@@ -753,6 +753,41 @@ class ApiClient {
       body: JSON.stringify(orderData),
     })
   }
+
+  // Shipping API
+  async calculateShipping(data: {
+    shippingAddress: {
+      country: string
+      state?: string
+      city?: string
+      postalCode?: string
+    }
+    orderTotal?: number
+    packageDetails?: {
+      weight?: number
+      itemCount?: number
+      dimensions?: {
+        length?: number
+        width?: number
+        height?: number
+      }
+    }
+  }): Promise<{
+    availableMethods: Array<{
+      methodId: string
+      name: string
+      cost: number
+      estimatedDays: number
+      description?: string
+    }>
+    totalCost: number
+    currency: string
+  }> {
+    return await this.request('/shipping/calculate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL)

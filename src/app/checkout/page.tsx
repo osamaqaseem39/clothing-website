@@ -7,16 +7,47 @@ import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import { useCart } from '@/contexts/CartContext'
+import { useCustomer } from '@/contexts/CustomerContext'
 import { X, Plus, Minus, ShoppingBag, CreditCard, MapPin, Phone, Mail, User, ChevronRight, Lock } from 'lucide-react'
 import Image from 'next/image'
 import { apiClient } from '@/lib/api'
 
+// Pakistan Provinces and Cities (for dropdowns only - delivery charges fetched from backend)
+const PAKISTAN_PROVINCES = {
+  'Punjab': {
+    cities: ['Lahore', 'Karachi', 'Faisalabad', 'Rawalpindi', 'Multan', 'Gujranwala', 'Sialkot', 'Sargodha', 'Bahawalpur', 'Sheikhupura', 'Jhelum', 'Gujrat', 'Kasur', 'Sahiwal', 'Okara', 'Mianwali', 'Attock', 'Pakpattan', 'Vehari', 'Burewala'],
+  },
+  'Sindh': {
+    cities: ['Karachi', 'Hyderabad', 'Sukkur', 'Larkana', 'Nawabshah', 'Mirpur Khas', 'Jacobabad', 'Shikarpur', 'Khairpur', 'Dadu', 'Tando Adam', 'Tando Allahyar', 'Kotri', 'Thatta', 'Badin'],
+  },
+  'Khyber Pakhtunkhwa': {
+    cities: ['Peshawar', 'Mardan', 'Abbottabad', 'Swat', 'Kohat', 'Bannu', 'Charsadda', 'Nowshera', 'Dera Ismail Khan', 'Mansehra', 'Haripur', 'Mingora', 'Chitral', 'Timergara', 'Tank'],
+  },
+  'Balochistan': {
+    cities: ['Quetta', 'Turbat', 'Chaman', 'Khuzdar', 'Gwadar', 'Dera Bugti', 'Sibi', 'Loralai', 'Zhob', 'Kohlu', 'Mastung', 'Kalat', 'Bolan', 'Nushki', 'Panjgur'],
+  },
+  'Azad Jammu and Kashmir': {
+    cities: ['Muzaffarabad', 'Mirpur', 'Bhimber', 'Kotli', 'Rawalakot', 'Bagh', 'Sudhnuti', 'Hattian Bala', 'Neelum', 'Haveli', 'Poonch', 'Bhimber'],
+  },
+  'Gilgit-Baltistan': {
+    cities: ['Gilgit', 'Skardu', 'Hunza', 'Astore', 'Ghanche', 'Shigar', 'Diamer', 'Nagar', 'Kharmang', 'Ghizer', 'Gupis-Yasin', 'Roundu'],
+  },
+  'Islamabad Capital Territory': {
+    cities: ['Islamabad', 'Rawalpindi'],
+  },
+}
+
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, itemCount, updateQuantity, removeFromCart, clearCart } = useCart()
+  const { customer } = useCustomer()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [calculatingShipping, setCalculatingShipping] = useState(false)
+  const [shippingCost, setShippingCost] = useState<number>(0)
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null)
+  const [estimatedDays, setEstimatedDays] = useState<number | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -25,15 +56,89 @@ export default function CheckoutPage() {
     email: '',
     phone: '',
     address: '',
+    province: '',
     city: '',
     postalCode: '',
-    country: 'Pakistan',
+    country: 'PK',
     paymentMethod: 'cash_on_delivery',
   })
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = total > 5000 ? 0 : 500 // Free shipping over 5000
+  
+  // Fetch shipping cost from backend when province and city are selected
+  useEffect(() => {
+    const fetchShippingCost = async () => {
+      if (!formData.province || !formData.city || !formData.country) {
+        setShippingCost(0)
+        setFreeShippingThreshold(null)
+        setEstimatedDays(null)
+        return
+      }
+
+      setCalculatingShipping(true)
+      try {
+        const response = await apiClient.calculateShipping({
+          shippingAddress: {
+            country: formData.country,
+            state: formData.province,
+            city: formData.city,
+            postalCode: formData.postalCode || undefined,
+          },
+          orderTotal: total,
+          packageDetails: {
+            itemCount: items.length,
+            // You can add weight and dimensions if available
+          },
+        })
+
+        // Use the lowest cost shipping method or totalCost
+        const cost = response.totalCost || (response.availableMethods?.[0]?.cost || 0)
+        const days = response.availableMethods?.[0]?.estimatedDays || null
+
+        // Check if shipping is free (cost is 0)
+        if (cost === 0) {
+          setShippingCost(0)
+        } else {
+          setShippingCost(cost)
+        }
+        
+        // Note: freeShippingThreshold would need to be included in the backend response
+        // For now, we rely on the backend to return cost=0 when free shipping applies
+        setFreeShippingThreshold(null)
+        setEstimatedDays(days)
+      } catch (err: any) {
+        console.error('Error calculating shipping:', err)
+        // Fallback to default shipping on error
+        setShippingCost(500)
+        setFreeShippingThreshold(null)
+        setEstimatedDays(null)
+      } finally {
+        setCalculatingShipping(false)
+      }
+    }
+
+    // Debounce shipping calculation
+    const timeoutId = setTimeout(() => {
+      fetchShippingCost()
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [formData.province, formData.city, formData.country, formData.postalCode, total, items.length])
+
+  const shipping = shippingCost
   const finalTotal = total + shipping
+
+  // Get available cities for selected province
+  const availableCities = formData.province 
+    ? PAKISTAN_PROVINCES[formData.province as keyof typeof PAKISTAN_PROVINCES]?.cities || []
+    : []
+
+  // Reset city when province changes
+  useEffect(() => {
+    if (formData.province) {
+      setFormData(prev => ({ ...prev, city: '' }))
+    }
+  }, [formData.province])
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -54,53 +159,88 @@ export default function CheckoutPage() {
 
     try {
       // Validate form
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.province || !formData.city) {
         setError('Please fill in all required fields')
         setLoading(false)
         return
       }
 
-      // Create order payload
+      // Check if customer is logged in, if not we need to create/register them first
+      // For now, we'll require customer to be logged in
+      if (!customer?._id) {
+        setError('Please log in to place an order')
+        setLoading(false)
+        router.push('/login?redirect=/checkout')
+        return
+      }
+
+      // Create order payload matching the DTO structure
       const orderData = {
-        customer: {
+        customerId: customer._id,
+        shippingAddress: {
           firstName: formData.firstName,
           lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-        },
-        shippingAddress: {
-          address: formData.address,
+          addressLine1: formData.address,
+          addressLine2: '',
           city: formData.city,
-          postalCode: formData.postalCode,
+          state: formData.province,
+          postalCode: formData.postalCode || '',
           country: formData.country,
+          phone: formData.phone,
+          email: formData.email,
         },
-        items: items.map(item => ({
-          productId: item.productId,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        })),
+        billingAddress: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          addressLine1: formData.address,
+          addressLine2: '',
+          city: formData.city,
+          state: formData.province,
+          postalCode: formData.postalCode || '',
+          country: formData.country,
+          phone: formData.phone,
+          email: formData.email,
+        },
+        items: items.map(item => {
+          const itemSubtotal = item.price * item.quantity
+          return {
+            productId: item.productId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: itemSubtotal,
+            total: itemSubtotal, // Can be adjusted if there are item-level discounts
+            sku: item.sku,
+            // Note: size and color are not in the DTO, but variationId can be used if needed
+            // variationId: item.variationId, // Uncomment if you have variationId
+          }
+        }),
         total: finalTotal,
         subtotal: total,
-        shipping: shipping,
+        shippingTotal: shipping,
+        discountTotal: 0,
+        taxTotal: 0,
         paymentMethod: formData.paymentMethod,
-        status: 'pending',
+        currency: 'PKR',
       }
 
       // Create order via API
       try {
         await apiClient.createOrder(orderData)
+        // Clear cart and redirect to success page
+        clearCart()
+        router.push('/checkout/success')
       } catch (apiError: any) {
-        // If API is not ready, log and continue (for development)
-        console.warn('Order API not available:', apiError.message)
-        // In production, you might want to show an error or handle differently
+        console.error('Order creation error:', apiError)
+        // Show detailed error message
+        const errorMessage = apiError.response?.data?.message || 
+                           (Array.isArray(apiError.response?.data?.message) 
+                             ? apiError.response.data.message.join(', ') 
+                             : apiError.message) || 
+                           'Failed to place order. Please try again.'
+        setError(errorMessage)
+        setLoading(false)
       }
-      
-      // Clear cart and redirect to success page
-      clearCart()
-      router.push('/checkout/success')
     } catch (err: any) {
       setError(err.message || 'Failed to place order. Please try again.')
       setLoading(false)
@@ -264,17 +404,52 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Province * {formData.province && formData.city && !calculatingShipping && (
+                              <span className="text-xs text-primary-600 ml-2">
+                                (Delivery: ₨{shipping === 0 ? 'Free' : shipping.toLocaleString()})
+                              </span>
+                            )}
+                          </label>
+                          <select
+                            name="province"
+                            value={formData.province}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          >
+                            <option value="">Select Province</option>
+                            {Object.keys(PAKISTAN_PROVINCES).map((province) => (
+                              <option key={province} value={province}>
+                                {province}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
                             City *
                           </label>
-                          <input
-                            type="text"
+                          <select
                             name="city"
                             value={formData.city}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          />
+                            disabled={!formData.province}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">Select City</option>
+                            {availableCities.map((city) => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                            ))}
+                          </select>
+                          {formData.province && availableCities.length === 0 && (
+                            <p className="mt-1 text-xs text-gray-500">No cities available for this province</p>
+                          )}
                         </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Postal Code
@@ -287,24 +462,56 @@ export default function CheckoutPage() {
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           />
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Country
+                          </label>
+                          <select
+                            name="country"
+                            value={formData.country}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          >
+                            <option value="PK">Pakistan</option>
+                          </select>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Country
-                        </label>
-                        <select
-                          name="country"
-                          value={formData.country}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        >
-                          <option value="Pakistan">Pakistan</option>
-                          <option value="India">India</option>
-                          <option value="USA">USA</option>
-                          <option value="UK">UK</option>
-                          <option value="Canada">Canada</option>
-                        </select>
-                      </div>
+                      {formData.province && formData.city && (
+                        <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">Delivery Information</p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                Shipping to {formData.city}, {formData.province}
+                              </p>
+                              {estimatedDays && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Estimated delivery: {estimatedDays} {estimatedDays === 1 ? 'day' : 'days'}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              {calculatingShipping ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+                                  <span className="text-xs text-gray-500">Calculating...</span>
+                                </div>
+                              ) : shipping === 0 ? (
+                                <span className="text-sm font-bold text-green-600">Free Shipping</span>
+                              ) : (
+                                <span className="text-sm font-bold text-primary-600">
+                                  ₨{shipping.toLocaleString()}
+                                </span>
+                              )}
+                              {!calculatingShipping && freeShippingThreshold && total < freeShippingThreshold && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Free shipping on orders over ₨{freeShippingThreshold.toLocaleString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -431,16 +638,36 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between text-gray-600">
                       <span>Shipping</span>
-                      <span>{shipping === 0 ? 'Free' : `₨${shipping.toLocaleString()}`}</span>
+                      <span>
+                        {!formData.province || !formData.city ? (
+                          <span className="text-xs text-gray-400">Select location</span>
+                        ) : calculatingShipping ? (
+                          <div className="flex items-center gap-1">
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary-600"></div>
+                            <span className="text-xs">Calculating...</span>
+                          </div>
+                        ) : shipping === 0 ? (
+                          <span className="text-green-600 font-medium">Free</span>
+                        ) : (
+                          `₨${shipping.toLocaleString()}`
+                        )}
+                      </span>
                     </div>
-                    {shipping > 0 && total < 5000 && (
+                    {formData.province && formData.city && !calculatingShipping && freeShippingThreshold && total < freeShippingThreshold && shipping > 0 && (
                       <p className="text-xs text-primary-600">
-                        Free shipping on orders over ₨5,000
+                        Free shipping on orders over ₨{freeShippingThreshold.toLocaleString()}
+                      </p>
+                    )}
+                    {(!formData.province || !formData.city) && (
+                      <p className="text-xs text-gray-500">
+                        Please select province and city to calculate shipping
                       </p>
                     )}
                     <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
                       <span>Total</span>
-                      <span className="text-primary-600">₨{finalTotal.toLocaleString()}</span>
+                      <span className="text-primary-600">
+                        ₨{finalTotal.toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </div>
