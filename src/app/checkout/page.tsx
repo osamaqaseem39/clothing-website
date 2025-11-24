@@ -210,7 +210,7 @@ export default function CheckoutPage() {
             quantity: item.quantity,
             subtotal: itemSubtotal,
             total: itemSubtotal, // Can be adjusted if there are item-level discounts
-            sku: item.sku,
+            // Note: sku is optional in the DTO, but CartItem doesn't have it
             // Note: size and color are not in the DTO, but variationId can be used if needed
             // variationId: item.variationId, // Uncomment if you have variationId
           }
