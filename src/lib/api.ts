@@ -121,10 +121,16 @@ export interface Category {
   slug: string
   description?: string
   image?: string
+  icon?: string
+  color?: string
+  parentId?: string
   parent?: string
   children?: Category[]
   isActive: boolean
   sortOrder?: number
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -637,37 +643,29 @@ class ApiClient {
 
   // Categories API
   async getCategories(): Promise<Category[]> {
-    // Prefer active categories endpoint which returns an array
+    // Use default /categories endpoint to get all categories
     try {
-      const payload = await this.request<any>('/categories/active')
-      if (Array.isArray(payload)) return payload as Category[]
+      const payload = await this.request<any>('/categories?page=1&limit=1000')
+      // Handle paginated response
       if (payload?.data && Array.isArray(payload.data)) return payload.data as Category[]
-      // Fallback to paginated shape from /categories
+      // Handle direct array response
+      if (Array.isArray(payload)) return payload as Category[]
+      // Handle paginated shape with docs
       if (payload?.data?.docs && Array.isArray(payload.data.docs)) return payload.data.docs as Category[]
-      // If direct call to /categories was made by some proxies, normalize here
       if (payload?.docs && Array.isArray(payload.docs)) return payload.docs as Category[]
       return []
     } catch (error) {
       console.error('Error in getCategories:', error)
-      // Fallback to root categories if active fails
-      try {
-        return await this.getRootCategories()
-      } catch (fallbackError) {
-        console.error('Fallback to root categories also failed:', fallbackError)
-        return []
-      }
+      return []
     }
   }
 
   async getRootCategories(): Promise<Category[]> {
-    // Get root categories (categories without parent) - good for homepage
+    // Get root categories (categories without parent) - filter from all categories
     try {
-      const payload = await this.request<any>('/categories/root')
-      if (Array.isArray(payload)) return payload as Category[]
-      if (payload?.data && Array.isArray(payload.data)) return payload.data as Category[]
-      if (payload?.data?.docs && Array.isArray(payload.data.docs)) return payload.data.docs as Category[]
-      if (payload?.docs && Array.isArray(payload.docs)) return payload.docs as Category[]
-      return []
+      const allCategories = await this.getCategories()
+      // Filter for root categories (no parentId or parentId is null/undefined)
+      return allCategories.filter(cat => !cat.parentId && !cat.parent)
     } catch (error) {
       console.error('Error fetching root categories:', error)
       return []

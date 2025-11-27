@@ -31,15 +31,6 @@ export default function CategoryDetailPage() {
       
       // Fetch category details
       const categoryData = await apiClient.getCategoryBySlug(params.slug as string)
-      
-      // Only block if category is explicitly marked as inactive
-      // Since isActive is not in the form, undefined should be treated as active
-      if (categoryData.isActive === false) {
-        setError('Category is not available')
-        setCategory(null)
-        return
-      }
-      
       setCategory(categoryData)
       
       // Fetch products in this category

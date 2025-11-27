@@ -22,10 +22,9 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        // Get all categories from default /categories endpoint
         const categoriesData = await apiClient.getCategories()
-        // Filter to only show active categories
-        const activeCategories = categoriesData.filter(cat => cat.isActive === true)
-        setCategories(activeCategories)
+        setCategories(categoriesData)
       } catch (error) {
         console.error('Error fetching categories:', error)
         // Keep empty array on error, will just show "All Categories"

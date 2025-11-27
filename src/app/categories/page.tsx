@@ -16,11 +16,9 @@ export default function CategoriesPage() {
     try {
       setLoading(true)
       setError(null)
+      // Get all categories from default /categories endpoint
       const categoriesData = await apiClient.getCategories()
-      // Only exclude categories explicitly marked as inactive (isActive === false)
-      // Include categories where isActive is true or undefined (since form doesn't have this field)
-      const activeCategories = categoriesData.filter(cat => cat.isActive !== false)
-      setCategories(activeCategories)
+      setCategories(categoriesData)
     } catch (err) {
       setError('Failed to fetch categories')
       console.error('Error fetching categories:', err)

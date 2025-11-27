@@ -20,27 +20,11 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
     const fetchCategories = async () => {
       try {
         setLoading(true)
-        let data: Category[] = []
+        // Use default /categories endpoint to get all categories
+        const data = await apiClient.getCategories()
         
-        // Try to get root categories first (better for homepage)
-        try {
-          data = await apiClient.getRootCategories()
-        } catch (rootError) {
-          // Silently fail and try active categories
-        }
-        
-        // If no root categories, try all categories
-        if (!data || data.length === 0) {
-          try {
-            data = await apiClient.getCategories()
-          } catch (error) {
-            // Silently fail
-          }
-        }
-        
-        // Final check and set
+        // Filter out any invalid categories (show all valid categories)
         if (Array.isArray(data) && data.length > 0) {
-          // Filter out any invalid categories (show all valid categories regardless of active status)
           const validCategories = data.filter(cat => 
             cat && 
             (cat._id || cat.slug) && 
