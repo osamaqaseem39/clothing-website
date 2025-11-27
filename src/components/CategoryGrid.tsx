@@ -65,10 +65,10 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, index) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {[...Array(6)].map((_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="aspect-[3/4] bg-gray-200 rounded-2xl"></div>
+              <div className="h-20 bg-gray-200 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -81,41 +81,23 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           <p className="text-gray-600 mb-4">Categories will appear here when available</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {categories.map((category, index) => (
             <Link
               key={category._id || category.slug || String(index)}
               href={`/categories/${category.slug || category._id}`}
             >
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative overflow-hidden rounded-2xl card-hover"
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="group relative bg-white border border-gray-200 rounded-lg p-4 hover:border-primary-500 hover:shadow-md transition-all duration-200 cursor-pointer"
               >
-                <div className="aspect-[3/4] relative">
-                  <img
-                    src={category.image || '/images/banner1.png'}
-                    alt={category.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/50 group-hover:via-black/10 transition-all duration-300" />
-                  
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <h3 className="text-2xl font-serif font-bold mb-2">{category.name}</h3>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileHover={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-center justify-center gap-2 text-sm font-medium"
-                      >
-                        Explore
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </motion.div>
-                    </div>
-                  </div>
+                <div className="text-center">
+                  <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                    {category.name}
+                  </h3>
                 </div>
               </motion.div>
             </Link>
