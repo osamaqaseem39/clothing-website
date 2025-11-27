@@ -29,25 +29,22 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           // Silently fail and try active categories
         }
         
-        // If no root categories, try all active categories
+        // If no root categories, try all categories
         if (!data || data.length === 0) {
           try {
             data = await apiClient.getCategories()
-          } catch (activeError) {
+          } catch (error) {
             // Silently fail
           }
         }
         
         // Final check and set
         if (Array.isArray(data) && data.length > 0) {
-          // Filter out any invalid categories
-          // Only exclude categories explicitly marked as inactive (isActive === false)
-          // Include categories where isActive is true or undefined (since form doesn't have this field)
+          // Filter out any invalid categories (show all valid categories regardless of active status)
           const validCategories = data.filter(cat => 
             cat && 
             (cat._id || cat.slug) && 
-            cat.name &&
-            cat.isActive !== false // Exclude only if explicitly false
+            cat.name
           )
           setCategories(validCategories)
         } else {
@@ -98,9 +95,6 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Categories Available</h3>
           <p className="text-gray-600 mb-4">Categories will appear here when available</p>
-          <p className="text-sm text-gray-500">
-            Make sure categories are marked as active in the admin panel
-          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
