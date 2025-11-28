@@ -1,17 +1,23 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
-import { CheckCircle, ShoppingBag, Home, Package } from 'lucide-react'
+import { CheckCircle, ShoppingBag, Home, Package, Copy, Check } from 'lucide-react'
 import Link from 'next/link'
+import { apiClient } from '@/lib/api'
 
 export default function CheckoutSuccessPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const orderId = searchParams.get('orderId')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [order, setOrder] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState<string | null>(null)
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -19,6 +25,31 @@ export default function CheckoutSuccessPage() {
 
   const handleMenuClose = () => {
     setIsMobileMenuOpen(false)
+  }
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (orderId) {
+        try {
+          const orderData = await apiClient.getOrder(orderId)
+          setOrder(orderData)
+        } catch (error) {
+          console.error('Failed to fetch order:', error)
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+
+    fetchOrder()
+  }, [orderId])
+
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(type)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   return (
@@ -49,6 +80,66 @@ export default function CheckoutSuccessPage() {
               <p className="text-lg text-gray-600 mb-8">
                 Thank you for your order. We've received your order and will begin processing it right away.
               </p>
+
+              {/* Order ID and Tracking ID */}
+              {loading ? (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ) : order ? (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary-600" />
+                    Order Information
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-gray-600">Order ID</p>
+                        <p className="text-lg font-semibold text-gray-900 font-mono">{order._id}</p>
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(order._id, 'orderId')}
+                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                        title="Copy Order ID"
+                      >
+                        {copied === 'orderId' ? (
+                          <Check className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Copy className="h-5 w-5 text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                    {order.trackingId && (
+                      <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg border border-primary-200">
+                        <div>
+                          <p className="text-sm text-gray-600">Tracking ID</p>
+                          <p className="text-lg font-semibold text-primary-600 font-mono">{order.trackingId}</p>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(order.trackingId, 'trackingId')}
+                          className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
+                          title="Copy Tracking ID"
+                        >
+                          {copied === 'trackingId' ? (
+                            <Check className="h-5 w-5 text-green-600" />
+                          ) : (
+                            <Copy className="h-5 w-5 text-primary-600" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-600 mt-4">
+                      {order.trackingId 
+                        ? 'You can use the Tracking ID to track your order. A confirmation email has been sent to your email address.'
+                        : 'A confirmation email has been sent to your email address with order details and tracking information.'}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
 
               {/* Order Details */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">

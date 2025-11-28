@@ -165,18 +165,10 @@ export default function CheckoutPage() {
         return
       }
 
-      // Check if customer is logged in, if not we need to create/register them first
-      // For now, we'll require customer to be logged in
-      if (!customer?._id) {
-        setError('Please log in to place an order')
-        setLoading(false)
-        router.push('/login?redirect=/checkout')
-        return
-      }
-
       // Create order payload matching the DTO structure
+      // Allow guest checkout - customerId is optional
       const orderData = {
-        customerId: customer._id,
+        ...(customer?._id && { customerId: customer._id }),
         shippingAddress: {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -226,10 +218,10 @@ export default function CheckoutPage() {
 
       // Create order via API
       try {
-        await apiClient.createOrder(orderData)
-        // Clear cart and redirect to success page
+        const order = await apiClient.createOrder(orderData)
+        // Clear cart and redirect to success page with order ID
         clearCart()
-        router.push('/checkout/success')
+        router.push(`/checkout/success?orderId=${order._id}`)
       } catch (apiError: any) {
         console.error('Order creation error:', apiError)
         // Show detailed error message

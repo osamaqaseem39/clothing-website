@@ -131,7 +131,7 @@ export interface Category {
   metaTitle?: string
   metaDescription?: string
   metaKeywords?: string[]
-  createdAt: string
+  createdAt: string 
   updatedAt: string
 }
 
