@@ -167,8 +167,9 @@ export default function CheckoutPage() {
 
       // Create order payload matching the DTO structure
       // Allow guest checkout - customerId is optional
-      const orderData = {
-        ...(customer?._id && { customerId: customer._id }),
+      const orderData: any = {
+        // Only include customerId if it exists and is a valid value
+        ...(customer?._id && customer._id.trim() !== '' && { customerId: customer._id }),
         shippingAddress: {
           firstName: formData.firstName,
           lastName: formData.lastName,
