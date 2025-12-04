@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-serif font-bold text-gradient">She's Trends</h1>
+            <h1 className="text-2xl font-serif font-bold text-gradient">Shes Trends</h1>
           </div>
 
           {/* Desktop Navigation */}
@@ -67,7 +67,7 @@ export default function Navbar() {
               <input
                 type="text"
                 name="q"
-                placeholder="Search luxury pieces..."
+                placeholder="Search pieces..."
                 className="w-full pl-10 pr-4 py-2 border border-primary-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
               />
             </form>
@@ -113,7 +113,7 @@ export default function Navbar() {
             <input
               type="text"
               name="q"
-              placeholder="Search luxury pieces..."
+              placeholder="Search pieces..."
               className="w-full pl-10 pr-4 py-2 border border-primary-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
             />
           </form>

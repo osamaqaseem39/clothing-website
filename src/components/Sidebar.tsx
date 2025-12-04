@@ -2,6 +2,7 @@
 
 import { ChevronDown, Heart, ShoppingBag, User, HelpCircle, BookOpen, X, Home, Sparkles, Tag, Star, Percent, Users } from 'lucide-react'
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface SidebarProps {
   isOpen: boolean
@@ -19,12 +20,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     )
   }
 
+  const handleLinkClick = () => {
+    onClose()
+  }
+
   const navigationItems = [
     { name: 'All', href: '/shop', icon: Home },
     { name: 'New Arrivals', href: '/shop?filter=new', icon: Sparkles },
     { 
       name: 'Women', 
-      href: '/shop?category=women', 
+      href: '/shop?category=Women', 
       icon: Users
     },
     { name: 'Brands', href: '/brands', icon: Tag },
@@ -35,8 +40,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const accountItems = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
     { name: 'Wishlist', href: '/dashboard/wishlist', icon: Heart },
-    { name: 'Blogs', href: '#', icon: BookOpen },
-    { name: 'Help Center', href: '#', icon: HelpCircle },
+    { name: 'Blogs', href: '/blog', icon: BookOpen },
+    { name: 'Help Center', href: '/help', icon: HelpCircle },
     { name: 'Sign In / Register', href: '/login', icon: User },
   ]
 
@@ -49,7 +54,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <nav className="space-y-2">
             {navigationItems.map((item, index) => (
               <div key={item.name}>
-                <a
+                <Link
                   href={item.href}
                   className="flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                 >
@@ -57,7 +62,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     {item.icon && <item.icon className="h-4 w-4" />}
                     <span>{item.name}</span>
                   </div>
-                </a>
+                </Link>
                 
                 {/* Submenu removed for Women */}
               </div>
@@ -70,14 +75,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Account Section */}
           <nav className="space-y-2">
             {accountItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
                 className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
               >
                 {item.icon && <item.icon className="h-4 w-4" />}
                 <span>{item.name}</span>
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -97,7 +102,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="p-4">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-serif font-bold text-gradient">She's Trends</h2>
+                <h2 className="text-lg font-serif font-bold text-gradient">Shes Trends</h2>
                 <button
                   onClick={onClose}
                   className="p-2 text-gray-500 hover:text-gray-700"
@@ -110,15 +115,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <nav className="space-y-2">
                 {navigationItems.map((item, index) => (
                   <div key={item.name}>
-                    <a
+                    <Link
                       href={item.href}
+                      onClick={handleLinkClick}
                       className="flex items-center justify-between w-full px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     >
                       <div className="flex items-center space-x-3">
                         {item.icon && <item.icon className="h-4 w-4" />}
                         <span>{item.name}</span>
                       </div>
-                    </a>
+                    </Link>
                     
                     {/* Submenu removed for Women */}
                   </div>
@@ -131,15 +137,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               {/* Account Section */}
               <nav className="space-y-2">
                 {accountItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
+                    onClick={handleLinkClick}
                     className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    onClick={onClose}
                   >
                     {item.icon && <item.icon className="h-4 w-4" />}
                     <span>{item.name}</span>
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>

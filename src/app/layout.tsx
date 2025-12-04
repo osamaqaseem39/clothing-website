@@ -8,6 +8,7 @@ import { CartProvider } from '@/contexts/CartContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import CartDrawer from '@/components/CartDrawer'
+import PerformanceOptimizations from '@/components/PerformanceOptimizations'
 
 const cormorant = Cormorant_Garamond({ 
   subsets: ['latin'],
@@ -23,8 +24,8 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: 'She\'s Trends - Luxury Women\'s Fashion',
-  description: 'Exclusive luxury couture for the sophisticated woman. Discover our curated collection of high-end women\'s fashion, designer dresses, and premium accessories.',
+  title: 'Shes Trends - Women\'s Fashion',
+  description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.',
 }
 
 export default function RootLayout({
@@ -34,7 +35,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Preconnect to API and image domains for faster loading */}
+        <link rel="preconnect" href="https://st.osamaqaseem.online" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://st.osamaqaseem.online" />
+        <link rel="preconnect" href="https://clothing-server-cyan.vercel.app" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://clothing-server-cyan.vercel.app" />
+      </head>
       <body className={`${manrope.variable} ${cormorant.variable} font-sans`}>
+        <PerformanceOptimizations />
         <CustomerProvider>
           <AnalyticsProvider>
             <CartProvider>

@@ -9,7 +9,7 @@ interface MobileFiltersProps {
 }
 
 export default function MobileFilters({ isOpen, onClose }: MobileFiltersProps) {
-  const [expandedSections, setExpandedSections] = useState<string[]>(['category'])
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev =>

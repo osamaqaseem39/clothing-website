@@ -25,6 +25,7 @@ export default function ShopPage() {
   const searchParams = useSearchParams()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
+  const [showDesktopFilters, setShowDesktopFilters] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [sortBy, setSortBy] = useState('Featured')
   const [productsPerRow, setProductsPerRow] = useState(3)
@@ -329,9 +330,9 @@ export default function ShopPage() {
     switch (productsPerRow) {
       case 1: return 'grid-cols-1'
       case 2: return 'grid-cols-1 sm:grid-cols-2'
-      case 3: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-      case 4: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-      default: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      case 3: return 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
+      case 4: return 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4'
+      default: return 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3'
     }
   }
 
@@ -383,53 +384,63 @@ export default function ShopPage() {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Shop All Products</h1>
-          <p className="text-gray-600">Discover our complete collection of luxury fashion</p>
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Shop All Products</h1>
+          <p className="text-sm sm:text-base text-gray-600">Discover our complete collection of fashion</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="lg:w-1/4">
-            <FiltersSidebar
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              priceRange={priceRange}
-              onPriceRangeChange={handlePriceRangeChange}
-              colors={colors}
-              selectedColors={selectedColors}
-              onColorToggle={handleColorToggle}
-              sizes={sizes}
-              selectedSizes={selectedSizes}
-              onSizeToggle={handleSizeToggle}
-              selectedFilters={selectedFilters}
-              onFilterToggle={handleFilterToggle}
-              onClearFilters={clearFilters}
-            />
-          </div>
+          {/* Sidebar - Hidden by default, only show on desktop when toggled */}
+          {showDesktopFilters && (
+            <div className="hidden lg:block lg:w-1/4">
+              <FiltersSidebar
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
+                priceRange={priceRange}
+                onPriceRangeChange={handlePriceRangeChange}
+                colors={colors}
+                selectedColors={selectedColors}
+                onColorToggle={handleColorToggle}
+                sizes={sizes}
+                selectedSizes={selectedSizes}
+                onSizeToggle={handleSizeToggle}
+                selectedFilters={selectedFilters}
+                onFilterToggle={handleFilterToggle}
+                onClearFilters={clearFilters}
+              />
+            </div>
+          )}
 
           {/* Main Content */}
-          <div className="lg:w-3/4">
+          <div className={showDesktopFilters ? "lg:w-3/4" : "w-full"}>
             {/* Toolbar */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-sm text-gray-600">
                   {sortedProducts.length} products found
                 </span>
+                {/* Desktop Filter Toggle Button */}
+                <button
+                  onClick={() => setShowDesktopFilters(!showDesktopFilters)}
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+                >
+                  <Filter className="h-4 w-4" />
+                  {showDesktopFilters ? 'Hide Filters' : 'Show Filters'}
+                </button>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
                 {/* Search */}
-                <form onSubmit={handleSearch} className="relative">
+                <form onSubmit={handleSearch} className="relative flex-1 sm:flex-initial min-w-[200px]">
                   <input
                     type="text"
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </form>
@@ -438,15 +449,15 @@ export default function ShopPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                 >
                   {sortOptions.map(option => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
 
-                {/* View Options */}
-                <div className="flex items-center gap-2">
+                {/* View Options - Hide on mobile */}
+                <div className="hidden sm:flex items-center gap-2">
                   <button
                     onClick={() => setProductsPerRow(1)}
                     className={`p-2 rounded ${productsPerRow === 1 ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
@@ -491,7 +502,7 @@ export default function ShopPage() {
                 </button>
               </div>
             ) : (
-              <div className={`grid ${getGridCols()} gap-6`}>
+              <div className={`grid ${getGridCols()} gap-4 sm:gap-6`}>
                 {sortedProducts.map((product) => (
                   <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group">
                     <div className="relative overflow-hidden rounded-t-lg aspect-[9/16]">
@@ -499,9 +510,11 @@ export default function ShopPage() {
                         <Image
                           src={product.images[0] || '/images/1.png'}
                           alt={product.name}
-                          width={400}
-                          height={711}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-200"
+                          loading="lazy"
+                          quality={80}
                         />
                       </Link>
                       
@@ -525,33 +538,33 @@ export default function ShopPage() {
                       </button>
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-3 sm:p-4">
                       <div className="mb-2">
-                        <h3 className="font-semibold text-gray-900 text-lg line-clamp-2 mb-1">
+                        <h3 className="font-semibold text-gray-900 text-sm sm:text-lg line-clamp-2 mb-1">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-500">{product.brand}</p>
+                        <p className="text-xs sm:text-sm text-gray-500">{product.brand}</p>
                       </div>
 
-                      <div className="flex items-center gap-1 mb-3">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm text-gray-600 font-medium">{product.rating || 0}</span>
-                        <span className="text-sm text-gray-400">({product.reviews || 0} reviews)</span>
+                      <div className="flex items-center gap-1 mb-2 sm:mb-3">
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-current" />
+                        <span className="text-xs sm:text-sm text-gray-600 font-medium">{product.rating || 0}</span>
+                        <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline">({product.reviews || 0} reviews)</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-primary-600">
+                          <span className="text-base sm:text-lg font-bold text-primary-600">
                             ₨{typeof product.price === 'number' ? product.price.toLocaleString() : '0'}
                           </span>
                           {product.originalPrice && typeof product.originalPrice === 'number' && product.originalPrice > product.price && (
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-xs sm:text-sm text-gray-400 line-through">
                               ₨{product.originalPrice.toLocaleString()}
                             </span>
                           )}
                         </div>
-                        <button className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200">
-                          <ShoppingBag className="h-4 w-4" />
+                        <button className="p-1.5 sm:p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200">
+                          <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
                         </button>
                       </div>
                     </div>

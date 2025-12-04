@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 
 export default function CollectionBanner() {
   return (
@@ -15,10 +16,14 @@ export default function CollectionBanner() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative h-64 lg:h-96"
             >
-              <img
+              <Image
                 src="/images/banner3.png"
                 alt="Couture Collection"
-                className="w-full h-full object-cover lg:rounded-r-2xl"
+                fill
+                sizes="100vw"
+                className="object-cover lg:rounded-r-2xl"
+                loading="lazy"
+                quality={80}
               />
               <div className="absolute inset-0 bg-gradient-to-l from-transparent to-primary-50/30" />
             </motion.div>

@@ -36,7 +36,7 @@ export default function FiltersSidebar({
   onFilterToggle,
   onClearFilters
 }: FiltersSidebarProps) {
-  const [expandedSections, setExpandedSections] = useState<string[]>(['filters', 'category', 'price', 'color', 'size'])
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev =>

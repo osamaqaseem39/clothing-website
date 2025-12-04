@@ -238,7 +238,7 @@ export default function ProductsPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Style</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['Unstitched','Pret','Formal','Bridal','Casual','Luxury Pret'].map(style => (
+                    {['Unstitched','Pret','Formal','Bridal','Casual'].map(style => (
                       <button
                         key={style}
                         onClick={() => handleFilterChange('occasions', (filters as any).occasions?.includes(style) ? (filters as any).occasions?.filter((o: string) => o !== style) : [...((filters as any).occasions || []), style])}

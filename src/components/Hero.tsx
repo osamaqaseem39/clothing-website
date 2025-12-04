@@ -4,21 +4,22 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const banners = [
   {
     src: '/images/banner1.png',
-    alt: 'Luxury Women\'s Couture',
+    alt: 'Women\'s Couture',
     title: 'Élégance',
     subtitle: 'Couture',
-    description: 'Exclusive luxury couture for the sophisticated woman. Discover our curated collection of high-end women\'s fashion, designer dresses, and premium accessories.'
+    description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.'
   },
   {
     src: '/images/banner2.png',
-    alt: 'Luxury Fashion Collection',
+    alt: 'Fashion Collection',
     title: 'Timeless',
     subtitle: 'Elegance',
-    description: 'Exclusive luxury couture for the sophisticated woman. Discover our curated collection of high-end women\'s fashion, designer dresses, and premium accessories.'
+    description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.'
   }
 ]
 
@@ -71,10 +72,17 @@ export default function Hero() {
                 >
                   {/* Background Image */}
                   <div className="absolute inset-0">
-                    <img
+                    <Image
                       src={banner.src}
                       alt={banner.alt}
-                      className="w-full h-full object-cover"
+                      fill
+                      priority={index === 0}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      quality={85}
+                      sizes="100vw"
+                      className="object-cover"
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                     />
                   </div>
 

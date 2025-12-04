@@ -17,6 +17,10 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const [mobileSearchQuery, setMobileSearchQuery] = useState<string>('')
+  const [showMobileSearchDropdown, setShowMobileSearchDropdown] = useState(false)
   const { itemCount, message, openCart } = useCart()
 
   useEffect(() => {
@@ -34,6 +38,46 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
     fetchCategories()
   }, [])
 
+  // Filter categories based on search query, or show all if no query
+  const filteredCategories = searchQuery.trim()
+    ? categories.filter(category =>
+        category.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : categories
+
+  // Filter categories for mobile search
+  const filteredMobileCategories = mobileSearchQuery.trim()
+    ? categories.filter(category =>
+        category.name.toLowerCase().includes(mobileSearchQuery.toLowerCase())
+      )
+    : categories
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}${selectedCategory ? `&category=${selectedCategory}` : ''}`
+    }
+    setShowSearchDropdown(false)
+  }
+
+  const handleMobileSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (mobileSearchQuery.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(mobileSearchQuery.trim())}`
+    }
+    setShowMobileSearchDropdown(false)
+  }
+
+  const handleCategoryClick = (category: Category) => {
+    window.location.href = `/categories/${category.slug || category._id}`
+    setShowSearchDropdown(false)
+  }
+
+  const handleMobileCategoryClick = (category: Category) => {
+    window.location.href = `/categories/${category.slug || category._id}`
+    setShowMobileSearchDropdown(false)
+  }
+
   return (
     <>
       {/* Desktop Header */}
@@ -45,7 +89,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               <a href="/" className="flex items-center">
                 <Image
                   src="/images/logo.png"
-                  alt="She's Trends"
+                  alt="Shes Trends"
                   width={100}
                   height={100}
                   className="h-20 w-auto"
@@ -55,7 +99,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 <div className="flex shadow-lg rounded-xl overflow-hidden bg-white border border-gray-200 hover:border-primary-300 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-200 transition-all duration-200">
                   <select 
                     value={selectedCategory}
@@ -71,26 +115,48 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                   </select>
                   <input
                     type="text"
-                    placeholder="Search luxury pieces, brands, styles..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value)
+                      setShowSearchDropdown(true)
+                    }}
+                    onFocus={() => setShowSearchDropdown(true)}
+                    onBlur={() => {
+                      // Delay hiding to allow clicks on dropdown items
+                      setTimeout(() => setShowSearchDropdown(false), 200)
+                    }}
+                    placeholder="Search pieces, brands, styles..."
                     className="flex-1 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none bg-white"
                   />
-                  <button className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-500 text-white hover:from-primary-700 hover:to-secondary-600 transition-all duration-200 flex items-center gap-2 font-medium">
+                  <button 
+                    type="submit"
+                    className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-500 text-white hover:from-primary-700 hover:to-secondary-600 transition-all duration-200 flex items-center gap-2 font-medium"
+                  >
                     <Search className="h-4 w-4" />
                     <span className="hidden sm:inline">Search</span>
                   </button>
                 </div>
-                {/* Search suggestions dropdown would go here */}
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-10 hidden">
-                  <div className="p-4">
-                    <p className="text-sm text-gray-500">Popular searches:</p>
-                    <div className="mt-2 space-y-1">
-                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Evening gowns</button>
-                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Designer handbags</button>
-                      <button className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 rounded">Bridal collection</button>
+                {/* Categories dropdown */}
+                {showSearchDropdown && filteredCategories.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Categories</p>
+                      <div className="space-y-1">
+                        {filteredCategories.map((category) => (
+                          <button
+                            key={category._id}
+                            type="button"
+                            onClick={() => handleCategoryClick(category)}
+                            className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded transition-colors"
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )}
+              </form>
             </div>
 
             {/* Right side controls */}
@@ -194,7 +260,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
               <a href="/" className="flex items-center justify-center">
                 <Image
                   src="/images/logo.png"
-                  alt="She's Trends"
+                  alt="Shes Trends"
                   width={100}
                   height={40}
                   className="h-10 w-auto"
@@ -243,24 +309,55 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
 
           {/* Mobile Search Bar */}
           <div className="pb-3">
-            <div className="flex space-x-2">
+            <form onSubmit={handleMobileSearchSubmit} className="flex space-x-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
-                  placeholder="Search luxury pieces..."
+                  value={mobileSearchQuery}
+                  onChange={(e) => {
+                    setMobileSearchQuery(e.target.value)
+                    setShowMobileSearchDropdown(true)
+                  }}
+                  onFocus={() => setShowMobileSearchDropdown(true)}
+                  onBlur={() => {
+                    // Delay hiding to allow clicks on dropdown items
+                    setTimeout(() => setShowMobileSearchDropdown(false), 200)
+                  }}
+                  placeholder="Search pieces..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
                 />
+                {/* Mobile Categories dropdown */}
+                {showMobileSearchDropdown && filteredMobileCategories.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                    <div className="p-3">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Categories</p>
+                      <div className="space-y-1">
+                        {filteredMobileCategories.map((category) => (
+                          <button
+                            key={category._id}
+                            type="button"
+                            onClick={() => handleMobileCategoryClick(category)}
+                            className="block w-full text-left px-2 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded transition-colors"
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               {onFilterClick && (
                 <button
+                  type="button"
                   onClick={onFilterClick}
                   className="p-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 hover:text-primary-600 transition-colors"
                 >
                   <Filter className="h-4 w-4" />
                 </button>
               )}
-            </div>
+            </form>
           </div>
         </div>
       </header>

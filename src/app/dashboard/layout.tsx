@@ -14,7 +14,7 @@ function Guard({ children }: { children: React.ReactNode }) {
 }
 
 export const metadata: Metadata = {
-  title: 'Dashboard - She\'s Trends',
+  title: 'Dashboard - Shes Trends',
   description: 'Manage your account, orders, and preferences',
 }
 

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import Image from 'next/image'
 
 export default function EditorialSection() {
   return (
@@ -34,7 +35,7 @@ export default function EditorialSection() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"></div>
-                <span className="text-gray-700">Luxury Fabrics & Materials</span>
+                <span className="text-gray-700">Premium Fabrics & Materials</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"></div>
@@ -59,11 +60,15 @@ export default function EditorialSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden">
-              <img
+            <div className="aspect-[4/5] rounded-2xl overflow-hidden relative">
+              <Image
                 src="/images/banner2.png"
                 alt="Couture Craftsmanship"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+                loading="lazy"
+                quality={80}
               />
             </div>
             

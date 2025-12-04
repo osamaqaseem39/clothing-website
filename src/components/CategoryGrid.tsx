@@ -59,7 +59,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Exquisite couture pieces crafted for the sophisticated woman. 
-            Each collection tells a story of elegance and luxury.
+            Each collection tells a story of elegance and style.
           </p>
         </motion.div>
       )}

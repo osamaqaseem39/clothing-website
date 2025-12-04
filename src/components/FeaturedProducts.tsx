@@ -103,7 +103,10 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
                       src={product.images[0] || '/images/1.png'}
                       alt={product.name}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-200"
+                      loading={index < 3 ? "eager" : "lazy"}
+                      quality={80}
                       />
                   </div>
                 </Link>

@@ -1,29 +1,28 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck } from 'lucide-react'
+import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const footerLinks = {
-  about: [
-    { name: 'Our Heritage', href: '#' },
-    { name: 'Atelier', href: '#' },
-    { name: 'Press', href: '#' },
-    { name: 'Craftsmanship', href: '#' }
+  shop: [
+    { name: 'All Products', href: '/shop' },
+    { name: 'Categories', href: '/categories' },
+    { name: 'Brands', href: '/brands' },
   ],
-  customerService: [
-    { name: 'Personal Styling', href: '#' },
-    { name: 'Size Consultation', href: '#' },
-    { name: 'Private Viewing', href: '#' },
-    { name: 'Contact Atelier', href: '#' }
+  account: [
+    { name: 'My Account', href: '/dashboard' },
+    { name: 'Orders', href: '/dashboard/orders' },
+    { name: 'Wishlist', href: '/dashboard/wishlist' },
   ],
-  legal: [
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Terms of Service', href: '#' },
-    { name: 'Cookie Policy', href: '#' }
+  support: [
+    { name: 'Help Center', href: '/help' },
+    { name: 'Blog', href: '/blog' },
   ]
 }
 
+// Update these with your actual social media URLs
 const socialLinks = [
   { name: 'Facebook', icon: Facebook, href: '#' },
   { name: 'Twitter', icon: Twitter, href: '#' },
@@ -31,19 +30,12 @@ const socialLinks = [
   { name: 'YouTube', icon: Youtube, href: '#' }
 ]
 
-const paymentMethods = [
-  { name: 'Visa', icon: CreditCard },
-  { name: 'Mastercard', icon: CreditCard },
-  { name: 'PayPal', icon: CreditCard },
-  { name: 'Apple Pay', icon: CreditCard }
-]
-
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -54,25 +46,28 @@ export default function Footer() {
           >
             {/* Logo */}
             <div className="mb-4">
-              <a href="/" className="flex items-center">
+              <Link href="/" className="flex items-center">
                 <Image
                   src="/images/logo.png"
-                  alt="She's Trends"
+                  alt="Shes Trends"
                   width={120}
                   height={120}
                   className="h-16 w-auto"
                 />
-              </a>
+              </Link>
             </div>
             <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-              Exquisite couture for the sophisticated woman. Discover luxury fashion that defines elegance and style.
+              Exquisite couture for the sophisticated woman. Discover fashion that defines elegance and style.
             </p>
             <div className="flex space-x-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="p-2 bg-gray-100 rounded-full hover:bg-primary-100 hover:text-primary-600 transition-colors"
+                  aria-label={social.name}
                 >
                   <social.icon className="h-4 w-4 text-gray-600" />
                 </a>
@@ -80,67 +75,67 @@ export default function Footer() {
             </div>
           </motion.div>
 
-          {/* About */}
+          {/* Shop */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h4 className="font-semibold text-gray-900 mb-3">Heritage</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Shop</h4>
             <ul className="space-y-2">
-              {footerLinks.about.map((link) => (
+              {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-gray-600 hover:text-black transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </motion.div>
 
-          {/* Customer Service */}
+          {/* Account */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h4 className="font-semibold text-gray-900 mb-3">Concierge</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Account</h4>
             <ul className="space-y-2">
-              {footerLinks.customerService.map((link) => (
+              {footerLinks.account.map((link) => (
                 <li key={link.name}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-gray-600 hover:text-black transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </motion.div>
 
-          {/* Legal */}
+          {/* Support */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h4 className="font-semibold text-gray-900 mb-3">Legal</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
             <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
+              {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-gray-600 hover:text-black transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -158,7 +153,7 @@ export default function Footer() {
             transition={{ duration: 0.6 }}
             className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm"
           >
-            <p>&copy; 2024 She's Trends. All rights reserved.</p>
+            <p>&copy; 2024 Shes Trends. All rights reserved.</p>
             <p className="mt-2 md:mt-0">Crafted with ❤️ for the sophisticated woman</p>
           </motion.div>
         </div>
