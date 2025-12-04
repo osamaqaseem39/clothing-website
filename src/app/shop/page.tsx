@@ -418,10 +418,18 @@ export default function ShopPage() {
           <div className={showDesktopFilters ? "lg:w-3/4" : "w-full"}>
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-4 flex-wrap w-full sm:w-auto">
                 <span className="text-sm text-gray-600">
                   {sortedProducts.length} products found
                 </span>
+                {/* Mobile Filter Button */}
+                <button
+                  onClick={handleMobileFilterToggle}
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters & Sort
+                </button>
                 {/* Desktop Filter Toggle Button */}
                 <button
                   onClick={() => setShowDesktopFilters(!showDesktopFilters)}
@@ -432,8 +440,8 @@ export default function ShopPage() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
-                {/* Search */}
+              <div className="hidden sm:flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
+                {/* Search - Hidden on mobile */}
                 <form onSubmit={handleSearch} className="relative flex-1 sm:flex-initial min-w-[200px]">
                   <input
                     type="text"
@@ -445,7 +453,7 @@ export default function ShopPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </form>
 
-                {/* Sort */}
+                {/* Sort - Hidden on mobile */}
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
@@ -595,6 +603,25 @@ export default function ShopPage() {
       <MobileFilters
         isOpen={isMobileFiltersOpen}
         onClose={handleFilterClose}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+        priceRange={priceRange}
+        onPriceRangeChange={handlePriceRangeChange}
+        colors={colors}
+        selectedColors={selectedColors}
+        onColorToggle={handleColorToggle}
+        sizes={sizes}
+        selectedSizes={selectedSizes}
+        onSizeToggle={handleSizeToggle}
+        selectedFilters={selectedFilters}
+        onFilterToggle={handleFilterToggle}
+        sortBy={sortBy}
+        onSortChange={handleSortChange}
+        sortOptions={sortOptions}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onClearFilters={clearFilters}
       />
 
       <MobileBottomNav />

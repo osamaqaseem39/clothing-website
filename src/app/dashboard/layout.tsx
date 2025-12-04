@@ -38,7 +38,7 @@ export default function DashboardLayout({
       <div className="flex">
         <DashboardSidebar />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full lg:ml-0 pt-20 lg:pt-0">
-          {children}
+            {children}
         </main>
       </div>
     </div>
