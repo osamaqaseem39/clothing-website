@@ -2,51 +2,52 @@
 
 import { motion } from 'framer-motion'
 import { MapPin, Plus, Edit, Trash2, Check } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useCustomer } from '@/contexts/CustomerContext'
+import { apiClient } from '@/lib/api'
 
-const addresses = [
-  {
-    id: '1',
-    type: 'Home',
-    name: 'Sarah Johnson',
-    address: '123 Main Street',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10001',
-    country: 'United States',
-    phone: '+1 (555) 123-4567',
-    isDefault: true
-  },
-  {
-    id: '2',
-    type: 'Work',
-    name: 'Sarah Johnson',
-    address: '456 Business Ave, Suite 200',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10002',
-    country: 'United States',
-    phone: '+1 (555) 123-4567',
-    isDefault: false
-  },
-  {
-    id: '3',
-    type: 'Other',
-    name: 'Sarah Johnson',
-    address: '789 Vacation Lane',
-    city: 'Miami',
-    state: 'FL',
-    zipCode: '33101',
-    country: 'United States',
-    phone: '+1 (555) 123-4567',
-    isDefault: false
-  }
-]
+interface Address {
+  id: string
+  type: string
+  name: string
+  address: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+  phone: string
+  isDefault: boolean
+}
 
 export default function AddressesPage() {
+  const { customer } = useCustomer()
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [addressList, setAddressList] = useState(addresses)
+  const [addressList, setAddressList] = useState<Address[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (customer?._id) {
+      fetchAddresses()
+    } else {
+      setLoading(false)
+    }
+  }, [customer])
+
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true)
+      // TODO: Replace with actual API call when addresses API is available
+      // const response = await apiClient.getCustomerAddresses(customer._id)
+      // setAddressList(response.data || [])
+      setAddressList([])
+    } catch (error) {
+      console.error('Failed to fetch addresses:', error)
+      setAddressList([])
+    } finally {
+      setLoading(false)
+    }
+  }
   const [formData, setFormData] = useState({
     type: 'Home',
     name: '',
@@ -127,17 +128,25 @@ export default function AddressesPage() {
     })))
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Addresses</h1>
           <p className="text-gray-600">Manage your shipping addresses</p>
         </div>
         <button
           onClick={() => setIsAddingNew(true)}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Add New Address

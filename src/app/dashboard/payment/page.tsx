@@ -2,41 +2,51 @@
 
 import { motion } from 'framer-motion'
 import { CreditCard, Plus, Edit, Trash2, Shield, Lock } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useCustomer } from '@/contexts/CustomerContext'
+import { apiClient } from '@/lib/api'
 
-const paymentMethods = [
-  {
-    id: '1',
-    type: 'card',
-    last4: '4242',
-    brand: 'Visa',
-    expiryMonth: '12',
-    expiryYear: '2026',
-    isDefault: true,
-    holderName: 'Sarah Johnson'
-  },
-  {
-    id: '2',
-    type: 'card',
-    last4: '5555',
-    brand: 'Mastercard',
-    expiryMonth: '08',
-    expiryYear: '2025',
-    isDefault: false,
-    holderName: 'Sarah Johnson'
-  },
-  {
-    id: '3',
-    type: 'paypal',
-    email: 'sarah.johnson@email.com',
-    isDefault: false
-  }
-]
+interface PaymentMethod {
+  id: string
+  type: 'card' | 'paypal'
+  last4?: string
+  brand?: string
+  expiryMonth?: string
+  expiryYear?: string
+  isDefault: boolean
+  holderName?: string
+  email?: string
+}
 
 export default function PaymentPage() {
+  const { customer } = useCustomer()
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [paymentList, setPaymentList] = useState(paymentMethods)
+  const [paymentList, setPaymentList] = useState<PaymentMethod[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (customer?._id) {
+      fetchPaymentMethods()
+    } else {
+      setLoading(false)
+    }
+  }, [customer])
+
+  const fetchPaymentMethods = async () => {
+    try {
+      setLoading(true)
+      // TODO: Replace with actual API call when payment methods API is available
+      // const response = await apiClient.getCustomerPaymentMethods(customer._id)
+      // setPaymentList(response.data || [])
+      setPaymentList([])
+    } catch (error) {
+      console.error('Failed to fetch payment methods:', error)
+      setPaymentList([])
+    } finally {
+      setLoading(false)
+    }
+  }
   const [formData, setFormData] = useState({
     cardNumber: '',
     expiryMonth: '',
@@ -82,17 +92,25 @@ export default function PaymentPage() {
     })))
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payment Methods</h1>
           <p className="text-gray-600">Manage your payment information</p>
         </div>
         <button
           onClick={() => setIsAddingNew(true)}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Add Payment Method

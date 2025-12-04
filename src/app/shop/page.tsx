@@ -592,17 +592,10 @@ export default function ShopPage() {
       )}
 
       {/* Mobile Filters */}
-      {isMobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleFilterClose} />
-          <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-xl">
-            <MobileFilters
-              isOpen={isMobileFiltersOpen}
-              onClose={handleFilterClose}
-            />
-          </div>
-        </div>
-      )}
+      <MobileFilters
+        isOpen={isMobileFiltersOpen}
+        onClose={handleFilterClose}
+      />
 
       <MobileBottomNav />
     </div>

@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginCustomer } from '@/lib/auth'
+import { useCustomer } from '@/contexts/CustomerContext'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useCustomer()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,8 +19,16 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const data = await loginCustomer({ email, password })
-      localStorage.setItem('customer', JSON.stringify(data))
-      router.push('/dashboard')
+      // API returns { token, user } or { accessToken, user } or similar
+      const token = data.token || data.accessToken || data.access_token
+      const customer = data.user || data.customer || data
+      
+      if (token && customer) {
+        login(token, customer)
+        router.push('/dashboard')
+      } else {
+        setError('Invalid response from server')
+      }
     } catch (err: any) {
       setError(err?.message || 'Login failed')
     } finally {

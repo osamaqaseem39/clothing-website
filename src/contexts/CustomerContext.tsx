@@ -21,18 +21,8 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    // Load saved token and user from localStorage
-    const savedToken = localStorage.getItem('auth_token')
-    const savedCustomer = localStorage.getItem('customer')
-    
-    if (savedToken && savedCustomer) {
-      setToken(savedToken)
-      setCustomer(JSON.parse(savedCustomer))
-      // Refresh customer data from API
-      refreshCustomer()
-    } else {
-      setIsLoading(false)
-    }
+    // Don't auto-login - require explicit login
+    setIsLoading(false)
   }, [])
 
   const login = (authToken: string, customerData: Customer) => {
