@@ -182,21 +182,7 @@ const PersonalizedHomepage: React.FC = () => {
         />
       )}
 
-      {/* Categories */}
-      <div className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-              <Grid3X3 className="h-7 w-7 text-primary-600" />
-              {"Shop by Category"}
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Explore curated collections tailored to every style and occasion.
-            </p>
-          </div>
-          <CategoryGrid showHeader={false} />
-        </div>
-      </div>
+      
 
       {/* Featured Products */}
       <div className="py-12 bg-gray-50">
@@ -214,6 +200,21 @@ const PersonalizedHomepage: React.FC = () => {
         </div>
       </div>
 
+{/* Categories */}
+<div className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+              <Grid3X3 className="h-7 w-7 text-primary-600" />
+              {"Shop by Category"}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Explore curated collections tailored to every style and occasion.
+            </p>
+          </div>
+          <CategoryGrid showHeader={false} />
+        </div>
+      </div>
       {/* Brands */}
       <Brands />
 

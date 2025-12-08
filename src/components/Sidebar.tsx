@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, Heart, ShoppingBag, User, HelpCircle, BookOpen, X, Home, Sparkles, Tag, Star, Percent, Users } from 'lucide-react'
+import { Heart, ShoppingBag, User, X, Home, Sparkles, Tag, Percent } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
 
@@ -27,21 +27,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigationItems = [
     { name: 'All', href: '/shop', icon: Home },
     { name: 'New Arrivals', href: '/shop?filter=new', icon: Sparkles },
-    { 
-      name: 'Women', 
-      href: '/shop?category=Women', 
-      icon: Users
-    },
     { name: 'Brands', href: '/brands', icon: Tag },
-    { name: 'Top Curations', href: '/shop?filter=featured', icon: Star },
     { name: 'Sale', href: '/shop?filter=sale', icon: Percent },
   ]
 
   const accountItems = [
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
     { name: 'Wishlist', href: '/dashboard/wishlist', icon: Heart },
-    { name: 'Blogs', href: '/blog', icon: BookOpen },
-    { name: 'Help Center', href: '/help', icon: HelpCircle },
     { name: 'Sign In / Register', href: '/login', icon: User },
   ]
 
@@ -63,8 +55,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <span>{item.name}</span>
                   </div>
                 </Link>
-                
-                {/* Submenu removed for Women */}
               </div>
             ))}
           </nav>
