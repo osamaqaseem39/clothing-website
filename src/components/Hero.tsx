@@ -5,38 +5,93 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { apiClient } from '@/lib/api'
 
-const banners = [
-  {
-    src: '/images/banner1.png',
-    alt: 'Women\'s Couture',
-    title: 'Élégance',
-    subtitle: 'Couture',
-    description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.'
-  },
-  {
-    src: '/images/banner2.png',
-    alt: 'Fashion Collection',
-    title: 'Timeless',
-    subtitle: 'Elegance',
-    description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.'
-  }
-]
+interface Banner {
+  _id: string
+  title: string
+  subtitle?: string
+  description?: string
+  imageUrl: string
+  altText?: string
+  linkUrl?: string
+  linkText?: string
+}
 
 export default function Hero() {
+  const [banners, setBanners] = useState<Banner[]>([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [loading, setLoading] = useState(true)
+
+  // Fetch banners from backend
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setLoading(true)
+        const fetchedBanners = await apiClient.getBannersByPosition('hero')
+        if (fetchedBanners && fetchedBanners.length > 0) {
+          setBanners(fetchedBanners)
+        } else {
+          // Fallback to default banners if none found
+          setBanners([
+            {
+              _id: '1',
+              title: 'Élégance',
+              subtitle: 'Couture',
+              description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.',
+              imageUrl: '/images/banner1.png',
+              altText: 'Women\'s Couture',
+            },
+            {
+              _id: '2',
+              title: 'Timeless',
+              subtitle: 'Elegance',
+              description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.',
+              imageUrl: '/images/banner2.png',
+              altText: 'Fashion Collection',
+            }
+          ])
+        }
+      } catch (error) {
+        console.error('Error fetching banners:', error)
+        // Fallback to default banners on error
+        setBanners([
+          {
+            _id: '1',
+            title: 'Élégance',
+            subtitle: 'Couture',
+            description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.',
+            imageUrl: '/images/banner1.png',
+            altText: 'Women\'s Couture',
+          },
+          {
+            _id: '2',
+            title: 'Timeless',
+            subtitle: 'Elegance',
+            description: 'Exclusive couture for the sophisticated woman. Discover our curated collection of women\'s fashion, designer dresses, and premium accessories.',
+            imageUrl: '/images/banner2.png',
+            altText: 'Fashion Collection',
+          }
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBanners()
+  }, [])
 
   // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isAutoPlaying || banners.length === 0) return
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % banners.length)
     }, 5000) // Change slide every 5 seconds
 
     return () => clearInterval(interval)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying, banners.length])
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % banners.length)
@@ -53,6 +108,15 @@ export default function Hero() {
     setIsAutoPlaying(false)
   }
 
+  // Don't render if loading or no banners
+  if (loading || banners.length === 0) {
+    return (
+      <section className="relative w-full overflow-hidden" style={{ aspectRatio: '1920/800' }}>
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      </section>
+    )
+  }
+
   return (
     <section className="relative w-full overflow-hidden" style={{ aspectRatio: '1920/800' }}>
       {/* Slider Container */}
@@ -61,8 +125,10 @@ export default function Hero() {
           {banners.map((banner, index) => {
             if (index !== currentSlide) return null
 
+            const bannerLink = banner.linkUrl || '/shop'
+            
             return (
-              <Link href="/shop" key={index}>
+              <Link href={bannerLink} key={banner._id || index}>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -73,8 +139,8 @@ export default function Hero() {
                   {/* Background Image */}
                   <div className="absolute inset-0">
                     <Image
-                      src={banner.src}
-                      alt={banner.alt}
+                      src={banner.imageUrl}
+                      alt={banner.altText || banner.title}
                       fill
                       priority={index === 0}
                       fetchPriority={index === 0 ? 'high' : 'auto'}

@@ -752,6 +752,12 @@ class ApiClient {
     })
   }
 
+  // Banner API
+  async getBannersByPosition(position: string = 'hero'): Promise<any[]> {
+    const response = await this.request<any[]>(`/banners/position/${position}`)
+    return Array.isArray(response) ? response : []
+  }
+
   // Shipping API
   async calculateShipping(data: {
     shippingAddress: {

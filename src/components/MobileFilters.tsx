@@ -143,7 +143,7 @@ export default function MobileFilters({
   if (!isOpen) return null
 
   return (
-    <div className="lg:hidden fixed inset-0 z-50 overflow-hidden" style={{ touchAction: 'none' }}>
+    <div className="lg:hidden fixed inset-0 z-[60] overflow-hidden" style={{ touchAction: 'none' }}>
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black bg-opacity-50"
@@ -348,7 +348,7 @@ export default function MobileFilters({
         </div>
 
         {/* Apply Button - Fixed at bottom */}
-        <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0 safe-area-inset-bottom">
+        <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0" style={{ paddingBottom: 'calc(1rem + 64px + env(safe-area-inset-bottom, 0px))' }}>
           <div className="flex space-x-3">
             <button
               onClick={() => {

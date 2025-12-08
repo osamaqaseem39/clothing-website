@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import PersonalizedHomepage from '@/components/PersonalizedHomepage'
-import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
@@ -41,7 +40,6 @@ export default function Home() {
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
         <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
           <PersonalizedHomepage />
-          <Newsletter />
           <Footer />
         </main>
       </div>

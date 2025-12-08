@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
@@ -65,6 +65,60 @@ export default function CheckoutPage() {
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   
+  // Create a stable hash of items for dependency tracking
+  const itemsHash = useMemo(() => 
+    items.map(i => `${i.productId}-${i.quantity}-${i.size || ''}-${i.color || ''}`).join('|'),
+    [items]
+  )
+  
+  // Calculate total weight from cart items
+  const calculateTotalWeight = async (): Promise<number> => {
+    if (items.length === 0) return 0
+    
+    try {
+      // Fetch product details for all cart items to get weight
+      const productPromises = items.map(item => 
+        apiClient.getProduct(item.productId).catch(() => null)
+      )
+      const products = await Promise.all(productPromises)
+      
+      // Calculate total weight: sum of (product weight * quantity) for each item
+      let totalWeight = 0
+      items.forEach((item, index) => {
+        const product = products[index]
+        if (product) {
+          // Check for weight in product or variations
+          // Priority: variation weight > product weight > shippingWeight
+          let itemWeight = 0
+          
+          // If product has variations and we have size/color, try to find matching variation
+          if ((item.size || item.color) && (product as any).variations) {
+            const variation = (product as any).variations.find((v: any) => 
+              (!item.size || v.size === item.size) && 
+              (!item.color || v.color === item.color)
+            )
+            if (variation && variation.weight) {
+              itemWeight = variation.weight
+            }
+          }
+          
+          // Fallback to product weight or shippingWeight
+          if (itemWeight === 0) {
+            itemWeight = (product as any).weight || (product as any).shippingWeight || 0
+          }
+          
+          // Add weight * quantity to total
+          totalWeight += itemWeight * item.quantity
+        }
+      })
+      
+      return totalWeight
+    } catch (error) {
+      console.error('Error calculating weight:', error)
+      return 0
+    }
+  }
+  
   // Fetch shipping cost from backend when province and city are selected
   useEffect(() => {
     const fetchShippingCost = async () => {
@@ -77,6 +131,9 @@ export default function CheckoutPage() {
 
       setCalculatingShipping(true)
       try {
+        // Calculate total weight from product details
+        const totalWeight = await calculateTotalWeight()
+        
         const response = await apiClient.calculateShipping({
           shippingAddress: {
             country: formData.country,
@@ -87,7 +144,7 @@ export default function CheckoutPage() {
           orderTotal: total,
           packageDetails: {
             itemCount: items.length,
-            // You can add weight and dimensions if available
+            weight: totalWeight > 0 ? totalWeight : undefined,
           },
         })
 
@@ -123,7 +180,7 @@ export default function CheckoutPage() {
     }, 500)
 
     return () => clearTimeout(timeoutId)
-  }, [formData.province, formData.city, formData.country, formData.postalCode, total, items.length])
+  }, [formData.province, formData.city, formData.country, formData.postalCode, total, itemsHash])
 
   const shipping = shippingCost
   const finalTotal = total + shipping
