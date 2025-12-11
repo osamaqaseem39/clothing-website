@@ -21,7 +21,23 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    // Don't auto-login - require explicit login
+    // Restore token and customer from localStorage on mount
+    // Do NOT refresh the token - just restore what's stored
+    const storedToken = localStorage.getItem('auth_token')
+    const storedCustomer = localStorage.getItem('customer')
+    
+    if (storedToken && storedCustomer) {
+      try {
+        setToken(storedToken)
+        setCustomer(JSON.parse(storedCustomer))
+      } catch (error) {
+        console.error('Failed to restore customer data:', error)
+        // Clear invalid data
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('customer')
+      }
+    }
+    
     setIsLoading(false)
   }, [])
 
