@@ -6,13 +6,14 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Grid, List, SortAsc, SortDesc } from 'lucide-react'
 import { apiClient, Category } from '@/lib/api'
 import { Product, ProductFilters } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 import ProductCard from '@/components/ProductCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function CategoryDetailPage() {
   const params = useParams()
+  const { products: allProducts, loading: productsLoading, error: productsError } = useProducts()
   const [category, setCategory] = useState<Category | null>(null)
-  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<ProductFilters>({
@@ -21,35 +22,124 @@ export default function CategoryDetailPage() {
     sortBy: 'createdAt',
     sortOrder: 'desc'
   })
-  const [totalPages, setTotalPages] = useState(1)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  const fetchCategoryAndProducts = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      // Fetch category details
-      const categoryData = await apiClient.getCategoryBySlug(params.slug as string)
-      setCategory(categoryData)
-      
-      // Fetch products in this category
-      const productsResponse = await apiClient.getProductsByCategory(categoryData._id, filters)
-      setProducts(productsResponse.data)
-      setTotalPages(productsResponse.totalPages)
-    } catch (err) {
-      setError('Category not found')
-      console.error('Error fetching category:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // Fetch category details
   useEffect(() => {
-    if (params.slug) {
-      fetchCategoryAndProducts()
+    const fetchCategory = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const categoryData = await apiClient.getCategoryBySlug(params.slug as string)
+        setCategory(categoryData)
+      } catch (err) {
+        setError('Category not found')
+        console.error('Error fetching category:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [params.slug, filters])
+
+    if (params.slug) {
+      fetchCategory()
+    }
+  }, [params.slug])
+
+  // Filter products by category (client-side)
+  const categoryProducts = allProducts.filter(product => {
+    if (!category) return false
+    
+    // Check if product.category matches category ID or name
+    const categoryMatches = 
+      product.category === category._id ||
+      product.category === category.name ||
+      product.category === category.slug
+    
+    // Check if product.categories array contains the category
+    const categoriesArrayMatches = Array.isArray(product.categories) && 
+      product.categories.some(cat => 
+        cat === category._id || 
+        cat === category.name || 
+        cat === category.slug
+      )
+    
+    return categoryMatches || categoriesArrayMatches
+  })
+
+  // Apply additional filters
+  const filteredProducts = categoryProducts.filter(product => {
+    // Price range filter
+    const productPrice = product.salePrice && product.salePrice > 0 ? product.salePrice : product.price
+    if (filters.minPrice !== undefined && productPrice < filters.minPrice) return false
+    if (filters.maxPrice !== undefined && productPrice > filters.maxPrice) return false
+
+    // Status filter
+    if (filters.status && product.status !== filters.status) return false
+
+    // Size filter
+    if (filters.sizes && filters.sizes.length > 0) {
+      const productSizes = product.availableSizes || product.attributes?.sizes || []
+      if (!filters.sizes.some(size => productSizes.includes(size))) return false
+    }
+
+    // Fabric filter
+    if ((filters as any).fabrics && (filters as any).fabrics.length > 0) {
+      const productFabrics = (product as any).fabrics || (product.attributes as any)?.material || []
+      if (!(filters as any).fabrics.some((fabric: string) => 
+        Array.isArray(productFabrics) 
+          ? productFabrics.includes(fabric)
+          : productFabrics === fabric
+      )) return false
+    }
+
+    // Occasion filter
+    if ((filters as any).occasions && (filters as any).occasions.length > 0) {
+      const productOccasions = product.occasion ? [product.occasion] : []
+      if (!(filters as any).occasions.some((occ: string) => productOccasions.includes(occ))) return false
+    }
+
+    // Color family filter
+    if ((filters as any).colorFamilies && (filters as any).colorFamilies.length > 0) {
+      const productColors = product.colors || []
+      if (!(filters as any).colorFamilies.some((color: string) => 
+        productColors.some((pc: string) => 
+          pc.toLowerCase().includes(color.toLowerCase()) || 
+          color.toLowerCase().includes(pc.toLowerCase())
+        )
+      )) return false
+    }
+
+    return true
+  })
+
+  // Client-side sorting
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (filters.sortBy) {
+      case 'price':
+        return filters.sortOrder === 'asc' 
+          ? (a.price - b.price)
+          : (b.price - a.price)
+      case 'name':
+        return filters.sortOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name)
+      case 'createdAt':
+      default:
+        const aTime = new Date(a.createdAt).getTime()
+        const bTime = new Date(b.createdAt).getTime()
+        return filters.sortOrder === 'asc'
+          ? (aTime - bTime)
+          : (bTime - aTime)
+    }
+  })
+
+  // Client-side pagination
+  const page = filters.page || 1
+  const limit = filters.limit || 12
+  const startIndex = (page - 1) * limit
+  const endIndex = startIndex + limit
+  const paginatedProducts = sortedProducts.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(sortedProducts.length / limit)
 
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
     setFilters(prev => ({
@@ -66,7 +156,7 @@ export default function CategoryDetailPage() {
     }))
   }
 
-  if (loading) {
+  if (loading || productsLoading) {
     return <LoadingSpinner />
   }
 
@@ -278,7 +368,7 @@ export default function CategoryDetailPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-600">
-                  {products.length} products in {category.name}
+                  {sortedProducts.length} products in {category.name}
                 </span>
               </div>
               
@@ -307,11 +397,7 @@ export default function CategoryDetailPage() {
             </div>
 
             {/* Products */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner />
-              </div>
-            ) : products.length === 0 ? (
+            {paginatedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
                 <p className="text-gray-600">This category doesn't have any products yet</p>
@@ -322,7 +408,7 @@ export default function CategoryDetailPage() {
                   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
                   : 'grid-cols-1'
               }`}>
-                {products.map((product, index) => (
+                {paginatedProducts.map((product, index) => (
                   <motion.div
                     key={product._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -352,30 +438,30 @@ export default function CategoryDetailPage() {
               <div className="flex justify-center mt-12">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handlePageChange(filters.page! - 1)}
-                    disabled={filters.page === 1}
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
                     className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                     <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
                       className={`px-3 py-2 text-sm rounded-lg transition-colors ${
-                        page === filters.page
+                        pageNum === page
                           ? 'bg-rose-600 text-white'
                           : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
-                      {page}
+                      {pageNum}
                     </button>
                   ))}
                   
                   <button
-                    onClick={() => handlePageChange(filters.page! + 1)}
-                    disabled={filters.page === totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
                     className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next

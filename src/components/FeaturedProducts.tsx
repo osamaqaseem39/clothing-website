@@ -5,7 +5,8 @@ import { Star, Heart, ShoppingBag, Award, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { apiClient, Product } from '@/lib/api'
+import { Product } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 
 // No hardcoded data - fetch from API
 
@@ -14,26 +15,19 @@ interface FeaturedProductsProps {
 }
 
 export default function FeaturedProducts({ showHeader = true }: FeaturedProductsProps) {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchFeaturedProducts = async () => {
-      try {
-        setLoading(true)
-        const response = await apiClient.getFeaturedProducts()
-        setProducts(response.slice(0, 6)) // Show only 6 products
-      } catch (error) {
-        console.error('Error fetching featured products:', error)
-        // Fallback to empty array if API fails
-        setProducts([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchFeaturedProducts()
-  }, [])
+  const { products: allProducts, loading } = useProducts()
+  
+  // Filter featured products (products with high ratings or marked as featured)
+  const featuredProducts = allProducts
+    .filter(product => {
+      // Consider products with rating >= 4.5 or reviews >= 10 as featured
+      return (product.rating && product.rating >= 4.5) || 
+             (product.reviews && product.reviews >= 10) ||
+             product.isNew === true
+    })
+    .slice(0, 6) // Show only 6 products
+  
+  const products = featuredProducts
 
   if (loading) {
     return (

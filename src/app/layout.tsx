@@ -5,6 +5,7 @@ import { RecentlyViewedProvider } from '@/contexts/RecentlyViewedContext'
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
 import { CartProvider } from '@/contexts/CartContext'
+import { ProductsProvider } from '@/contexts/ProductsContext'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import CartDrawer from '@/components/CartDrawer'
@@ -46,14 +47,16 @@ export default function RootLayout({
         <PerformanceOptimizations />
         <CustomerProvider>
           <AnalyticsProvider>
-            <CartProvider>
-              <RecentlyViewedProvider>
-                {children}
-                <CartDrawer />
-                <CookieConsentBanner />
-                <WhatsAppButton />
-              </RecentlyViewedProvider>
-            </CartProvider>
+            <ProductsProvider>
+              <CartProvider>
+                <RecentlyViewedProvider>
+                  {children}
+                  <CartDrawer />
+                  <CookieConsentBanner />
+                  <WhatsAppButton />
+                </RecentlyViewedProvider>
+              </CartProvider>
+            </ProductsProvider>
           </AnalyticsProvider>
         </CustomerProvider>
       </body>

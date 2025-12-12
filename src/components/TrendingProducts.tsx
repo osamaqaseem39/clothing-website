@@ -1,30 +1,23 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import ProductCard from './ProductCard'
-import { apiClient, Product } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 
 export default function TrendingProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchTrendingProducts = async () => {
-      try {
-        setLoading(true)
-        const response = await apiClient.getTrendingProducts()
-        setProducts(response.slice(0, 8)) // Show only 8 products
-      } catch (error) {
-        console.error('Error fetching trending products:', error)
-        setProducts([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchTrendingProducts()
-  }, [])
+  const { products: allProducts, loading } = useProducts()
+  
+  // Filter trending products (products with high ratings or many reviews)
+  const products = useMemo(() => {
+    return allProducts
+      .filter(product => 
+        (product.rating && product.rating >= 4.0) || 
+        (product.reviews && product.reviews >= 5) ||
+        product.isNew === true
+      )
+      .slice(0, 8) // Show only 8 products
+  }, [allProducts])
   return (
     <section className="py-8 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -5,41 +5,106 @@ import { motion } from 'framer-motion'
 import { Search, Filter, Grid, List, SortAsc, SortDesc } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import { Product, ProductFilters } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 import ProductCard from '@/components/ProductCard'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // Use products from context
+  const { products: allProducts, loading: productsLoading, error: productsError } = useProducts()
   const [filters, setFilters] = useState<ProductFilters>({
     page: 1,
     limit: 12,
     sortBy: 'createdAt',
     sortOrder: 'desc'
   })
-  const [totalPages, setTotalPages] = useState(1)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await apiClient.getProducts(filters)
-      setProducts(response.data)
-      setTotalPages(response.totalPages)
-    } catch (err) {
-      setError('Failed to fetch products')
-      console.error('Error fetching products:', err)
-    } finally {
-      setLoading(false)
+  // Client-side filtering
+  const filteredProducts = allProducts.filter(product => {
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      const matchesSearch = 
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description?.toLowerCase().includes(searchLower) ||
+        product.brand?.toLowerCase().includes(searchLower)
+      if (!matchesSearch) return false
     }
-  }
 
-  useEffect(() => {
-    fetchProducts()
-  }, [filters])
+    // Price range filter
+    const productPrice = product.salePrice && product.salePrice > 0 ? product.salePrice : product.price
+    if (filters.minPrice !== undefined && productPrice < filters.minPrice) return false
+    if (filters.maxPrice !== undefined && productPrice > filters.maxPrice) return false
+
+    // Status filter
+    if (filters.status && product.status !== filters.status) return false
+
+    // Size filter
+    if (filters.sizes && filters.sizes.length > 0) {
+      const productSizes = product.availableSizes || product.attributes?.sizes || []
+      if (!filters.sizes.some(size => productSizes.includes(size))) return false
+    }
+
+    // Fabric filter
+    if ((filters as any).fabrics && (filters as any).fabrics.length > 0) {
+      const productFabrics = (product as any).fabrics || (product.attributes as any)?.material || []
+      if (!(filters as any).fabrics.some((fabric: string) => 
+        Array.isArray(productFabrics) 
+          ? productFabrics.includes(fabric)
+          : productFabrics === fabric
+      )) return false
+    }
+
+    // Occasion filter
+    if ((filters as any).occasions && (filters as any).occasions.length > 0) {
+      const productOccasions = product.occasion ? [product.occasion] : []
+      if (!(filters as any).occasions.some((occ: string) => productOccasions.includes(occ))) return false
+    }
+
+    // Color family filter
+    if ((filters as any).colorFamilies && (filters as any).colorFamilies.length > 0) {
+      const productColors = product.colors || []
+      if (!(filters as any).colorFamilies.some((color: string) => 
+        productColors.some((pc: string) => 
+          pc.toLowerCase().includes(color.toLowerCase()) || 
+          color.toLowerCase().includes(pc.toLowerCase())
+        )
+      )) return false
+    }
+
+    return true
+  })
+
+  // Client-side sorting
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (filters.sortBy) {
+      case 'price':
+        return filters.sortOrder === 'asc' 
+          ? (a.price - b.price)
+          : (b.price - a.price)
+      case 'name':
+        return filters.sortOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name)
+      case 'createdAt':
+      default:
+        const aTime = new Date(a.createdAt).getTime()
+        const bTime = new Date(b.createdAt).getTime()
+        return filters.sortOrder === 'asc'
+          ? (aTime - bTime)
+          : (bTime - aTime)
+    }
+  })
+
+  // Client-side pagination
+  const page = filters.page || 1
+  const limit = filters.limit || 12
+  const startIndex = (page - 1) * limit
+  const endIndex = startIndex + limit
+  const paginatedProducts = sortedProducts.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(sortedProducts.length / limit)
 
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({
@@ -64,18 +129,18 @@ export default function ProductsPage() {
     }))
   }
 
-  if (loading && products.length === 0) {
+  if (productsLoading) {
     return <LoadingSpinner />
   }
 
-  if (error) {
+  if (productsError) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{productsError}</p>
           <button
-            onClick={fetchProducts}
+            onClick={() => window.location.reload()}
             className="btn-primary"
           >
             Try Again
@@ -278,7 +343,7 @@ export default function ProductsPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-600">
-                  {products.length} products found
+                  {sortedProducts.length} products found
                 </span>
               </div>
               
@@ -307,11 +372,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Products */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner />
-              </div>
-            ) : products.length === 0 ? (
+            {paginatedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
                 <p className="text-gray-600">Try adjusting your search or filter criteria</p>
@@ -322,7 +383,7 @@ export default function ProductsPage() {
                   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
                   : 'grid-cols-1'
               }`}>
-                {products.map((product, index) => (
+                {paginatedProducts.map((product, index) => (
                   <motion.div
                     key={product._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -352,30 +413,30 @@ export default function ProductsPage() {
               <div className="flex justify-center mt-12">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handlePageChange(filters.page! - 1)}
-                    disabled={filters.page === 1}
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
                     className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                     <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
                       className={`px-3 py-2 text-sm rounded-lg transition-colors ${
-                        page === filters.page
+                        pageNum === page
                           ? 'bg-rose-600 text-white'
                           : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
-                      {page}
+                      {pageNum}
                     </button>
                   ))}
                   
                   <button
-                    onClick={() => handlePageChange(filters.page! + 1)}
-                    disabled={filters.page === totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
                     className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next

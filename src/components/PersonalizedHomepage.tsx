@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { Award, Grid3X3 } from 'lucide-react'
 import { useAnalytics } from '@/contexts/AnalyticsContext'
-import { Product } from '@/lib/api'
-import { apiClient } from '@/lib/api'
 import Hero from './Hero'
 import PersonalizedRecommendations from './PersonalizedRecommendations'
 import FeaturedProducts from './FeaturedProducts'
@@ -16,7 +14,6 @@ const PersonalizedHomepage: React.FC = () => {
   const [personalizedContent, setPersonalizedContent] = useState({
     heroMessage: '',
     recommendedCategories: [] as string[],
-    trendingProducts: [] as Product[],
     personalizedOffers: [] as string[],
     showCategories: true,
     showRecommendations: true
@@ -36,7 +33,6 @@ const PersonalizedHomepage: React.FC = () => {
         setPersonalizedContent({
           heroMessage: 'Discover Your Perfect Style',
           recommendedCategories: ['evening-wear', 'day-dresses', 'couture'],
-          trendingProducts: [],
           personalizedOffers: ['Welcome Offer: 10% off your first order'],
           showCategories: true,
           showRecommendations: true
@@ -45,7 +41,7 @@ const PersonalizedHomepage: React.FC = () => {
       }
 
       // Generate personalized content based on user profile
-      const content = await generatePersonalizedContent()
+      const content = generatePersonalizedContent()
       setPersonalizedContent(content)
 
     } catch (error) {
@@ -55,34 +51,22 @@ const PersonalizedHomepage: React.FC = () => {
     }
   }
 
-  const generatePersonalizedContent = async () => {
+  const generatePersonalizedContent = () => {
     if (!userProfile) return {
       heroMessage: 'Discover Your Perfect Style',
       recommendedCategories: [],
-      trendingProducts: [],
       personalizedOffers: [],
       showCategories: true,
       showRecommendations: true
     }
 
-    const content = {
+    return {
       heroMessage: generateHeroMessage(),
       recommendedCategories: userProfile.preferences.favoriteCategories,
-      trendingProducts: [] as Product[],
       personalizedOffers: userProfile.recommendations.personalizedOffers,
       showCategories: userProfile.behavior.totalVisits > 1,
       showRecommendations: userProfile.behavior.totalVisits > 0
     }
-
-    // Load trending products based on user preferences
-    try {
-      const trendingResponse = await apiClient.getTrendingProducts()
-      content.trendingProducts = (trendingResponse as any)?.slice ? (trendingResponse as any).slice(0, 4) : []
-    } catch (error) {
-      console.error('Error loading trending products:', error)
-    }
-
-    return content
   }
 
   const generateHeroMessage = (): string => {
@@ -118,14 +102,6 @@ const PersonalizedHomepage: React.FC = () => {
     return messages.join(' • ')
   }
 
-  const handleProductClick = (product: Product) => {
-    trackEvent({
-      type: 'product_view',
-      data: { product },
-      timestamp: new Date().toISOString(),
-      sessionId: ''
-    })
-  }
 
   const handleCategoryClick = (category: string) => {
     trackEvent({

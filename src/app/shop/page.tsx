@@ -12,6 +12,7 @@ import { Search, Filter, Star, Heart, ShoppingBag, Grid3X3, Grid2X2, Grid, Layou
 import Image from 'next/image'
 import Link from 'next/link'
 import { apiClient, Product, ProductFilters } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 
 const sortOptions = [
   'Featured',
@@ -34,7 +35,9 @@ export default function ShopPage() {
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
-  const [products, setProducts] = useState<Product[]>([])
+  
+  // Use products from context
+  const { products, loading: productsLoading, error: productsError } = useProducts()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -59,7 +62,7 @@ export default function ShopPage() {
   }, [searchParams])
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFilterOptions = async () => {
       try {
         setLoading(true)
         setError(null)
@@ -82,19 +85,9 @@ export default function ShopPage() {
         // Set price range from backend
         setPriceRange([filterOptions.priceRange.min, filterOptions.priceRange.max])
         
-        // Fetch products
-        const filters: ProductFilters = {
-          page: 1,
-          limit: 100, // Get more products for the shop page
-          sortBy: 'createdAt',
-          sortOrder: 'desc'
-        }
-        const response = await apiClient.getProducts(filters)
-        setProducts(response.data)
-        
         // Update price range based on actual product prices if needed (include sale prices)
-        if (response.data.length > 0) {
-          const prices = response.data.map(p => {
+        if (products.length > 0) {
+          const prices = products.map(p => {
             // Use salePrice if available and valid, otherwise use regular price
             return (p.salePrice && typeof p.salePrice === 'number' && p.salePrice > 0) 
               ? p.salePrice 
@@ -110,15 +103,22 @@ export default function ShopPage() {
           }
         }
       } catch (err) {
-        setError('Failed to fetch data')
-        console.error('Error fetching data:', err)
+        setError('Failed to fetch filter options')
+        console.error('Error fetching filter options:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchData()
-  }, [])
+    // Only fetch filter options, products come from context
+    if (!productsLoading) {
+      fetchFilterOptions()
+    }
+  }, [products, productsLoading])
+  
+  // Combine loading states
+  const isLoading = productsLoading || loading
+  const hasError = productsError || error
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -336,46 +336,58 @@ export default function ShopPage() {
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(9)].map((_, index) => (
-                <div key={index} className="bg-white rounded-lg p-6">
-                  <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(9)].map((_, index) => (
+                    <div key={index} className="bg-white rounded-lg p-6">
+                      <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
+            <Footer />
+          </main>
         </div>
-        <Footer />
+        <MobileBottomNav />
       </div>
     )
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="btn-primary"
-            >
-              Try Again
-            </button>
-          </div>
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
+                <p className="text-gray-600 mb-4">{hasError}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="btn-primary"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+            <Footer />
+          </main>
         </div>
-        <Footer />
+        <MobileBottomNav />
       </div>
     )
   }
@@ -383,8 +395,10 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="flex">
+        <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Page Header */}
         <div className="mb-4 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Shop All Products</h1>
@@ -582,22 +596,10 @@ export default function ShopPage() {
             )}
           </div>
         </div>
-      </div>
-
-      <Footer />
-      
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={handleMenuClose} />
-          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
-            <Sidebar
-              isOpen={isMobileMenuOpen}
-              onClose={handleMenuClose}
-            />
           </div>
-        </div>
-      )}
+          <Footer />
+        </main>
+      </div>
 
       {/* Mobile Filters */}
       <MobileFilters

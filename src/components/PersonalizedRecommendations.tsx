@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAnalytics } from '@/contexts/AnalyticsContext'
 import { Product } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 import ProductCard from './ProductCard'
-import { apiClient } from '@/lib/api'
 
 interface PersonalizedRecommendationsProps {
   title?: string
@@ -17,127 +17,141 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
   maxItems = 8,
   showPersonalizedMessage = true
 }) => {
-  const { userProfile, trackEvent, getPersonalizedRecommendations } = useAnalytics()
-  const [recommendations, setRecommendations] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const { userProfile, trackEvent } = useAnalytics()
+  const { products: allProducts, loading: productsLoading } = useProducts()
   const [personalizedMessage, setPersonalizedMessage] = useState('')
 
-  const getPersonalizedProducts = useCallback(async (): Promise<Product[]> => {
-    if (!userProfile) return []
+  // Client-side filtering based on user profile
+  const recommendations = useMemo(() => {
+    if (!allProducts.length) return []
 
-    try {
-      // Build filters based on user preferences
-      const filters: any = {}
-
-      // Filter by favorite categories - skip if it's a name (not an ID)
-      if (userProfile.preferences.favoriteCategories.length > 0) {
-        const category = userProfile.preferences.favoriteCategories[0]
-        // Only use if it looks like an ObjectId (24 hex characters)
-        if (/^[0-9a-fA-F]{24}$/.test(category)) {
-          filters.category = category
-        }
-      }
-
-      // Filter by price range
-      if (userProfile.preferences.priceRange.min > 0 || userProfile.preferences.priceRange.max < 10000) {
-        filters.minPrice = userProfile.preferences.priceRange.min
-        filters.maxPrice = userProfile.preferences.priceRange.max
-      }
-
-      // Filter by favorite colors
-      if (userProfile.preferences.favoriteColors.length > 0) {
-        filters.colors = userProfile.preferences.favoriteColors
-      }
-
-      // Filter by favorite brands - convert brand names to IDs
-      if (userProfile.preferences.favoriteBrands.length > 0) {
-        try {
-          const brandName = userProfile.preferences.favoriteBrands[0]
-          // Check if it's already an ID (ObjectId format)
-          if (/^[0-9a-fA-F]{24}$/.test(brandName)) {
-            filters.brand = brandName
-          } else {
-            // Try to find brand by name
-            const brands = await apiClient.getBrands()
-            const brandArray = Array.isArray(brands) ? brands : (brands as any).data || []
-            const foundBrand = brandArray.find((b: any) => 
-              b.name?.toLowerCase() === brandName.toLowerCase() || 
-              b.slug?.toLowerCase() === brandName.toLowerCase()
-            )
-            if (foundBrand?._id) {
-              filters.brand = foundBrand._id
-            }
-            // If brand not found, skip brand filtering to avoid 400 error
-          }
-        } catch (brandError) {
-          // Skip brand filtering if we can't fetch brands
-          console.warn('Could not resolve brand ID, skipping brand filter:', brandError)
-        }
-      }
-
-      // Filter by size preferences
-      if (userProfile.preferences.sizePreferences.length > 0) {
-        filters.sizes = userProfile.preferences.sizePreferences
-      }
-
-      // Pakistani clothing specific filters
-      if (userProfile.preferences.bodyType.length > 0) {
-        filters.bodyType = userProfile.preferences.bodyType
-      }
-
-      if (userProfile.preferences.occasion.length > 0) {
-        filters.occasion = userProfile.preferences.occasion[0]
-      }
-
-      if (userProfile.preferences.season.length > 0) {
-        filters.season = userProfile.preferences.season[0]
-      }
-
-      // Get products with personalized filters
-      const response = await apiClient.getProducts(filters)
-      return response.data
-
-    } catch (error) {
-      console.error('Error getting personalized products:', error)
-      return []
+    if (!userProfile) {
+      // Show trending products for new users (products with high ratings or many reviews)
+      return allProducts
+        .filter(product => 
+          (product.rating && product.rating >= 4.0) || 
+          (product.reviews && product.reviews >= 5)
+        )
+        .slice(0, maxItems)
     }
-  }, [userProfile])
 
-  const loadRecommendations = useCallback(async () => {
-    try {
-      setLoading(true)
-      
-      if (!userProfile) {
-        // Show trending products for new users
-        const trendingProducts = await apiClient.getTrendingProducts()
-        setRecommendations((trendingProducts as any).data.slice(0, maxItems))
-        setPersonalizedMessage('Discover our trending collection')
-        return
-      }
+    // Filter products based on user preferences
+    let filtered = allProducts
 
-      // Get personalized recommendations based on user profile
-      const personalizedProducts = await getPersonalizedProducts()
-      setRecommendations(personalizedProducts.slice(0, maxItems))
-      
-      // Generate personalized message
-      generatePersonalizedMessage()
-      
-    } catch (error) {
-      console.error('Error loading recommendations:', error)
-      // Fallback to trending products
-      const trendingProducts = await apiClient.getTrendingProducts()
-      setRecommendations((trendingProducts as any).data.slice(0, maxItems))
-    } finally {
-      setLoading(false)
+    // Filter by favorite categories
+    if (userProfile.preferences.favoriteCategories.length > 0) {
+      const favoriteCategories = userProfile.preferences.favoriteCategories
+      filtered = filtered.filter(product => {
+        const productCategories = Array.isArray(product.categories) 
+          ? product.categories.map(c => String(c).toLowerCase())
+          : [String(product.category || '').toLowerCase()]
+        return favoriteCategories.some(favCat => 
+          productCategories.some(pc => 
+            pc.includes(String(favCat).toLowerCase()) || 
+            String(favCat).toLowerCase().includes(pc)
+          )
+        )
+      })
     }
-  }, [userProfile, maxItems, getPersonalizedProducts])
+
+    // Filter by price range
+    if (userProfile.preferences.priceRange.min > 0 || userProfile.preferences.priceRange.max < 10000) {
+      filtered = filtered.filter(product => {
+        const productPrice = product.salePrice && product.salePrice > 0 ? product.salePrice : product.price
+        return productPrice >= userProfile.preferences.priceRange.min &&
+               productPrice <= userProfile.preferences.priceRange.max
+      })
+    }
+
+    // Filter by favorite colors
+    if (userProfile.preferences.favoriteColors.length > 0) {
+      filtered = filtered.filter(product => {
+        const productColors = product.colors || []
+        return userProfile.preferences.favoriteColors.some(favColor =>
+          productColors.some(pc => 
+            String(pc).toLowerCase().includes(String(favColor).toLowerCase()) ||
+            String(favColor).toLowerCase().includes(String(pc).toLowerCase())
+          )
+        )
+      })
+    }
+
+    // Filter by favorite brands
+    if (userProfile.preferences.favoriteBrands.length > 0) {
+      filtered = filtered.filter(product => {
+        const productBrand = String(product.brand || '').toLowerCase()
+        return userProfile.preferences.favoriteBrands.some(favBrand =>
+          productBrand.includes(String(favBrand).toLowerCase()) ||
+          String(favBrand).toLowerCase().includes(productBrand)
+        )
+      })
+    }
+
+    // Filter by size preferences
+    if (userProfile.preferences.sizePreferences.length > 0) {
+      filtered = filtered.filter(product => {
+        const productSizes = product.availableSizes || product.attributes?.sizes || []
+        return userProfile.preferences.sizePreferences.some(size =>
+          productSizes.includes(size)
+        )
+      })
+    }
+
+    // Filter by body type
+    if (userProfile.preferences.bodyType.length > 0) {
+      filtered = filtered.filter(product => {
+        const productBodyTypes = (product as any).bodyType || []
+        return userProfile.preferences.bodyType.some(bt =>
+          Array.isArray(productBodyTypes) 
+            ? productBodyTypes.includes(bt)
+            : productBodyTypes === bt
+        )
+      })
+    }
+
+    // Filter by occasion
+    if (userProfile.preferences.occasion.length > 0) {
+      filtered = filtered.filter(product => {
+        const productOccasion = product.occasion || ''
+        return userProfile.preferences.occasion.some(occ =>
+          String(productOccasion).toLowerCase().includes(String(occ).toLowerCase())
+        )
+      })
+    }
+
+    // Filter by season
+    if (userProfile.preferences.season.length > 0) {
+      filtered = filtered.filter(product => {
+        const productSeason = (product as any).season || ''
+        return userProfile.preferences.season.some(season =>
+          String(productSeason).toLowerCase().includes(String(season).toLowerCase())
+        )
+      })
+    }
+
+    // If no personalized results, fallback to trending
+    if (filtered.length === 0) {
+      filtered = allProducts
+        .filter(product => 
+          (product.rating && product.rating >= 4.0) || 
+          (product.reviews && product.reviews >= 5)
+        )
+    }
+
+    return filtered.slice(0, maxItems)
+  }, [allProducts, userProfile, maxItems])
 
   useEffect(() => {
-    loadRecommendations()
-  }, [loadRecommendations])
+    generatePersonalizedMessage()
+  }, [userProfile, recommendations])
+
+  const loading = productsLoading
 
   const generatePersonalizedMessage = () => {
-    if (!userProfile) return
+    if (!userProfile) {
+      setPersonalizedMessage('Discover our trending collection')
+      return
+    }
 
     const messages = []
 
@@ -166,7 +180,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       messages.push(`Perfect for ${userProfile.location.city}`)
     }
 
-    setPersonalizedMessage(messages.join(' • '))
+    setPersonalizedMessage(messages.join(' • ') || 'Discover our trending collection')
   }
 
   const handleProductClick = (product: Product) => {
