@@ -1,8 +1,9 @@
 'use client'
 
-import { Heart, ShoppingBag, User, X, Home, Sparkles, Tag, Percent } from 'lucide-react'
-import { useState } from 'react'
+import { Heart, ShoppingBag, User, X, Home, Sparkles, Tag, Percent, Folder } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { apiClient, Category } from '@/lib/api'
 
 interface SidebarProps {
   isOpen: boolean
@@ -11,6 +12,32 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true)
+        // Fetch root categories (categories without parent)
+        const data = await apiClient.getRootCategories()
+        
+        // Filter active categories and sort by sortOrder
+        const activeCategories = data
+          .filter(cat => cat.isActive !== false && cat.name)
+          .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+        
+        setCategories(activeCategories)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+        setCategories([])
+      } finally {
+        setCategoriesLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   const toggleExpanded = (item: string) => {
     setExpandedItems(prev => 
@@ -58,6 +85,40 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
             ))}
           </nav>
+
+          {/* Categories Section */}
+          {categoriesLoading ? (
+            <div className="my-6">
+              <div className="px-3 py-2">
+                <div className="animate-pulse space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-8 bg-gray-200 rounded-lg"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : categories.length > 0 ? (
+            <>
+              <div className="my-6 border-t border-gray-200" />
+              <div>
+                <h3 className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Categories
+                </h3>
+                <nav className="mt-2 space-y-1">
+                  {categories.map((category) => (
+                    <Link
+                      key={category._id || category.slug}
+                      href={`/categories/${category.slug || category._id}`}
+                      className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                    >
+                      <Folder className="h-4 w-4" />
+                      <span>{category.name}</span>
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            </>
+          ) : null}
 
           {/* Separator */}
           <div className="my-6 border-t border-gray-200" />
@@ -120,6 +181,41 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   </div>
                 ))}
               </nav>
+
+              {/* Categories Section */}
+              {categoriesLoading ? (
+                <div className="my-6">
+                  <div className="px-3 py-2">
+                    <div className="animate-pulse space-y-2">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-8 bg-gray-200 rounded-lg"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : categories.length > 0 ? (
+                <>
+                  <div className="my-6 border-t border-gray-200" />
+                  <div>
+                    <h3 className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Categories
+                    </h3>
+                    <nav className="mt-2 space-y-1">
+                      {categories.map((category) => (
+                        <Link
+                          key={category._id || category.slug}
+                          href={`/categories/${category.slug || category._id}`}
+                          onClick={handleLinkClick}
+                          className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                        >
+                          <Folder className="h-4 w-4" />
+                          <span>{category.name}</span>
+                        </Link>
+                      ))}
+                    </nav>
+                  </div>
+                </>
+              ) : null}
 
               {/* Separator */}
               <div className="my-6 border-t border-gray-200" />
