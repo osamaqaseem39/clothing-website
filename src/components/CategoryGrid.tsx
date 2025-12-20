@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { apiClient, Category } from '@/lib/api'
 
@@ -65,10 +66,13 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {[...Array(6)].map((_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="h-20 bg-gray-200 rounded-lg"></div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="w-16 h-16 mx-auto mb-3 bg-gray-200 rounded-full"></div>
+                <div className="h-4 w-20 mx-auto bg-gray-200 rounded"></div>
+              </div>
             </div>
           ))}
         </div>
@@ -81,7 +85,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           <p className="text-gray-600 mb-4">Categories will appear here when available</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {categories.map((category, index) => (
             <Link
               key={category._id || category.slug || String(index)}
@@ -95,6 +99,22 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
                 className="group relative bg-white border border-gray-200 rounded-lg p-4 hover:border-primary-500 hover:shadow-md transition-all duration-200 cursor-pointer"
               >
                 <div className="text-center">
+                  <div className="relative w-16 h-16 mx-auto mb-3">
+                    {category.image ? (
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        className="object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center">
+                        <span className="text-2xl font-semibold text-gray-400">
+                          {category.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
                     {category.name}
                   </h3>

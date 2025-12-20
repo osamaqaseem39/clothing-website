@@ -6,6 +6,7 @@ import { useAnalytics } from '@/contexts/AnalyticsContext'
 import Hero from './Hero'
 import PersonalizedRecommendations from './PersonalizedRecommendations'
 import FeaturedProducts from './FeaturedProducts'
+import ProductsByCategory from './ProductsByCategory'
 import CategoryGrid from './CategoryGrid'
 import Brands from './Brands'
 
@@ -175,6 +176,9 @@ const PersonalizedHomepage: React.FC = () => {
           <FeaturedProducts showHeader={false} />
         </div>
       </div>
+
+      {/* Products by Category */}
+      <ProductsByCategory showHeader={true} productsPerCategory={8} />
 
 {/* Categories */}
 <div className="py-12 bg-white">

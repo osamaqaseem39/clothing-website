@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, ShoppingBag, User, X, Home, Sparkles, Tag, Percent, Folder } from 'lucide-react'
+import { Heart, ShoppingBag, User, X, Home, Sparkles, Tag, Percent, Grid } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { apiClient, Category } from '@/lib/api'
@@ -111,7 +111,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       href={`/categories/${category.slug || category._id}`}
                       className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     >
-                      <Folder className="h-4 w-4" />
+                      <Grid className="h-4 w-4" />
                       <span>{category.name}</span>
                     </Link>
                   ))}
@@ -208,7 +208,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           onClick={handleLinkClick}
                           className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         >
-                          <Folder className="h-4 w-4" />
+                          <Grid className="h-4 w-4" />
                           <span>{category.name}</span>
                         </Link>
                       ))}

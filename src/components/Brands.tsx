@@ -70,7 +70,7 @@ export default function Brands() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {(loading ? Array.from({ length: 6 }) : brands).map((brand, index) => (
             <motion.div
               key={(brand as UiBrand)?.id || index}
@@ -78,18 +78,18 @@ export default function Brands() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.05 }}
-              className="group relative bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 p-6"
+              className="group relative bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 p-4"
             >
               {loading ? (
                 <div className="animate-pulse">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-gray-200 rounded-full" />
-                  <div className="h-4 w-32 mx-auto bg-gray-200 rounded mb-2" />
-                  <div className="h-3 w-40 mx-auto bg-gray-100 rounded" />
+                  <div className="w-16 h-16 mx-auto mb-3 bg-gray-200 rounded-full" />
+                  <div className="h-3 w-24 mx-auto bg-gray-200 rounded mb-2" />
+                  <div className="h-2 w-20 mx-auto bg-gray-100 rounded" />
                 </div>
               ) : (
                 <Link href={`/brands/${(brand as UiBrand).slug}`}>
                   <div className="text-center">
-                    <div className="relative w-20 h-20 mx-auto mb-4">
+                    <div className="relative w-16 h-16 mx-auto mb-3">
                       <Image
                         src={(brand as UiBrand).logo || '/images/logo.png'}
                         alt={(brand as UiBrand).name}
@@ -97,19 +97,19 @@ export default function Brands() {
                         className="object-contain group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
                       {(brand as UiBrand).name}
                     </h3>
                     {/* Optional metadata if available later */}
                     {(brand as UiBrand).description && (
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">
                         {(brand as UiBrand).description}
                       </p>
                     )}
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="inline-flex items-center text-primary-600 text-sm font-medium hover:text-primary-700">
-                        View Brand
-                        <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="inline-flex items-center text-primary-600 text-xs font-medium hover:text-primary-700">
+                        View
+                        <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </span>
