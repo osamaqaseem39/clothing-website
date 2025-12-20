@@ -51,6 +51,11 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
     )
   }
 
+  // Hide section if no featured products
+  if (products.length === 0) {
+    return null
+  }
+
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,11 +80,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
           </motion.div>
         )}
 
-        {products.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No featured products available at the moment.</p>
-          </div>
-        ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, index) => (
             <motion.div
@@ -157,8 +158,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
               </div>
             </motion.div>
           ))}
-          </div>
-        )}
+        </div>
 
         {showHeader && (
         <motion.div

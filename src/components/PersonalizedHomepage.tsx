@@ -9,9 +9,12 @@ import FeaturedProducts from './FeaturedProducts'
 import ProductsByCategory from './ProductsByCategory'
 import CategoryGrid from './CategoryGrid'
 import Brands from './Brands'
+import OurProducts from './OurProducts'
+import { useProducts } from '@/contexts/ProductsContext'
 
 const PersonalizedHomepage: React.FC = () => {
   const { userProfile, trackEvent } = useAnalytics()
+  const { products: allProducts } = useProducts()
   const [personalizedContent, setPersonalizedContent] = useState({
     heroMessage: '',
     recommendedCategories: [] as string[],
@@ -20,6 +23,13 @@ const PersonalizedHomepage: React.FC = () => {
     showRecommendations: true
   })
   const [loading, setLoading] = useState(true)
+
+  // Check if there are featured products
+  const hasFeaturedProducts = allProducts.some(product => {
+    return (product.rating && product.rating >= 4.5) || 
+           (product.reviews && product.reviews >= 10) ||
+           product.isNew === true
+  })
 
   useEffect(() => {
     loadPersonalizedContent()
@@ -162,20 +172,25 @@ const PersonalizedHomepage: React.FC = () => {
       
 
       {/* Featured Products */}
-      <div className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-              <Award className="h-7 w-7 text-secondary-500" />
-              {"Featured Products"}
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Handpicked bestsellers and trending pieces our customers love.
-            </p>
+      {hasFeaturedProducts && (
+        <div className="py-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+                <Award className="h-7 w-7 text-secondary-500" />
+                {"Featured Products"}
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Handpicked bestsellers and trending pieces our customers love.
+              </p>
+            </div>
+            <FeaturedProducts showHeader={false} />
           </div>
-          <FeaturedProducts showHeader={false} />
         </div>
-      </div>
+      )}
+
+      {/* Our Products - Category wise in carousel */}
+      <OurProducts />
 
       {/* Products by Category */}
       <ProductsByCategory showHeader={true} productsPerCategory={8} />
