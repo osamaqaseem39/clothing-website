@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ShoppingBag, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { apiClient, Product, Category } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
 
 interface CategoryWithProducts {
   category: Category
@@ -13,64 +14,102 @@ interface CategoryWithProducts {
 }
 
 export default function OurProducts() {
-  const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([])
-  const [loading, setLoading] = useState(true)
+  const { products: allProducts, loading: productsLoading } = useProducts()
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
   const [carouselIndices, setCarouselIndices] = useState<Record<string, number>>({})
   const itemsPerView = 4 // Number of products visible at once
 
+  // Fetch categories
   useEffect(() => {
-    loadProductsByCategory()
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true)
+        const categoriesData = await apiClient.getCategories()
+        const activeCategories = categoriesData
+          .filter(cat => cat.isActive !== false)
+        setCategories(activeCategories)
+      } catch (err) {
+        console.error('Error fetching categories:', err)
+        setCategories([])
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+
+    fetchCategories()
   }, [])
 
-  const loadProductsByCategory = async () => {
-    try {
-      setLoading(true)
+  // Group products by category and sort by product count
+  const categoriesWithProducts = useMemo(() => {
+    if (!allProducts.length || !categories.length) return []
 
-      // Fetch all active categories (including subcategories)
-      const categories = await apiClient.getCategories()
-      const activeCategories = categories
-        .filter(cat => cat.isActive !== false)
-        .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    // Create a map to count products per category
+    const categoryProductMap = new Map<string, { category: Category; products: Product[] }>()
 
-      // Fetch products for each category
-      const categoryProductsPromises = activeCategories.map(async (category) => {
-        try {
-          const response = await apiClient.getProductsByCategory(category._id, {
-            page: 1,
-            limit: 12 // Fetch more products for carousel
-          })
-          return {
-            category,
-            products: response.data || []
-          }
-        } catch (err) {
-          console.error(`Error fetching products for category ${category.name}:`, err)
-          return {
-            category,
-            products: []
-          }
+    // Initialize map with all categories
+    categories.forEach(category => {
+      categoryProductMap.set(category._id, {
+        category,
+        products: []
+      })
+    })
+
+    // Group products by category
+    allProducts.forEach(product => {
+      // Check if product.category matches any category ID or name
+      const matchingCategoryId = categories.find(cat => 
+        product.category === cat._id || 
+        product.category === cat.name ||
+        product.category === cat.slug
+      )?._id
+
+      if (matchingCategoryId) {
+        const entry = categoryProductMap.get(matchingCategoryId)
+        if (entry) {
+          entry.products.push(product)
         }
-      })
+      }
 
-      const results = await Promise.all(categoryProductsPromises)
-      
-      // Filter out categories with no products
-      const categoriesWithProducts = results.filter(item => item.products.length > 0)
-      
-      // Initialize carousel indices
-      const indices: Record<string, number> = {}
-      categoriesWithProducts.forEach(item => {
-        indices[item.category._id] = 0
-      })
-      setCarouselIndices(indices)
-      
-      setCategoriesWithProducts(categoriesWithProducts)
-    } catch (err) {
-      console.error('Error loading products by category:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+      // Also check product.categories array
+      if (Array.isArray(product.categories)) {
+        product.categories.forEach(catRef => {
+          const matchingCategoryId = categories.find(cat => 
+            catRef === cat._id || 
+            catRef === cat.name ||
+            catRef === cat.slug
+          )?._id
+
+          if (matchingCategoryId) {
+            const entry = categoryProductMap.get(matchingCategoryId)
+            if (entry && !entry.products.some(p => p._id === product._id)) {
+              entry.products.push(product)
+            }
+          }
+        })
+      }
+    })
+
+    // Convert to array, filter out categories with no products, and sort by product count (descending)
+    const result = Array.from(categoryProductMap.values())
+      .filter(item => item.products.length > 0)
+      .sort((a, b) => b.products.length - a.products.length) // Sort by product count descending
+      .map(item => ({
+        category: item.category,
+        products: item.products.slice(0, 12) // Limit to 12 products per category for carousel
+      }))
+
+    // Initialize carousel indices
+    const indices: Record<string, number> = {}
+    result.forEach(item => {
+      indices[item.category._id] = 0
+    })
+    setCarouselIndices(indices)
+
+    return result
+  }, [allProducts, categories])
+
+  const loading = productsLoading || loadingCategories
 
   const nextSlide = (categoryId: string, totalProducts: number) => {
     setCarouselIndices(prev => {
