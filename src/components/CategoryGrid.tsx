@@ -89,7 +89,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
           {categories.map((category, index) => (
             <Link
               key={category._id || category.slug || String(index)}
-              href={`/categories/${category.slug || category._id}`}
+              href={`/shop?category=${category.slug || category.name || category._id}`}
             >
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -115,7 +115,7 @@ export default function CategoryGrid({ showHeader = true }: CategoryGridProps) {
                       </div>
                     )}
                   </div>
-                  <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                  <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2 capitalize-first">
                     {category.name}
                   </h3>
                 </div>

@@ -126,7 +126,7 @@ export default function CategoriesPage() {
                 className="group"
               >
                 <a
-                  href={`/categories/${category.slug}`}
+                  href={`/shop?category=${category.slug || category.name || category._id}`}
                   className={`block bg-white rounded-2xl shadow-sm overflow-hidden card-hover ${
                     viewMode === 'list' ? 'flex items-center' : ''
                   }`}
@@ -157,7 +157,7 @@ export default function CategoriesPage() {
                   <div className={`p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2 capitalize-first">
                           {category.name}
                         </h3>
                         {category.description && (

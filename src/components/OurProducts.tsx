@@ -26,8 +26,8 @@ export default function OurProducts() {
     try {
       setLoading(true)
 
-      // Fetch all active root categories
-      const categories = await apiClient.getRootCategories()
+      // Fetch all active categories (including subcategories)
+      const categories = await apiClient.getCategories()
       const activeCategories = categories
         .filter(cat => cat.isActive !== false)
         .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))

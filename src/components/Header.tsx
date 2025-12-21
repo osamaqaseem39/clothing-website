@@ -69,12 +69,12 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
   }
 
   const handleCategoryClick = (category: Category) => {
-    window.location.href = `/categories/${category.slug || category._id}`
+    window.location.href = `/shop?category=${category.slug || category.name || category._id}`
     setShowSearchDropdown(false)
   }
 
   const handleMobileCategoryClick = (category: Category) => {
-    window.location.href = `/categories/${category.slug || category._id}`
+    window.location.href = `/shop?category=${category.slug || category.name || category._id}`
     setShowMobileSearchDropdown(false)
   }
 
@@ -109,7 +109,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                     <option value="">All Categories</option>
                     {categories.map((category) => (
                       <option key={category._id} value={category._id}>
-                        {category.name}
+                        {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
                       </option>
                     ))}
                   </select>
@@ -149,7 +149,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                             onClick={() => handleCategoryClick(category)}
                             className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded transition-colors"
                           >
-                            {category.name}
+                            <span className="capitalize-first">{category.name}</span>
                           </button>
                         ))}
                       </div>
@@ -340,7 +340,7 @@ export default function Header({ onMenuClick, isMobileMenuOpen, onFilterClick }:
                             onClick={() => handleMobileCategoryClick(category)}
                             className="block w-full text-left px-2 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded transition-colors"
                           >
-                            {category.name}
+                            <span className="capitalize-first">{category.name}</span>
                           </button>
                         ))}
                       </div>

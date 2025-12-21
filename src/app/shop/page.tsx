@@ -44,6 +44,7 @@ export default function ShopPage() {
   // Filter options from backend
   const [categories, setCategories] = useState<string[]>(['All'])
   const [categoryMap, setCategoryMap] = useState<Map<string, string>>(new Map()) // Map of category ID to name
+  const [categorySlugMap, setCategorySlugMap] = useState<Map<string, string>>(new Map()) // Map of category slug to name
   const [colors, setColors] = useState<string[]>([])
   const [sizes, setSizes] = useState<string[]>([])
 
@@ -57,9 +58,11 @@ export default function ShopPage() {
     }
     
     if (categoryParam) {
-      setSelectedCategory(categoryParam)
+      // Check if it's a slug and convert to name if needed
+      const categoryName = categorySlugMap.get(categoryParam) || categoryParam
+      setSelectedCategory(categoryName)
     }
-  }, [searchParams])
+  }, [searchParams, categorySlugMap])
 
   useEffect(() => {
     const fetchFilterOptions = async () => {
@@ -74,10 +77,15 @@ export default function ShopPage() {
         
         // Create a map of category ID to name for filtering
         const catMap = new Map<string, string>()
+        const slugMap = new Map<string, string>()
         filterOptions.categories.forEach(cat => {
           catMap.set(cat._id, cat.name)
+          if (cat.slug) {
+            slugMap.set(cat.slug, cat.name)
+          }
         })
         setCategoryMap(catMap)
+        setCategorySlugMap(slugMap)
         
         setColors(filterOptions.colors)
         setSizes(filterOptions.sizes)
@@ -114,7 +122,7 @@ export default function ShopPage() {
     if (!productsLoading) {
       fetchFilterOptions()
     }
-  }, [products, productsLoading])
+  }, [products, productsLoading, categorySlugMap])
   
   // Combine loading states
   const isLoading = productsLoading || loading
@@ -177,7 +185,7 @@ export default function ShopPage() {
 
   // Filter products based on selected criteria
   const filteredProducts = products.filter(product => {
-    // Category matching: check if product.category matches selectedCategory (by name or ID)
+    // Category matching: check if product.category matches selectedCategory (by name, ID, or slug)
     // or if any product.categories array item matches
     let matchesCategory = true
     if (selectedCategory !== 'All') {
@@ -188,6 +196,10 @@ export default function ShopPage() {
       const categoryIdMatches = product.category && categoryMap.has(product.category) && 
                                 categoryMap.get(product.category) === selectedCategory
       
+      // Check if product.category is a slug that maps to the selected category name
+      const categorySlugMatches = product.category && categorySlugMap.has(product.category) && 
+                                 categorySlugMap.get(product.category) === selectedCategory
+      
       // Check if product.categories array contains the selected category name or ID
       const categoriesArrayMatches = Array.isArray(product.categories) && 
         product.categories.some(cat => {
@@ -196,11 +208,13 @@ export default function ShopPage() {
             if (cat === selectedCategory) return true
             // Check if it's a category ID that maps to the selected name
             if (categoryMap.has(cat) && categoryMap.get(cat) === selectedCategory) return true
+            // Check if it's a category slug that maps to the selected name
+            if (categorySlugMap.has(cat) && categorySlugMap.get(cat) === selectedCategory) return true
           }
           return false
         })
       
-      matchesCategory = categoryMatches || categoryIdMatches || categoriesArrayMatches
+      matchesCategory = categoryMatches || categoryIdMatches || categorySlugMatches || categoriesArrayMatches
     }
     
     const matchesSearch = searchQuery === '' || product.name.toLowerCase().includes(searchQuery.toLowerCase())

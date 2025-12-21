@@ -43,6 +43,10 @@
   .text-luxury {
     @apply bg-gradient-to-r from-secondary-500 to-accent-500 bg-clip-text text-transparent;
   }
+  
+  .capitalize-first::first-letter {
+    text-transform: uppercase;
+  }
 }
 
 /* Hide number input spinners (arrows) across browsers */
