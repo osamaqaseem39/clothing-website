@@ -41,14 +41,14 @@ export default function RecentlyViewed() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {recentlyViewed.slice(0, 8).map((product, index) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow"
+              className="group relative bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow w-full max-w-full overflow-hidden"
             >
               <Link href={`/products/${product.slug}`}>
                 <div className="relative aspect-[3/4] overflow-hidden rounded-t-lg">

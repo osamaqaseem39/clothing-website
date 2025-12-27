@@ -211,7 +211,7 @@ export default function ProductsByCategory({
               </div>
 
               {/* Products Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 {item.products.map((product, productIndex) => {
                   // Get the first image
                   const productImage = Array.isArray(product.images) && product.images.length > 0
@@ -230,6 +230,7 @@ export default function ProductsByCategory({
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: productIndex * 0.05 }}
+                      className="w-full max-w-full"
                     >
                       <ProductCard
                         id={product._id}

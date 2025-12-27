@@ -229,12 +229,12 @@ export default function OurProducts() {
                 </div>
 
                 {/* Products Carousel */}
-                <div className="relative">
+                <div className="relative px-8 sm:px-12 lg:px-16">
                   {canNavigate && (
                     <>
                       <button
                         onClick={() => prevSlide(item.category._id, item.products.length)}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
                         aria-label="Previous products"
                       >
                         <ChevronLeft className="h-5 w-5 text-gray-600" />
@@ -242,7 +242,7 @@ export default function OurProducts() {
                       
                       <button
                         onClick={() => nextSlide(item.category._id, item.products.length)}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
                         aria-label="Next products"
                       >
                         <ChevronRight className="h-5 w-5 text-gray-600" />

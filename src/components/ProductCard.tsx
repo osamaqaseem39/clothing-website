@@ -39,7 +39,7 @@ export default function ProductCard({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="group relative bg-white rounded-lg overflow-hidden card-hover cursor-pointer"
+        className="group relative bg-white rounded-lg overflow-hidden card-hover cursor-pointer w-full max-w-full"
       >
         {/* Image Container - 3:4 Aspect Ratio */}
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
@@ -80,23 +80,23 @@ export default function ProductCard({
         </div>
 
         {/* Product Info - Minimal Design */}
-        <div className="p-3">
+        <div className="p-2 sm:p-3">
           {/* Name and Brand in one line */}
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-sm font-medium text-gray-900 truncate flex-1">{name}</h3>
+          <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 min-w-0">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-900 truncate flex-1 min-w-0">{name}</h3>
             {brand && (
-              <span className="text-xs text-gray-500 flex-shrink-0">{brand}</span>
+              <span className="text-[10px] sm:text-xs text-gray-500 flex-shrink-0 hidden sm:inline">{brand}</span>
             )}
           </div>
 
           {/* Price and Add to Cart in one line */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-base font-semibold text-primary-600">
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+              <span className="text-sm sm:text-base font-semibold text-primary-600 whitespace-nowrap">
                 ₨{typeof price === 'number' ? price.toLocaleString() : '0'}
               </span>
               {originalPrice && typeof originalPrice === 'number' && originalPrice > price && (
-                <span className="text-xs text-gray-400 line-through">
+                <span className="text-[10px] sm:text-xs text-gray-400 line-through whitespace-nowrap">
                   ₨{originalPrice.toLocaleString()}
                 </span>
               )}
@@ -106,9 +106,9 @@ export default function ProductCard({
                 e.preventDefault()
                 // Add to cart logic here
               }}
-              className="p-1.5 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex-shrink-0"
+              className="p-1 sm:p-1.5 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex-shrink-0"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

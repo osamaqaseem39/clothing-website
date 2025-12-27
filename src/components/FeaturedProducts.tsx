@@ -80,7 +80,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {products.map((product, index) => (
             <motion.div
               key={product._id}
@@ -88,7 +88,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group"
+              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group w-full max-w-full overflow-hidden"
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <Link href={`/products/${product.slug}`}>
@@ -125,33 +125,33 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
                 </button>
               </div>
 
-              <div className="p-4">
-                <div className="mb-2">
-                  <h3 className="font-semibold text-gray-900 text-lg line-clamp-2 mb-1">
+              <div className="p-2 sm:p-3 lg:p-4">
+                <div className="mb-1 sm:mb-2">
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base lg:text-lg line-clamp-2 mb-0.5 sm:mb-1 min-w-0">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-500">{product.brand}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 truncate">{product.brand}</p>
                 </div>
 
-                <div className="flex items-center gap-1 mb-3">
-                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="text-sm text-gray-600 font-medium">{product.rating || 0}</span>
-                  <span className="text-sm text-gray-400">({product.reviews || 0} reviews)</span>
+                <div className="flex items-center gap-1 mb-2 sm:mb-3">
+                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-current flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-600 font-medium">{product.rating || 0}</span>
+                  <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline">({product.reviews || 0} reviews)</span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary-600">
+                <div className="flex items-center justify-between gap-1 sm:gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+                    <span className="text-sm sm:text-base lg:text-lg font-bold text-primary-600 whitespace-nowrap">
                       ₨{typeof product.price === 'number' ? product.price.toLocaleString() : '0'}
                     </span>
                     {product.originalPrice && typeof product.originalPrice === 'number' && product.originalPrice > product.price && (
-                      <span className="text-sm text-gray-400 line-through">
+                      <span className="text-xs sm:text-sm text-gray-400 line-through whitespace-nowrap">
                         ₨{product.originalPrice.toLocaleString()}
                       </span>
                     )}
                   </div>
-                  <button className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200">
-                    <ShoppingBag className="h-4 w-4" />
+                  <button className="p-1.5 sm:p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors duration-200 flex-shrink-0">
+                    <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               </div>

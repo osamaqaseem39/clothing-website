@@ -51,6 +51,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     onClose()
   }
 
+  // Capitalize first letter only
+  const capitalizeFirst = (text: string): string => {
+    if (!text) return text
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+  }
+
   const navigationItems = [
     { name: 'All', href: '/shop', icon: Home },
     { name: 'New Arrivals', href: '/shop?filter=new', icon: Sparkles },
@@ -112,7 +118,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     >
                       <Grid className="h-4 w-4" />
-                      <span>{category.name}</span>
+                      <span>{capitalizeFirst(category.name)}</span>
                     </Link>
                   ))}
                 </nav>
@@ -209,7 +215,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className="flex items-center space-x-3 px-3 py-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         >
                           <Grid className="h-4 w-4" />
-                          <span>{category.name}</span>
+                          <span>{capitalizeFirst(category.name)}</span>
                         </Link>
                       ))}
                     </nav>
