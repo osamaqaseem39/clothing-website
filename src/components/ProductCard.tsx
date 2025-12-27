@@ -42,7 +42,7 @@ export default function ProductCard({
         className="group relative bg-white rounded-lg overflow-hidden card-hover cursor-pointer w-full max-w-full"
       >
         {/* Image Container - 4:5 Aspect Ratio */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
           {image && image.startsWith('http') ? (
             <Image
               src={image}

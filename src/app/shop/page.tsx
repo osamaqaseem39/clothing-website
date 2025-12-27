@@ -523,7 +523,7 @@ export default function ShopPage() {
               <div className={`grid ${getGridCols()} gap-3 sm:gap-4 lg:gap-6`}>
                 {sortedProducts.map((product) => (
                   <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group w-full max-w-full overflow-hidden">
-                    <div className="relative overflow-hidden rounded-t-lg aspect-[4/3]">
+                    <div className="relative overflow-hidden rounded-t-lg aspect-[3/4]">
                       <Link href={`/products/${product.slug}`}>
                         <Image
                           src={product.images[0] || '/images/1.png'}
