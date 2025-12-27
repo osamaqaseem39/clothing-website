@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ShoppingBag, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -229,12 +229,12 @@ export default function OurProducts() {
                 </div>
 
                 {/* Products Carousel */}
-                <div className="relative px-8 sm:px-12 lg:px-16">
+                <div className="relative">
                   {canNavigate && (
                     <>
                       <button
                         onClick={() => prevSlide(item.category._id, item.products.length)}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
+                        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
                         aria-label="Previous products"
                       >
                         <ChevronLeft className="h-5 w-5 text-gray-600" />
@@ -242,7 +242,7 @@ export default function OurProducts() {
                       
                       <button
                         onClick={() => nextSlide(item.category._id, item.products.length)}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
+                        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-white"
                         aria-label="Next products"
                       >
                         <ChevronRight className="h-5 w-5 text-gray-600" />
@@ -251,9 +251,11 @@ export default function OurProducts() {
                   )}
 
                   {/* Carousel Container */}
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden w-full">
                     <motion.div
-                      animate={{ x: -currentIndex * (100 / itemsPerView) + '%' }}
+                      animate={{ 
+                        x: `-${currentIndex * (100 / itemsPerView)}%`
+                      }}
                       transition={{ duration: 0.5, ease: 'easeInOut' }}
                       className="flex gap-4 sm:gap-6"
                     >
@@ -262,10 +264,20 @@ export default function OurProducts() {
                           ? product.images[0]
                           : '/images/logo.png'
 
+                        // Calculate width accounting for gaps: (100% - total gap width) / itemsPerView
+                        // On desktop (sm and up), gap is 1.5rem (gap-6), on mobile it's 1rem (gap-4)
+                        // For 4 items, we have 3 gaps of 1.5rem = 4.5rem total
+                        // Adjust slightly to account for rounding: use 4.4rem instead of 4.5rem to ensure cards fit
+                        const gapWidth = (itemsPerView - 1) * 1.4 // Slightly reduced to ensure fit
+                        const cardWidth = `calc((100% - ${gapWidth}rem) / ${itemsPerView})`
+
                         return (
                           <div
                             key={product._id}
-                            className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
+                            className="flex-shrink-0"
+                            style={{
+                              width: cardWidth
+                            }}
                           >
                             <Link href={`/products/${product.slug || product._id}`}>
                               <motion.div

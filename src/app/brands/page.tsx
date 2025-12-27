@@ -5,12 +5,17 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Grid, List, ExternalLink } from 'lucide-react'
 import { apiClient, Brand } from '@/lib/api'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import Header from '@/components/Header'
+import Sidebar from '@/components/Sidebar'
+import Footer from '@/components/Footer'
+import MobileBottomNav from '@/components/MobileBottomNav'
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const fetchBrands = async () => {
     try {
@@ -32,48 +37,80 @@ export default function BrandsPage() {
     fetchBrands()
   }, [])
 
+  const handleMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const handleMenuClose = () => {
+    setIsMobileMenuOpen(false)
+  }
+
   if (loading) {
-    return <LoadingSpinner />
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+            <LoadingSpinner />
+          </main>
+        </div>
+        <MobileBottomNav />
+      </div>
+    )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={fetchBrands}
-            className="btn-primary"
-          >
-            Try Again
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h2>
+                <p className="text-gray-600 mb-4">{error}</p>
+                <button
+                  onClick={fetchBrands}
+                  className="btn-primary"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </main>
         </div>
+        <MobileBottomNav />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Our Brands
-            </h1>
-            <p className="text-lg text-gray-600">
-              Discover the fashion houses and designers behind our collections
-            </p>
-          </motion.div>
-        </div>
-      </div>
+      <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
+      <div className="flex">
+        <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+          {/* Page Header */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                  Our Brands
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Discover the fashion houses and designers behind our collections
+                </p>
+              </motion.div>
+            </div>
+          </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -214,7 +251,11 @@ export default function BrandsPage() {
             ))}
           </div>
         )}
+          </div>
+          <Footer />
+        </main>
       </div>
+      <MobileBottomNav />
     </div>
   )
 }

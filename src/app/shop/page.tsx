@@ -48,22 +48,7 @@ export default function ShopPage() {
   const [colors, setColors] = useState<string[]>([])
   const [sizes, setSizes] = useState<string[]>([])
 
-  // Handle URL query parameters
-  useEffect(() => {
-    const filterParam = searchParams?.get('filter')
-    const categoryParam = searchParams?.get('category')
-    
-    if (filterParam) {
-      setSelectedFilters([filterParam])
-    }
-    
-    if (categoryParam) {
-      // Check if it's a slug and convert to name if needed
-      const categoryName = categorySlugMap.get(categoryParam) || categoryParam
-      setSelectedCategory(categoryName)
-    }
-  }, [searchParams, categorySlugMap])
-
+  // Fetch filter options once on mount
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
@@ -92,24 +77,6 @@ export default function ShopPage() {
         
         // Set price range from backend
         setPriceRange([filterOptions.priceRange.min, filterOptions.priceRange.max])
-        
-        // Update price range based on actual product prices if needed (include sale prices)
-        if (products.length > 0) {
-          const prices = products.map(p => {
-            // Use salePrice if available and valid, otherwise use regular price
-            return (p.salePrice && typeof p.salePrice === 'number' && p.salePrice > 0) 
-              ? p.salePrice 
-              : p.price
-          }).filter(p => p > 0)
-          if (prices.length > 0) {
-            const minPrice = Math.min(...prices)
-            const maxPrice = Math.max(...prices)
-            // Only update if the current range is too restrictive
-            if (priceRange[1] < maxPrice || priceRange[0] > minPrice) {
-              setPriceRange([Math.max(0, Math.floor(minPrice * 0.9)), Math.ceil(maxPrice * 1.1)])
-            }
-          }
-        }
       } catch (err) {
         setError('Failed to fetch filter options')
         console.error('Error fetching filter options:', err)
@@ -118,11 +85,26 @@ export default function ShopPage() {
       }
     }
 
-    // Only fetch filter options, products come from context
-    if (!productsLoading) {
-      fetchFilterOptions()
+    fetchFilterOptions()
+  }, []) // Run only once on mount
+
+  // Handle URL query parameters - run after categorySlugMap is set
+  useEffect(() => {
+    if (categorySlugMap.size === 0) return // Wait for categories to load
+    
+    const filterParam = searchParams?.get('filter')
+    const categoryParam = searchParams?.get('category')
+    
+    if (filterParam) {
+      setSelectedFilters([filterParam])
     }
-  }, [products, productsLoading, categorySlugMap])
+    
+    if (categoryParam) {
+      // Check if it's a slug and convert to name if needed
+      const categoryName = categorySlugMap.get(categoryParam) || categoryParam
+      setSelectedCategory(categoryName)
+    }
+  }, [searchParams, categorySlugMap])
   
   // Combine loading states
   const isLoading = productsLoading || loading
