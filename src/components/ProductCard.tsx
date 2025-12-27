@@ -41,8 +41,8 @@ export default function ProductCard({
         transition={{ duration: 0.5 }}
         className="group relative bg-white rounded-lg overflow-hidden card-hover cursor-pointer w-full max-w-full"
       >
-        {/* Image Container - 3:4 Aspect Ratio */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+        {/* Image Container - 4:5 Aspect Ratio */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           {image && image.startsWith('http') ? (
             <Image
               src={image}
@@ -80,9 +80,9 @@ export default function ProductCard({
         </div>
 
         {/* Product Info - Minimal Design */}
-        <div className="p-2 sm:p-3">
+        <div className="p-2 sm:p-2.5">
           {/* Name and Brand in one line */}
-          <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 min-w-0">
+          <div className="flex items-center gap-1 sm:gap-2 mb-1 min-w-0">
             <h3 className="text-xs sm:text-sm font-medium text-gray-900 truncate flex-1 min-w-0">{name}</h3>
             {brand && (
               <span className="text-[10px] sm:text-xs text-gray-500 flex-shrink-0 hidden sm:inline">{brand}</span>

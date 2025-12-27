@@ -338,7 +338,7 @@ export default function ShopPage() {
         <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
         <div className="flex">
           <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
-          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-32 lg:pt-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="animate-pulse">
                 <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -367,7 +367,7 @@ export default function ShopPage() {
         <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
         <div className="flex">
           <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
-          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+          <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-32 lg:pt-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Products</h2>
@@ -393,7 +393,7 @@ export default function ShopPage() {
       <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
       <div className="flex">
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
-        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0">
+        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-32 lg:pt-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Page Header */}
         <div className="mb-4 sm:mb-8">
@@ -523,7 +523,7 @@ export default function ShopPage() {
               <div className={`grid ${getGridCols()} gap-3 sm:gap-4 lg:gap-6`}>
                 {sortedProducts.map((product) => (
                   <div key={product._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group w-full max-w-full overflow-hidden">
-                    <div className="relative overflow-hidden rounded-t-lg aspect-[3/4] sm:aspect-[9/16]">
+                    <div className="relative overflow-hidden rounded-t-lg aspect-[4/3]">
                       <Link href={`/products/${product.slug}`}>
                         <Image
                           src={product.images[0] || '/images/1.png'}
@@ -556,15 +556,15 @@ export default function ShopPage() {
                       </button>
                     </div>
 
-                    <div className="p-2 sm:p-3 lg:p-4">
-                      <div className="mb-1 sm:mb-2">
-                        <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-lg line-clamp-2 mb-0.5 sm:mb-1 min-w-0">
+                    <div className="p-2 sm:p-2.5 lg:p-3">
+                      <div className="mb-1">
+                        <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-base line-clamp-2 mb-0.5 min-w-0">
                           {product.name}
                         </h3>
-                        <p className="text-[10px] sm:text-xs lg:text-sm text-gray-500 truncate">{product.brand}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 truncate">{product.brand}</p>
                       </div>
 
-                      <div className="flex items-center gap-1 mb-1 sm:mb-2 lg:mb-3">
+                      <div className="flex items-center gap-1 mb-1 sm:mb-2">
                         <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-current flex-shrink-0" />
                         <span className="text-[10px] sm:text-xs lg:text-sm text-gray-600 font-medium">{product.rating || 0}</span>
                         <span className="text-[10px] sm:text-xs lg:text-sm text-gray-400 hidden sm:inline">({product.reviews || 0} reviews)</span>
