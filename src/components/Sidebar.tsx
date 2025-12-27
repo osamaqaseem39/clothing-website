@@ -19,8 +19,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true)
-        // Fetch root categories (categories without parent)
-        const data = await apiClient.getRootCategories()
+        // Fetch all categories to match what's shown on the home page
+        const data = await apiClient.getCategories()
         
         // Filter active categories and sort by sortOrder
         const activeCategories = data

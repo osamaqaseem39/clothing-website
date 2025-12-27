@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Grid, List, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
 import { apiClient, Brand } from '@/lib/api'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import Header from '@/components/Header'
@@ -170,25 +171,30 @@ export default function BrandsPage() {
                   }`}
                 >
                   {/* Brand Logo */}
-                  <div className={`relative overflow-hidden ${
+                  <div className={`relative overflow-hidden bg-white ${
                     viewMode === 'list' 
-                      ? 'w-32 h-32 flex-shrink-0' 
+                      ? 'w-40 h-40 flex-shrink-0' 
                       : 'aspect-square'
                   }`}>
                     {brand.logo ? (
-                      <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          fill
+                          sizes={viewMode === 'list' ? '160px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+                          className="object-contain p-4 sm:p-6 group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-amber-300">
-                          {brand.name.charAt(0)}
+                        <span className="text-4xl sm:text-5xl font-bold text-amber-400">
+                          {brand.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300" />
                   </div>
 
                   {/* Brand Info */}
