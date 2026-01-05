@@ -18,7 +18,24 @@ export default function OurProducts() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [carouselIndices, setCarouselIndices] = useState<Record<string, number>>({})
-  const itemsPerView = 4 // Number of products visible at once
+  const [itemsPerView, setItemsPerView] = useState(4) // Number of products visible at once
+
+  // Make itemsPerView responsive
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerView(1) // Mobile: 1 item
+      } else if (window.innerWidth < 1024) {
+        setItemsPerView(2) // Tablet: 2 items
+      } else {
+        setItemsPerView(4) // Desktop: 4 items
+      }
+    }
+
+    updateItemsPerView()
+    window.addEventListener('resize', updateItemsPerView)
+    return () => window.removeEventListener('resize', updateItemsPerView)
+  }, [])
 
   // Fetch categories
   useEffect(() => {

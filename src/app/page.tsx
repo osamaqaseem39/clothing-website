@@ -38,7 +38,7 @@ export default function Home() {
       />
       <div className="flex">
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
-        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-32 lg:pt-24">
+        <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-20 sm:pt-24 lg:pt-24">
           <PersonalizedHomepage />
           <Footer />
         </main>

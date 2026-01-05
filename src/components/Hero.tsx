@@ -111,14 +111,14 @@ export default function Hero() {
   // Don't render if loading or no banners
   if (loading || banners.length === 0) {
     return (
-      <section className="relative w-full overflow-hidden" style={{ aspectRatio: '1920/800' }}>
+      <section className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       </section>
     )
   }
 
   return (
-    <section className="relative w-full overflow-hidden" style={{ aspectRatio: '1920/800' }}>
+    <section className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
       {/* Slider Container */}
       <div className="relative w-full h-full">
         <AnimatePresence mode="wait">
@@ -162,41 +162,41 @@ export default function Hero() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 group"
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 sm:p-3 transition-all duration-300 group"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
+        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:scale-110 transition-transform" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300 group"
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 sm:p-3 transition-all duration-300 group"
         aria-label="Next slide"
       >
-        <ChevronRight className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
+        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:scale-110 transition-transform" />
       </button>
 
       {/* Dot Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
         {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`h-2 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? 'bg-white w-8'
-                : 'bg-white/50 hover:bg-white/75'
+                ? 'bg-white w-6 sm:w-8'
+                : 'bg-white/50 hover:bg-white/75 w-2'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - Hidden on mobile */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="absolute bottom-8 right-8 z-20"
+        className="absolute bottom-8 right-8 z-20 hidden sm:block"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
