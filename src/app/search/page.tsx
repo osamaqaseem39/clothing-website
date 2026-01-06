@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useIsMobile } from '@/utils/useMobile'
 import { motion } from 'framer-motion'
 import { Search, Filter, Grid, List, X } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import { Product, ProductFilters } from '@/lib/api'
 import { useProducts } from '@/contexts/ProductsContext'
 import ProductCard from '@/components/ProductCard'
+import MobileSearchPage from '@/components/mobile/MobileSearchPage'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function SearchPage() {
+  const isMobile = useIsMobile()
   const searchParams = useSearchParams()
   const { products: allProducts, loading: productsLoading, error: productsError } = useProducts()
   const [filters, setFilters] = useState<ProductFilters>({

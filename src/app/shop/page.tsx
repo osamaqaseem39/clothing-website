@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useIsMobile } from '@/utils/useMobile'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import FiltersSidebar from '@/components/FiltersSidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
+import MobileShopPage from '@/components/mobile/MobileShopPage'
 import Footer from '@/components/Footer'
 import { Search, Filter, Star, Heart, ShoppingBag, Grid3X3, Grid2X2, Grid, Layout } from 'lucide-react'
 import Image from 'next/image'
@@ -23,6 +25,7 @@ const sortOptions = [
 ]
 
 export default function ShopPage() {
+  const isMobile = useIsMobile()
   const searchParams = useSearchParams()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
@@ -381,6 +384,22 @@ export default function ShopPage() {
               </div>
             </div>
             <Footer />
+          </main>
+        </div>
+        <MobileBottomNav />
+      </div>
+    )
+  }
+
+  // Render mobile version if on mobile
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuClick={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} onFilterClick={handleMobileFilterToggle} />
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 pb-20">
+            <MobileShopPage />
           </main>
         </div>
         <MobileBottomNav />

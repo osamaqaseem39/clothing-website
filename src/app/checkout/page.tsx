@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useIsMobile } from '@/utils/useMobile'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
+import MobileCheckoutPage from '@/components/mobile/MobileCheckoutPage'
 import { useCart } from '@/contexts/CartContext'
 import { useCustomer } from '@/contexts/CustomerContext'
 import { X, Plus, Minus, ShoppingBag, CreditCard, MapPin, Phone, Mail, User, ChevronRight, Lock } from 'lucide-react'
@@ -39,6 +41,7 @@ const PAKISTAN_PROVINCES = {
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const isMobile = useIsMobile()
   const { items, itemCount, updateQuantity, removeFromCart, clearCart } = useCart()
   const { customer } = useCustomer()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
