@@ -378,7 +378,7 @@ export default function ProductsPage() {
                 <p className="text-gray-600">Try adjusting your search or filter criteria</p>
               </div>
             ) : (
-              <div className={`grid gap-3 sm:gap-4 lg:gap-6 ${
+              <div className={`grid gap-2 sm:gap-3 lg:gap-4 xl:gap-6 w-full max-w-full ${
                 viewMode === 'grid' 
                   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
                   : 'grid-cols-1'
@@ -389,7 +389,7 @@ export default function ProductsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="w-full max-w-full"
+                    className="w-full max-w-full min-w-0"
                   >
                     <ProductCard
                       id={product._id}

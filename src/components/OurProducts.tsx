@@ -268,38 +268,39 @@ export default function OurProducts() {
                   )}
 
                   {/* Carousel Container */}
-                  <div className="overflow-hidden w-full">
+                  <div className="overflow-hidden w-full max-w-full">
                     <motion.div
                       animate={{ 
                         x: `-${currentIndex * (100 / itemsPerView)}%`
                       }}
                       transition={{ duration: 0.5, ease: 'easeInOut' }}
-                      className="flex gap-4 sm:gap-6"
+                      className="flex gap-2 sm:gap-4 lg:gap-6"
                     >
                       {item.products.map((product) => {
                         const productImage = Array.isArray(product.images) && product.images.length > 0
                           ? product.images[0]
                           : '/images/logo.png'
 
-                        // Calculate width accounting for gaps: (100% - total gap width) / itemsPerView
-                        // On desktop (sm and up), gap is 1.5rem (gap-6), on mobile it's 1rem (gap-4)
-                        // For 4 items, we have 3 gaps of 1.5rem = 4.5rem total
-                        // Adjust slightly to account for rounding: use 4.4rem instead of 4.5rem to ensure cards fit
-                        const gapWidth = (itemsPerView - 1) * 1.4 // Slightly reduced to ensure fit
-                        const cardWidth = `calc((100% - ${gapWidth}rem) / ${itemsPerView})`
+                        // Calculate width accounting for gaps
+                        // Mobile: gap-2 (0.5rem), Tablet: gap-4 (1rem), Desktop: gap-6 (1.5rem)
+                        // Use conservative gap calculation to prevent overflow
+                        const gapSize = itemsPerView === 1 ? 0.5 : itemsPerView === 2 ? 1 : 1.5
+                        const totalGapWidth = (itemsPerView - 1) * gapSize
+                        const cardWidth = `calc((100% - ${totalGapWidth}rem) / ${itemsPerView})`
 
                         return (
                           <div
                             key={product._id}
-                            className="flex-shrink-0"
+                            className="flex-shrink-0 max-w-full"
                             style={{
-                              width: cardWidth
+                              width: cardWidth,
+                              minWidth: 0
                             }}
                           >
                             <Link href={`/products/${product.slug || product._id}`}>
                               <motion.div
                                 whileHover={{ y: -4 }}
-                                className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                                className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 w-full max-w-full"
                               >
                                 {/* Product Image */}
                                 <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">

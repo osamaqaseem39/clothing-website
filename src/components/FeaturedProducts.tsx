@@ -80,7 +80,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 xl:gap-6 w-full max-w-full">
           {products.map((product, index) => (
             <motion.div
               key={product._id}
@@ -88,7 +88,7 @@ export default function FeaturedProducts({ showHeader = true }: FeaturedProducts
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group w-full max-w-full overflow-hidden"
+              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 group w-full max-w-full min-w-0 overflow-hidden"
             >
               <div className="relative overflow-hidden rounded-t-lg">
                 <Link href={`/products/${product.slug}`}>

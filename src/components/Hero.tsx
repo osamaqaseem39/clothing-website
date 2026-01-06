@@ -111,16 +111,16 @@ export default function Hero() {
   // Don't render if loading or no banners
   if (loading || banners.length === 0) {
     return (
-      <section className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
+      <section className="relative w-full overflow-hidden max-w-full" style={{ aspectRatio: '16/9' }}>
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       </section>
     )
   }
 
   return (
-    <section className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
+    <section className="relative w-full overflow-hidden max-w-full" style={{ aspectRatio: '16/9' }}>
       {/* Slider Container */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full max-w-full">
         <AnimatePresence mode="wait">
           {banners.map((banner, index) => {
             if (index !== currentSlide) return null
@@ -137,7 +137,7 @@ export default function Hero() {
                   className="absolute inset-0 cursor-pointer"
                 >
                   {/* Background Image */}
-                  <div className="absolute inset-0">
+                  <div className="absolute inset-0 overflow-hidden">
                     <Image
                       src={banner.imageUrl}
                       alt={banner.altText || banner.title}
@@ -146,7 +146,7 @@ export default function Hero() {
                       fetchPriority={index === 0 ? 'high' : 'auto'}
                       quality={85}
                       sizes="100vw"
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                       placeholder="blur"
                       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                     />
