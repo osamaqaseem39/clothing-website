@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import { useIsMobile } from '@/utils/useMobile'
 import { useRecentlyViewed } from '@/contexts/RecentlyViewedContext'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useCart } from '@/contexts/CartContext'
@@ -10,6 +11,7 @@ import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Footer from '@/components/Footer'
+import MobileProductPage from '@/components/mobile/MobileProductPage'
 // import SimilarProducts from '@/components/SimilarProducts'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import SizeChart from '@/components/SizeChart'
@@ -19,6 +21,7 @@ import Image from 'next/image'
 // No hardcoded related products
 
 export default function ProductPage() {
+  const isMobile = useIsMobile()
   // All hooks must be called unconditionally at the top level - same order every render
   const params = useParams()
   const slug = (params?.slug as string) || ''
@@ -95,15 +98,15 @@ export default function ProductPage() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
-          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist or is currently unavailable.</p>
-          <div className="space-x-4">
-            <a href="/shop" className="btn-primary">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+          <p className="text-sm md:text-base text-gray-600 mb-4">The product you're looking for doesn't exist or is currently unavailable.</p>
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-4 justify-center">
+            <a href="/shop" className="btn-primary text-sm py-2">
               Back to Shop
             </a>
-            <a href="/" className="btn-secondary">
+            <a href="/" className="btn-secondary text-sm py-2">
               Go Home
             </a>
           </div>
@@ -118,6 +121,25 @@ export default function ProductPage() {
 
   const handleMenuClose = () => {
     setIsMobileMenuOpen(false)
+  }
+
+  // Render mobile version if on mobile
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header 
+          onMenuClick={handleMenuToggle} 
+          isMobileMenuOpen={isMobileMenuOpen}
+        />
+        <div className="flex">
+          <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
+          <main className="flex-1 pb-20">
+            <MobileProductPage />
+          </main>
+        </div>
+        <MobileBottomNav />
+      </div>
+    )
   }
 
   const handleQuantityChange = (change: number) => {

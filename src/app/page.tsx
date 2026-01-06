@@ -1,15 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useIsMobile } from '@/utils/useMobile'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
 import PersonalizedHomepage from '@/components/PersonalizedHomepage'
+import MobileHomepage from '@/components/mobile/MobileHomepage'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
 import UserProfileInsights from '@/components/UserProfileInsights'
 
 export default function Home() {
+  const isMobile = useIsMobile()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
@@ -39,7 +42,7 @@ export default function Home() {
       <div className="flex">
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
         <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-20 sm:pt-24 lg:pt-24">
-          <PersonalizedHomepage />
+          {isMobile ? <MobileHomepage /> : <PersonalizedHomepage />}
           <Footer />
         </main>
       </div>
