@@ -1,0 +1,459 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  ShoppingBag, 
+  Sparkles, 
+  TrendingUp, 
+  Star, 
+  ArrowRight, 
+  CheckCircle,
+  Truck,
+  Shield,
+  RotateCcw,
+  Zap
+} from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { apiClient, Product, Category, Banner } from '@/lib/api'
+import { useProducts } from '@/contexts/ProductsContext'
+import MobileProductCard from './MobileProductCard'
+
+export default function MobileNewHomepage() {
+  const { products: allProducts, loading: productsLoading } = useProducts()
+  const [categories, setCategories] = useState<Category[]>([])
+  const [banners, setBanners] = useState<Banner[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [categoriesData, bannersData] = await Promise.all([
+          apiClient.getCategories(),
+          apiClient.getBannersByPosition('hero').catch(() => [])
+        ])
+        setCategories(categoriesData || [])
+        setBanners(bannersData || [])
+      } catch (error) {
+        console.error('Error fetching homepage data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const featuredProducts = allProducts
+    .filter(product => 
+      (product.rating && product.rating >= 4.5) || 
+      product.isNew === true ||
+      product.isSale === true
+    )
+    .slice(0, 4)
+
+  const newArrivals = allProducts
+    .filter(product => product.isNew === true)
+    .slice(0, 4)
+
+  const trendingProducts = allProducts
+    .filter(product => 
+      (product.reviews && product.reviews >= 10) ||
+      (product.rating && product.rating >= 4.0)
+    )
+    .slice(0, 4)
+
+  if (loading || productsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="animate-pulse">
+          <div className="h-96 bg-gray-200"></div>
+          <div className="px-4 py-6">
+            <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
+            <div className="grid grid-cols-2 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-gray-200 rounded-lg h-64"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden">
+        {banners.length > 0 ? (
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={banners[0].imageUrl}
+              alt={banners[0].title}
+              fill
+              className="object-cover"
+              priority
+              quality={85}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent"></div>
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600"></div>
+        )}
+        
+        <div className="relative z-10 px-4 py-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-4 leading-tight">
+              Discover Elegance
+              <br />
+              <span className="text-secondary-300">Redefined</span>
+            </h1>
+            <p className="text-base sm:text-lg text-gray-100 mb-6 max-w-sm mx-auto">
+              Exquisite couture for the sophisticated woman
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/shop"
+                className="inline-flex items-center justify-center px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold text-base active:bg-gray-100 transition-all"
+              >
+                Shop Now
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+              <Link
+                href="/categories"
+                className="inline-flex items-center justify-center px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-base active:bg-white active:text-primary-600 transition-all"
+              >
+                Explore Collections
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Bar */}
+      <section className="bg-gray-900 text-white py-4">
+        <div className="px-4">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="flex flex-col items-center">
+              <Truck className="h-6 w-6 mb-1 text-secondary-400" />
+              <h3 className="text-xs font-semibold mb-0.5">Free Shipping</h3>
+              <p className="text-[10px] text-gray-400">Over ₨5,000</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Shield className="h-6 w-6 mb-1 text-secondary-400" />
+              <h3 className="text-xs font-semibold mb-0.5">Secure Payment</h3>
+              <p className="text-[10px] text-gray-400">100% secure</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <RotateCcw className="h-6 w-6 mb-1 text-secondary-400" />
+              <h3 className="text-xs font-semibold mb-0.5">Easy Returns</h3>
+              <p className="text-[10px] text-gray-400">30-day policy</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <CheckCircle className="h-6 w-6 mb-1 text-secondary-400" />
+              <h3 className="text-xs font-semibold mb-0.5">Quality Assured</h3>
+              <p className="text-[10px] text-gray-400">Premium quality</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      {categories.length > 0 && (
+        <section className="py-8 bg-white">
+          <div className="px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="text-center mb-6"
+            >
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">
+                Shop by Category
+              </h2>
+              <p className="text-sm text-gray-600">
+                Explore our curated collections
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {categories.slice(0, 6).map((category, index) => (
+                <motion.div
+                  key={category._id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Link href={`/shop?category=${category.slug || category.name}`}>
+                    <div className="group bg-white rounded-lg overflow-hidden shadow-sm active:shadow-md transition-all border border-gray-100">
+                      <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
+                        {category.image ? (
+                          <Image
+                            src={category.image}
+                            alt={category.name}
+                            fill
+                            className="object-cover group-active:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-2xl font-bold text-gray-300">
+                              {category.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-2 text-center">
+                        <h3 className="text-xs font-semibold text-gray-900 group-active:text-primary-600 transition-colors line-clamp-2">
+                          {category.name}
+                        </h3>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* New Arrivals */}
+      {newArrivals.length > 0 && (
+        <section className="py-8 bg-gray-50">
+          <div className="px-4">
+            <div className="flex items-center justify-between mb-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="h-5 w-5 text-primary-600" />
+                  <h2 className="text-xl font-serif font-bold text-gray-900">
+                    New Arrivals
+                  </h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Latest additions
+                </p>
+              </motion.div>
+              <Link
+                href="/shop?filter=new"
+                className="text-primary-600 text-sm font-semibold"
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {newArrivals.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <MobileProductCard
+                    id={product._id}
+                    name={product.name}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    image={product.images[0] || '/images/1.png'}
+                    category={product.categories?.[0] || product.category || 'General'}
+                    brand={product.brand}
+                    isNew={product.isNew}
+                    isOnSale={product.isSale}
+                    slug={product.slug}
+                    rating={product.rating}
+                    reviews={product.reviews}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Featured Products */}
+      {featuredProducts.length > 0 && (
+        <section className="py-8 bg-white">
+          <div className="px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="text-center mb-6"
+            >
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                <h2 className="text-xl font-serif font-bold text-gray-900">
+                  Featured Products
+                </h2>
+              </div>
+              <p className="text-sm text-gray-600">
+                Handpicked bestsellers
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <MobileProductCard
+                    id={product._id}
+                    name={product.name}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    image={product.images[0] || '/images/1.png'}
+                    category={product.categories?.[0] || product.category || 'General'}
+                    brand={product.brand}
+                    isNew={product.isNew}
+                    isOnSale={product.isSale}
+                    slug={product.slug}
+                    rating={product.rating}
+                    reviews={product.reviews}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Special Offer Banner */}
+      <section className="py-8 bg-gradient-to-r from-primary-600 to-secondary-600 mx-4 my-8 rounded-xl">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="text-center text-white px-4"
+        >
+          <h2 className="text-2xl font-serif font-bold mb-2">
+            Limited Time Offer
+          </h2>
+          <p className="text-sm mb-4 text-gray-100">
+            Get 20% off on your first order
+          </p>
+          <p className="text-xs mb-4 font-semibold text-secondary-300">
+            Use code: WELCOME20
+          </p>
+          <Link
+            href="/shop"
+            className="inline-flex items-center justify-center px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold text-sm active:bg-gray-100 transition-all"
+          >
+            Shop Now
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* Trending Products */}
+      {trendingProducts.length > 0 && (
+        <section className="py-8 bg-gray-50">
+          <div className="px-4">
+            <div className="flex items-center justify-between mb-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-5 w-5 text-primary-600" />
+                  <h2 className="text-xl font-serif font-bold text-gray-900">
+                    Trending Now
+                  </h2>
+                </div>
+                <p className="text-sm text-gray-600">
+                  What everyone loves
+                </p>
+              </motion.div>
+              <Link
+                href="/shop?filter=featured"
+                className="text-primary-600 text-sm font-semibold"
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {trendingProducts.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <MobileProductCard
+                    id={product._id}
+                    name={product.name}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    image={product.images[0] || '/images/1.png'}
+                    category={product.categories?.[0] || product.category || 'General'}
+                    brand={product.brand}
+                    isNew={product.isNew}
+                    isOnSale={product.isSale}
+                    slug={product.slug}
+                    rating={product.rating}
+                    reviews={product.reviews}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Newsletter Section */}
+      <section className="py-8 bg-white border-t border-gray-200">
+        <div className="px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+          >
+            <Zap className="h-8 w-8 text-primary-600 mx-auto mb-3" />
+            <h2 className="text-xl font-serif font-bold text-gray-900 mb-2">
+              Stay in Style
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Subscribe for new arrivals and exclusive offers
+            </p>
+            <form className="flex flex-col gap-2 max-w-sm mx-auto">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+              <button
+                type="submit"
+                className="w-full px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold text-sm active:bg-primary-700 transition-colors"
+              >
+                Subscribe
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  )
+}
+

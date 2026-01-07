@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useIsMobile } from '@/utils/useMobile'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
-import PersonalizedHomepage from '@/components/PersonalizedHomepage'
-import MobileHomepage from '@/components/mobile/MobileHomepage'
+import NewHomepage from '@/components/NewHomepage'
+import MobileNewHomepage from '@/components/mobile/MobileNewHomepage'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import MobileFilters from '@/components/MobileFilters'
@@ -42,7 +42,7 @@ export default function Home() {
       <div className="flex">
         <Sidebar isOpen={isMobileMenuOpen} onClose={handleMenuClose} />
         <main className="flex-1 lg:ml-64 pb-16 lg:pb-0 pt-20 sm:pt-24 lg:pt-24">
-          {isMobile ? <MobileHomepage /> : <PersonalizedHomepage />}
+          {isMobile ? <MobileNewHomepage /> : <NewHomepage />}
           <Footer />
         </main>
       </div>
