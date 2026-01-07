@@ -17,9 +17,20 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { apiClient, Product, Category, Banner } from '@/lib/api'
+import { apiClient, Product, Category } from '@/lib/api'
 import { useProducts } from '@/contexts/ProductsContext'
 import ProductCard from './ProductCard'
+
+interface Banner {
+  _id: string
+  title: string
+  subtitle?: string
+  description?: string
+  imageUrl: string
+  altText?: string
+  linkUrl?: string
+  linkText?: string
+}
 
 export default function NewHomepage() {
   const { products: allProducts, loading: productsLoading } = useProducts()
