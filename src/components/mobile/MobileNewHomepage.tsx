@@ -14,39 +14,23 @@ import {
   RotateCcw,
   Zap
 } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { apiClient, Product, Category } from '@/lib/api'
 import { useProducts } from '@/contexts/ProductsContext'
 import MobileProductCard from './MobileProductCard'
-
-interface Banner {
-  _id: string
-  title: string
-  subtitle?: string
-  description?: string
-  imageUrl: string
-  altText?: string
-  linkUrl?: string
-  linkText?: string
-}
+import MobileHero from './MobileHero'
 
 export default function MobileNewHomepage() {
   const { products: allProducts, loading: productsLoading } = useProducts()
   const [categories, setCategories] = useState<Category[]>([])
-  const [banners, setBanners] = useState<Banner[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const [categoriesData, bannersData] = await Promise.all([
-          apiClient.getCategories(),
-          apiClient.getBannersByPosition('hero').catch(() => [])
-        ])
+        const categoriesData = await apiClient.getCategories()
         setCategories(categoriesData || [])
-        setBanners(bannersData || [])
       } catch (error) {
         console.error('Error fetching homepage data:', error)
       } finally {
@@ -95,56 +79,8 @@ export default function MobileNewHomepage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden">
-        {banners.length > 0 ? (
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={banners[0].imageUrl}
-              alt={banners[0].title}
-              fill
-              className="object-cover"
-              priority
-              quality={85}
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent"></div>
-          </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600"></div>
-        )}
-        
-        <div className="relative z-10 px-4 py-16 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-4 leading-tight">
-              Discover Elegance
-              <br />
-              <span className="text-secondary-300">Redefined</span>
-            </h1>
-            <p className="text-base sm:text-lg text-gray-100 mb-6 max-w-sm mx-auto">
-              Exquisite couture for the sophisticated woman
-            </p>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/shop"
-                className="inline-flex items-center justify-center px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold text-base active:bg-gray-100 transition-all"
-              >
-                Shop Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-              <Link
-                href="/categories"
-                className="inline-flex items-center justify-center px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-base active:bg-white active:text-primary-600 transition-all"
-              >
-                Explore Collections
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Hero Section - Slider Only */}
+      <MobileHero />
 
       {/* Features Bar */}
       <section className="bg-gray-900 text-white py-4">
