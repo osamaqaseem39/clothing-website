@@ -2,16 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ShoppingBag, 
-  Sparkles, 
-  TrendingUp, 
-  Star, 
-  ArrowRight, 
-  CheckCircle,
-  Truck,
-  Shield,
-  RotateCcw,
+import {
+  ShoppingBag,
+  Sparkles,
+  TrendingUp,
+  Star,
+  ArrowRight,
   Heart,
   Zap
 } from 'lucide-react'
@@ -59,8 +55,8 @@ export default function NewHomepage() {
 
   // Get featured products (high rated, new, or on sale)
   const featuredProducts = allProducts
-    .filter(product => 
-      (product.rating && product.rating >= 4.5) || 
+    .filter(product =>
+      (product.rating && product.rating >= 4.5) ||
       product.isNew === true ||
       product.isSale === true
     )
@@ -73,7 +69,7 @@ export default function NewHomepage() {
 
   // Get trending products (high reviews or recently viewed)
   const trendingProducts = allProducts
-    .filter(product => 
+    .filter(product =>
       (product.reviews && product.reviews >= 10) ||
       (product.rating && product.rating >= 4.0)
     )
@@ -116,38 +112,9 @@ export default function NewHomepage() {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600"></div>
         )}
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-white mb-6 leading-tight">
-              Discover Elegance
-              <br />
-              <span className="text-secondary-300">Redefined</span>
-            </h1>
-            <p className="text-xl sm:text-2xl text-gray-100 mb-8 max-w-2xl mx-auto">
-              Exquisite couture for the sophisticated woman. Curated collections that define style and elegance.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/shop"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
-              >
-                Shop Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-              <Link
-                href="/categories"
-                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-lg hover:bg-white hover:text-primary-600 transition-all duration-300"
-              >
-                Explore Collections
-              </Link>
-            </div>
-          </motion.div>
-        </div>
+
+        {/* Hero content removed as per user request */}
+
 
         {/* Scroll Indicator */}
         <motion.div
@@ -170,33 +137,7 @@ export default function NewHomepage() {
         </motion.div>
       </section>
 
-      {/* Features Bar */}
-      <section className="bg-gray-900 text-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-            <div className="flex flex-col items-center">
-              <Truck className="h-8 w-8 mb-2 text-secondary-400" />
-              <h3 className="font-semibold mb-1">Free Shipping</h3>
-              <p className="text-sm text-gray-400">On orders over ₨5,000</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Shield className="h-8 w-8 mb-2 text-secondary-400" />
-              <h3 className="font-semibold mb-1">Secure Payment</h3>
-              <p className="text-sm text-gray-400">100% secure transactions</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <RotateCcw className="h-8 w-8 mb-2 text-secondary-400" />
-              <h3 className="font-semibold mb-1">Easy Returns</h3>
-              <p className="text-sm text-gray-400">30-day return policy</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <CheckCircle className="h-8 w-8 mb-2 text-secondary-400" />
-              <h3 className="font-semibold mb-1">Quality Assured</h3>
-              <p className="text-sm text-gray-400">Premium quality guarantee</p>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Categories Section */}
       {categories.length > 0 && (

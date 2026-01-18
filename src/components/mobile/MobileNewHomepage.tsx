@@ -2,19 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ShoppingBag, 
-  Sparkles, 
-  TrendingUp, 
-  Star, 
-  ArrowRight, 
-  CheckCircle,
-  Truck,
-  Shield,
-  RotateCcw,
+import {
+  ShoppingBag,
+  Sparkles,
+  TrendingUp,
+  Star,
+  ArrowRight,
   Zap
 } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { apiClient, Product, Category } from '@/lib/api'
 import { useProducts } from '@/contexts/ProductsContext'
 import MobileProductCard from './MobileProductCard'
@@ -41,8 +38,8 @@ export default function MobileNewHomepage() {
   }, [])
 
   const featuredProducts = allProducts
-    .filter(product => 
-      (product.rating && product.rating >= 4.5) || 
+    .filter(product =>
+      (product.rating && product.rating >= 4.5) ||
       product.isNew === true ||
       product.isSale === true
     )
@@ -53,7 +50,7 @@ export default function MobileNewHomepage() {
     .slice(0, 4)
 
   const trendingProducts = allProducts
-    .filter(product => 
+    .filter(product =>
       (product.reviews && product.reviews >= 10) ||
       (product.rating && product.rating >= 4.0)
     )
@@ -82,33 +79,7 @@ export default function MobileNewHomepage() {
       {/* Hero Section - Slider Only */}
       <MobileHero />
 
-      {/* Features Bar */}
-      <section className="bg-gray-900 text-white py-4">
-        <div className="px-4">
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div className="flex flex-col items-center">
-              <Truck className="h-6 w-6 mb-1 text-secondary-400" />
-              <h3 className="text-xs font-semibold mb-0.5">Free Shipping</h3>
-              <p className="text-[10px] text-gray-400">Over ₨5,000</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Shield className="h-6 w-6 mb-1 text-secondary-400" />
-              <h3 className="text-xs font-semibold mb-0.5">Secure Payment</h3>
-              <p className="text-[10px] text-gray-400">100% secure</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <RotateCcw className="h-6 w-6 mb-1 text-secondary-400" />
-              <h3 className="text-xs font-semibold mb-0.5">Easy Returns</h3>
-              <p className="text-[10px] text-gray-400">30-day policy</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <CheckCircle className="h-6 w-6 mb-1 text-secondary-400" />
-              <h3 className="text-xs font-semibold mb-0.5">Quality Assured</h3>
-              <p className="text-[10px] text-gray-400">Premium quality</p>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Categories Section */}
       {categories.length > 0 && (
